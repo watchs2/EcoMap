@@ -4,11 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.material3.Surface
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import amov.a2020157100.ecomap.ui.theme.EcoMapTheme
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
-import androidx.activity.viewModels
-import androidx.navigation.compose.NavHost
+import amov.a2020157100.ecomap.ui.screens.LoginScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -24,11 +27,26 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val navController = rememberNavController()
             EcoMapTheme {
                 Surface{
                     NavHost(
-
-                    )
+                        navController = navController,
+                        startDestination = LOGIN_SCREEN,
+                    ){
+                        composable(LOGIN_SCREEN) {
+                            LoginScreen(
+                                viewModel,
+                                onSuccess = {
+                                    navController.navigate(MAIN_SCREEN) {
+                                        //usa-se desta maneira caso se faça botao retroceder, obriga a fazer signout
+                                        //em vez de ir para o login screen
+                                        popUpTo(LOGIN_SCREEN) { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
