@@ -4,25 +4,30 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.Surface
 import amov.a2020157100.ecomap.ui.theme.EcoMapTheme
+import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
+import androidx.activity.viewModels
+import androidx.navigation.compose.NavHost
+
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        const val LOGIN_SCREEN = "Login"
+        const val MAIN_SCREEN = "Main"
+    }
+
+    private val viewModel : FirebaseViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             EcoMapTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                Surface{
+                    NavHost(
+
                     )
                 }
             }
@@ -30,18 +35,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    EcoMapTheme {
-        Greeting("Android")
-    }
-}
