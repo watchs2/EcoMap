@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paleta de Cores</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ECEFF1 0%, #CFD8DC 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #37474F;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #607D8B;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .color-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .color-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .color-swatch {
+            height: 180px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hex-code {
+            background: rgba(255,255,255,0.95);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .color-info {
+            padding: 20px;
+        }
+
+        .color-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #37474F;
+            margin-bottom: 8px;
+        }
+
+        .color-function {
+            display: inline-block;
+            background: #2E7D32;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .color-description {
+            color: #607D8B;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .demo-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .demo-title {
+            color: #37474F;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .button-demo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-primary {
+            background: #2E7D32;
+        }
+
+        .btn-primary:hover {
+            background: #1B5E20;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: #A5D6A7;
+            color: #1B5E20;
+        }
+
+        .btn-secondary:hover {
+            background: #81C784;
+        }
+
+        .btn-accent {
+            background: #FFEB3B;
+            color: #37474F;
+        }
+
+        .btn-accent:hover {
+            background: #FDD835;
+        }
+
+        .alert-demo {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #E8F5E9;
+            color: #2E7D32;
+            border-left: 4px solid #81C784;
+        }
+
+        .alert-error {
+            background: #FFEBEE;
+            color: #C62828;
+            border-left: 4px solid #D32F2F;
+        }
+
+        .alert-warning {
+            background: #FFFDE7;
+            color: #F57F17;
+            border-left: 4px solid #FFEB3B;
+        }
+
+        .copy-notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #2E7D32;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .copy-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 EcoApp</h1>
+        <p class="subtitle">Paleta de Cores</p>
+
+        <div class="palette-grid" id="paletteGrid"></div>
+
+        <div class="demo-section">
+            <h2 class="demo-title">💡 Demonstração de Uso</h2>
+            
+            <div class="button-demo">
+                <button class="btn btn-primary">Adicionar Ecoponto</button>
+                <button class="btn btn-secondary">Ver Detalhes</button>
+                <button class="btn btn-accent">Ganhar Pontos</button>
+            </div>
+
+            <div class="alert-demo">
+                <div class="alert alert-success">
+                    <span>✓</span>
+                    <span><strong>Sucesso!</strong> Foto enviada com sucesso para o ecoponto.</span>
+                </div>
+                <div class="alert alert-error">
+                    <span>✕</span>
+                    <span><strong>Erro:</strong> Não foi possível processar o feedback.</span>
+                </div>
+                <div class="alert alert-warning">
+                    <span>⚠</span>
+                    <span><strong>Atenção:</strong> Este ecoponto está próximo da capacidade máxima.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="copy-notification" id="notification">
+        Código copiado! 📋
+    </div>
+
+    <script>
+        const colors = [
+            {
+                name: 'Verde Floresta',
+                hex: '#2E7D32',
+                function: 'Primária',
+                description: 'Cor principal — evoca natureza e sustentabilidade. Usada em botões principais e destaques.',
+                functionColor: '#2E7D32'
+            },
+            {
+                name: 'Verde Lima Claro',
+                hex: '#A5D6A7',
+                function: 'Secundária',
+                description: 'Suave e fresca — para hover, ícones secundários e detalhes.',
+                functionColor: '#2E7D32'
+            },
+            {
+                name: 'Amarelo Sol',
+                hex: '#FFEB3B',
+                function: 'Acento',
+                description: 'Dá energia e destaque em feedbacks positivos ou alertas ecológicos.',
+                functionColor: '#F57F17'
+            },
+            {
+                name: 'Cinza Pedra',
+                hex: '#37474F',
+                function: 'Neutra Escura',
+                description: 'Para texto principal, contrastante e elegante.',
+                functionColor: '#37474F'
+            },
+            {
+                name: 'Cinza Neblina',
+                hex: '#ECEFF1',
+                function: 'Neutra Clara',
+                description: 'Fundo claro, suave e moderno.',
+                functionColor: '#546E7A'
+            },
+            {
+                name: 'Vermelho Terra',
+                hex: '#D32F2F',
+                function: 'Erro / Alerta',
+                description: 'Para mensagens de erro ou feedback negativo.',
+                functionColor: '#D32F2F'
+            },
+            {
+                name: 'Verde Menta',
+                hex: '#81C784',
+                function: 'Sucesso',
+                description: 'Indica ações bem-sucedidas e feedback positivo.',
+                functionColor: '#2E7D32'
+            }
+        ];
+
+        const grid = document.getElementById('paletteGrid');
+        const notification = document.getElementById('notification');
+
+        colors.forEach(color => {
+            const card = document.createElement('div');
+            card.className = 'color-card';
+            card.innerHTML = `
+                <div class="color-swatch" style="background-color: ${color.hex}">
+                    <div class="hex-code">${color.hex}</div>
+                </div>
+                <div class="color-info">
+                    <div class="color-name">${color.name}</div>
+                    <span class="color-function" style="background-color: ${color.functionColor}">${color.function}</span>
+                    <p class="color-description">${color.description}</p>
+                </div>
+            `;
+
+            card.addEventListener('click', () => {
+                navigator.clipboard.writeText(color.hex);
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 2000);
+            });
+
+            grid.appendChild(card);
+        });
+    </script>
+</body>
+</html>

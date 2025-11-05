@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import amov.a2020157100.ecomap.ui.theme.EcoMapTheme
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.screens.LoginScreen
+import amov.a2020157100.ecomap.ui.screens.MainScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -42,6 +43,16 @@ class MainActivity : ComponentActivity() {
                                         //usa-se desta maneira caso se faça botao retroceder, obriga a fazer signout
                                         //em vez de ir para o login screen
                                         popUpTo(LOGIN_SCREEN) { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
+                        composable(MAIN_SCREEN) {
+                            MainScreen(
+                                viewModel= viewModel,
+                                onSignOut = {
+                                    viewModel.signOut()
+                                    navController.navigate(LOGIN_SCREEN){ popUpTo(MAIN_SCREEN) { inclusive = true }
                                     }
                                 }
                             )
