@@ -81,7 +81,6 @@ fun LoginScreen(
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             Button(onClick = {
-                //Esta a fazer assincronamente
                 viewModel.createUserWithEmail(email.value, password.value)
             }) {
                 Text(stringResource(R.string.register))
