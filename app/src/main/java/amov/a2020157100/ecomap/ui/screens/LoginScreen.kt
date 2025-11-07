@@ -44,65 +44,185 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.foundation.layout.PaddingValues
 
-@SuppressLint("UnusedBoxWithConstraintsScope")
+
+val CinzentoClaro = Color(0xFFEAEDEF)
+val CinzentoEscuro = Color(0xFF37474F)
+val Branco = Color(0xFFFFFFFF)
+val Black = Color(0xFF000000)
+val Green = Color(0xFF2E7C32)
+val LightGreen = Color(0xFF80C683)
+val Red = Color(0xFFEC0D0D)
+val Azul = Color(0xFF0027FF)
+
 @Composable
 fun LoginScreen(
     viewModel: FirebaseViewModel,
     onSuccess: () -> Unit,
     modifier: Modifier = Modifier
-){
-    // State variables
+) {
+
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
 
-    // Logic for navigation on successful login
+
     LaunchedEffect(viewModel.user.value) {
-        if(viewModel.user.value != null && viewModel.error.value == null){
+        if (viewModel.user.value != null && viewModel.error.value == null) {
             onSuccess()
         }
     }
 
-    BoxWithConstraints(
+    /*
+     ------------Inicio Main--------------
+     */
+    Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .fillMaxSize() // Ocupa toda a tela
+            .background(CinzentoClaro) //cinzento
             .padding(20.dp),
-        contentAlignment = Alignment.Center
-    ){
+        contentAlignment = Alignment.Center // Centraliza o conteúdo
+    ) {
+        /*
+         ------------Inicio Formulário--------------
+        */
         Surface(
-            modifier = Modifier.widthIn(max = 700.dp).heightIn(max = 400.dp)
-                .clip(RoundedCornerShape(40.dp))
-                .shadow(20.dp, ambientColor = Color.Black.copy(alpha = 0.3f), spotColor = Color.Black.copy(alpha = 0.3f)),
-            color = MaterialTheme.colorScheme.background
-        ){
+            modifier = Modifier
+                .widthIn(max = 700.dp)
+                .heightIn(max = 400.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .shadow(
+                    20.dp,
+                    ambientColor = Color.Black.copy(alpha = 0.3f),
+                    spotColor = Color.Black.copy(alpha = 0.3f)
+                ),
+            color = Branco
+        ) {
+            //Isto está repetido
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                modifier = modifier
+                    .clip(RoundedCornerShape(8.dp)) // Bordas arredondadas
+                    .background(Branco) // Cor de fundo do card
+                    .padding(28.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                LogoSection(Modifier.fillMaxWidth().padding(bottom = 60.dp))
-                LoginForm(
-                    email = email.value,
-                    onEmailChange = { email.value = it },
-                    password = password.value,
-                    onPasswordChange = { password.value = it },
+                Spacer(Modifier.height(5.dp))
+                // Label para o campo de email
+                Text(
+                    text = "Email",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Black,
+                    modifier = Modifier.align(Alignment.Start)
+                )
+                Spacer(Modifier.height(4.dp))
+                OutlinedTextField(
+                    value = email.value,
+                    onValueChange = { email.value = it },
                     modifier = Modifier.fillMaxWidth(),
-                    viewModel
+                    shape = RoundedCornerShape(10.dp),
+                    placeholder = { Text("your@email.com") },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Green,
+                        unfocusedBorderColor = LightGreen,
+                        cursorColor = Green
+                    ),
+                    singleLine = true
+                )
+
+                Spacer(Modifier.height(20.dp))
+                // Label para o campo de senha
+                Text(
+                    text = "Password",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Black,
+                    modifier = Modifier.align(Alignment.Start)
+                )
+                Spacer(Modifier.height(4.dp))
+                OutlinedTextField(
+                    value = password.value,
+                    onValueChange = { password.value = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    placeholder = { Text("••••••••") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Green,
+                        unfocusedBorderColor = LightGreen,
+                        cursorColor = Green
+                    ),
+                    singleLine = true
+                )
+                Spacer(Modifier.height(28.dp)) // Espaço antes do botão
+
+                // Botão de login
+                Button(
+                    onClick = { viewModel.createUserWithEmail(email.value, password.value) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Green
+                    )
+                ) {
+                    Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                }
+
+                Spacer(Modifier.height(5.dp))
+            }
+
+        }
+        /*
+         ------------Fim Formulário--------------
+        */
+
+
+        /*
+    ------------Inicio Signup--------------
+   */
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                "Don't have an account? ",
+                fontSize = 14.sp,
+                color = CinzentoEscuro
+            )
+
+            // Botão de "Sign Up" (cadastro)
+            TextButton(
+                onClick = { /* Lógica de cadastro */ },
+                contentPadding = PaddingValues(0.dp),
+                modifier = Modifier.height(18.dp)
+            ) {
+                Text(
+                    "Sign Up",
+                    color = Green,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
+        /*
+------------Fim Signup--------------
+*/
+
     }
+    /*
+ ------------Fim Main--------------
+ */
 }
 
 
 @Composable
 fun LogoSection(modifier: Modifier = Modifier) {
+    // Coluna que centraliza o logo e o texto
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Caixa colorida representando o ícone ou logo do app
         Box(
             modifier = Modifier
                 .size(80.dp)
@@ -110,7 +230,9 @@ fun LogoSection(modifier: Modifier = Modifier) {
                 .background(MaterialTheme.colorScheme.primary),
             contentAlignment = Alignment.Center
         ) {}
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(20.dp)) // Espaço vertical
+
+        // Nome do aplicativo
         Text(
             text = "EcoMap",
             fontSize = 36.sp,
@@ -118,6 +240,8 @@ fun LogoSection(modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.padding(top = 20.dp)
         )
+
+        // Subtítulo ou slogan
         Text(
             text = "Share and find eco-points",
             fontSize = 14.sp,
@@ -129,24 +253,34 @@ fun LogoSection(modifier: Modifier = Modifier) {
 
 @Composable
 fun LoginForm(
-    email: String,
-    onEmailChange: (String) -> Unit,
-    password: String,
-    onPasswordChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: FirebaseViewModel
+    email: String,                         // Valor atual do campo de email
+    onEmailChange: (String) -> Unit,       // Função chamada quando o email muda
+    password: String,                      // Valor atual do campo de senha
+    onPasswordChange: (String) -> Unit,    // Função chamada quando a senha muda
+    modifier: Modifier = Modifier,         // Modificador externo
+    viewModel: FirebaseViewModel           // ViewModel com a lógica de autenticação
 ) {
+    // Coluna principal do formulário de login
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.onBackground)
-            .shadow(4.dp, ambientColor = Color.Black.copy(alpha = 0.1f))
+            .clip(RoundedCornerShape(16.dp)) // Bordas arredondadas
+            .background(MaterialTheme.colorScheme.onBackground) // Cor de fundo do card
+            .shadow(4.dp, ambientColor = Color.Black.copy(alpha = 0.1f)) // Pequena sombra
             .padding(28.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text(text = "Email", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.align(Alignment.Start))
+        // Label para o campo de email
+        Text(
+            text = "Email",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.align(Alignment.Start)
+        )
         Spacer(Modifier.height(4.dp))
+
+        // Campo de texto para inserir o email
         OutlinedTextField(
             value = email,
             onValueChange = onEmailChange,
@@ -160,59 +294,82 @@ fun LoginForm(
             ),
             singleLine = true
         )
+
         Spacer(Modifier.height(20.dp))
 
-
-        Text(text = "Password", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.align(Alignment.Start))
+        // Label para o campo de senha
+        Text(
+            text = "Password",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.align(Alignment.Start)
+        )
         Spacer(Modifier.height(4.dp))
+
+        // Campo de texto para senha com ocultação de caracteres
         OutlinedTextField(
             value = password,
             onValueChange = onPasswordChange,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
             placeholder = { Text("••••••••") },
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = PasswordVisualTransformation(), // Oculta o texto digitado
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor =  MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor =  MaterialTheme.colorScheme.secondary,
-                cursorColor =  MaterialTheme.colorScheme.primary
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
+                cursorColor = MaterialTheme.colorScheme.primary
             ),
             singleLine = true
         )
-        Spacer(Modifier.height(28.dp)) // Espaço para o botão
 
-        // Botão Sign In
+        Spacer(Modifier.height(28.dp)) // Espaço antes do botão
+
+        // Botão de login
         Button(
-            onClick = { viewModel.createUserWithEmail(email, password) },
+            onClick = {
+                viewModel.createUserWithEmail(
+                    email,
+                    password
+                )
+            }, // Chama o método do ViewModel
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
             shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(containerColor =  MaterialTheme.colorScheme.primary)
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            )
         ) {
             Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
 
         Spacer(Modifier.height(16.dp))
 
-        // Link Esqueceu a senha
+        // Link de "Esqueceu a senha?"
         TextButton(onClick = { /* Lógica de recuperação de senha */ }) {
             Text(
                 "Forgot password?",
-                color =  MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
         }
     }
 
-    // Link Cadastrar
+    // Espaço e link para criar uma nova conta
     Spacer(Modifier.height(28.dp))
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
-        Text("Don't have an account? ", fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+        Text(
+            "Don't have an account? ",
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        // Botão de "Sign Up" (cadastro)
         TextButton(
             onClick = { /* Lógica de cadastro */ },
             contentPadding = PaddingValues(0.dp),
@@ -220,7 +377,7 @@ fun LoginForm(
         ) {
             Text(
                 "Sign Up",
-                color =  MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
