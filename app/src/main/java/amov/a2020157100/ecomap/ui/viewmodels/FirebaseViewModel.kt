@@ -18,9 +18,12 @@ class FirebaseViewModel : ViewModel() {
     val error: State<String?>
         get() = _error
 
-    fun createUserWithEmail(email: String, password: String){
-        if(email.isBlank() || password.isBlank()){
+    fun createUserWithEmail(email: String, password: String, passwordConfirm: String){
+        if(email.isBlank() || password.isBlank() || passwordConfirm.isBlank()){
             return;
+        }
+        if(password != passwordConfirm){
+            _error.value = "Passwords are not maching"
         }
         viewModelScope.launch {
             FAuthUtil.createUserWithEmail(email,password) { exception ->
