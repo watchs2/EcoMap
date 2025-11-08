@@ -4,6 +4,8 @@ import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +20,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -27,16 +30,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-
-/*
-    Acho que não preciso de callBack Aqui
- */
-
+import amov.a2020157100.ecomap.R
 
 
 @Composable
@@ -86,7 +85,7 @@ fun RegisterScreen(
             ){
                 Spacer(Modifier.height(5.dp))
                 Text(
-                    text = "Email",
+                    text = stringResource(R.string.label_email),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = Black,
@@ -98,7 +97,7 @@ fun RegisterScreen(
                     onValueChange = { email.value = it },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
-                    placeholder = { Text("your@email.com") },
+                    placeholder = {stringResource(R.string.placeholder_email)},
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Green,
                         unfocusedBorderColor = LightGreen,
@@ -108,7 +107,7 @@ fun RegisterScreen(
                 )
                 Spacer(Modifier.height(20.dp))
                 Text(
-                    text = "Password",
+                    text = stringResource(R.string.label_password),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = Black,
@@ -120,7 +119,7 @@ fun RegisterScreen(
                     onValueChange = { password.value = it },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
-                    placeholder = { Text("••••••••") },
+                    placeholder = { stringResource(R.string.placeholder_password)},
                     visualTransformation = PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Green,
@@ -131,7 +130,7 @@ fun RegisterScreen(
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text="Confirm Password",
+                    text= stringResource(R.string.label_confirm_password),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = Black,
@@ -143,7 +142,7 @@ fun RegisterScreen(
                     onValueChange = {passwordConfirm.value = it},
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
-                    placeholder = { Text("••••••••") },
+                    placeholder = { stringResource(R.string.placeholder_password) },
                     visualTransformation = PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Green,
@@ -178,10 +177,34 @@ fun RegisterScreen(
                         containerColor = Green
                     )
                 ) {
-                    Text("Register", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.btn_sign_up), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
 
                 Spacer(Modifier.height(5.dp))
+            }
+        }
+        Spacer(Modifier.height(20.dp))
+        Row(
+
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                stringResource(R.string.text_have_account),
+                fontSize = 14.sp,
+                color = CinzentoEscuro
+            )
+
+            TextButton(
+                onClick = {  },
+                contentPadding = PaddingValues(0.dp),
+                modifier = Modifier.height(18.dp)
+            ) {
+                Text(
+                    stringResource(R.string.btn_sign_in),
+                    color = Green,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

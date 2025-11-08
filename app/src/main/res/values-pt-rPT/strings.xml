@@ -1,13 +1,16 @@
 <resources>
     <string name="app_name">EcoMap</string>
-    <string name="register">Register</string>
-    <string name="login">Login</string>
-    <string name="password">Password</string>
-    <string name="email">Email</string>
-    <string name="upload_to_storage">Upload to Storage</string>
-    <string name="stop_observer">Stop Observer</string>
-    <string name="start_observer">Start observer</string>
-    <string name="remove_data">Remove data</string>
-    <string name="update_data">Update data</string>
-    <string name="add_data">Add Data</string>
+
+    <string name="label_email">Endereço de e-mail</string>
+    <string name="label_password">Palavra-passe</string>
+
+    <string name="placeholder_email">seu@endereco.exemplo</string>
+    <string name="placeholder_password">••••••••</string>
+
+    <string name="btn_sign_in">Iniciar sessão</string>
+    <string name="text_no_account">Não tem uma conta?</string>
+    <string name="btn_sign_up">Registar-se</string>
+
+    <string name="label_confirm_password">Confirmar palavra-passe</string>
+    <string name="text_have_account">Já tens conta?</string>
 </resources>

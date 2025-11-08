@@ -6,7 +6,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,19 +15,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import amov.a2020157100.ecomap.R
-import android.annotation.SuppressLint
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.heightIn
@@ -107,7 +102,7 @@ fun LoginScreen(
             ) {
                 Spacer(Modifier.height(5.dp))
                 Text(
-                    text = "Email",
+                    text = stringResource(R.string.label_email) ,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = Black,
@@ -119,7 +114,7 @@ fun LoginScreen(
                     onValueChange = { email.value = it },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
-                    placeholder = { Text("your@email.com") },
+                    placeholder = { stringResource(R.string.placeholder_email) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Green,
                         unfocusedBorderColor = LightGreen,
@@ -129,7 +124,7 @@ fun LoginScreen(
                 )
                 Spacer(Modifier.height(20.dp))
                 Text(
-                    text = "Password",
+                    text = stringResource(R.string.label_password),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = Black,
@@ -141,7 +136,7 @@ fun LoginScreen(
                     onValueChange = { password.value = it },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
-                    placeholder = { Text("••••••••") },
+                    placeholder = { stringResource(R.string.placeholder_password) },
                     visualTransformation = PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Green,
@@ -173,7 +168,7 @@ fun LoginScreen(
                         containerColor = Green
                     )
                 ) {
-                    Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.btn_sign_in), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
 
                 Spacer(Modifier.height(5.dp))
@@ -194,7 +189,7 @@ fun LoginScreen(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                "Don't have an account? ",
+                stringResource(R.string.text_no_account),
                 fontSize = 14.sp,
                 color = CinzentoEscuro
             )
@@ -205,7 +200,7 @@ fun LoginScreen(
                 modifier = Modifier.height(18.dp)
             ) {
                 Text(
-                    "Sign Up",
+                    stringResource(R.string.btn_sign_up),
                     color = Green,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold

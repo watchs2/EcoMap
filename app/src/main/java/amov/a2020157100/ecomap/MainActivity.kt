@@ -13,6 +13,8 @@ import amov.a2020157100.ecomap.ui.theme.EcoMapTheme
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.screens.LoginScreen
 import amov.a2020157100.ecomap.ui.screens.MainScreen
+import amov.a2020157100.ecomap.ui.screens.RegisterScreen
+
 
 
 class MainActivity : ComponentActivity() {
@@ -20,6 +22,7 @@ class MainActivity : ComponentActivity() {
     companion object {
         const val LOGIN_SCREEN = "Login"
         const val MAIN_SCREEN = "Main"
+        const val REGISTER_SCREEN = "Register"
     }
 
     private val viewModel : FirebaseViewModel by viewModels()
@@ -33,7 +36,7 @@ class MainActivity : ComponentActivity() {
                 Surface{
                     NavHost(
                         navController = navController,
-                        startDestination = LOGIN_SCREEN,
+                        startDestination = REGISTER_SCREEN,
                     ){
                         composable(LOGIN_SCREEN) {
                             LoginScreen(
@@ -43,6 +46,18 @@ class MainActivity : ComponentActivity() {
                                         //usa-se desta maneira caso se faça botao retroceder, obriga a fazer signout
                                         //em vez de ir para o login screen
                                         popUpTo(LOGIN_SCREEN) { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
+                        composable(REGISTER_SCREEN) {
+                            RegisterScreen(
+                                viewModel,
+                                onSuccess = {
+                                    navController.navigate(MAIN_SCREEN) {
+                                        //usa-se desta maneira caso se faça botao retroceder, obriga a fazer signout
+                                        //em vez de ir para o login screen
+                                        popUpTo(REGISTER_SCREEN) { inclusive = true }
                                     }
                                 }
                             )
