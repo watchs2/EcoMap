@@ -42,6 +42,7 @@ import amov.a2020157100.ecomap.R
 fun RegisterScreen(
     viewModel: FirebaseViewModel,
     onSuccess: () -> Unit,
+    onNavigationLogin: () -> Unit,
     modifier: Modifier = Modifier
 ){
     val email = remember { mutableStateOf("") }
@@ -67,7 +68,7 @@ fun RegisterScreen(
         Surface(
             modifier = Modifier
                 .widthIn(max = 700.dp)
-                .heightIn(max = 400.dp)
+                .heightIn(max = 500.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .shadow(
                     20.dp,
@@ -195,7 +196,7 @@ fun RegisterScreen(
             )
 
             TextButton(
-                onClick = {  },
+                onClick = { onNavigationLogin() },
                 contentPadding = PaddingValues(0.dp),
                 modifier = Modifier.height(18.dp)
             ) {

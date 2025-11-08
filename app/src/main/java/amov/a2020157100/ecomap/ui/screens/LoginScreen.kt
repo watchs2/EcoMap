@@ -55,6 +55,7 @@ val Red = Color(0xFFD22F2F)
 fun LoginScreen(
     viewModel: FirebaseViewModel,
     onSuccess: () -> Unit,
+    onNavigationRegister:() -> Unit,
     modifier: Modifier = Modifier
 ) {
     val email = remember { mutableStateOf("") }
@@ -195,7 +196,7 @@ fun LoginScreen(
             )
 
             TextButton(
-                onClick = {  },
+                onClick = { onNavigationRegister() },
                 contentPadding = PaddingValues(0.dp),
                 modifier = Modifier.height(18.dp)
             ) {

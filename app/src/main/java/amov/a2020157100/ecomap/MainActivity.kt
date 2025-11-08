@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
                 Surface{
                     NavHost(
                         navController = navController,
-                        startDestination = REGISTER_SCREEN,
+                        startDestination = LOGIN_SCREEN,
                     ){
                         composable(LOGIN_SCREEN) {
                             LoginScreen(
@@ -47,6 +47,9 @@ class MainActivity : ComponentActivity() {
                                         //em vez de ir para o login screen
                                         popUpTo(LOGIN_SCREEN) { inclusive = true }
                                     }
+                                },
+                                onNavigationRegister ={
+                                    navController.navigate(REGISTER_SCREEN)
                                 }
                             )
                         }
@@ -59,6 +62,9 @@ class MainActivity : ComponentActivity() {
                                         //em vez de ir para o login screen
                                         popUpTo(REGISTER_SCREEN) { inclusive = true }
                                     }
+                                },
+                                onNavigationLogin = {
+                                    navController.navigate(LOGIN_SCREEN)
                                 }
                             )
                         }

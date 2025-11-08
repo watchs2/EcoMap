@@ -24,6 +24,7 @@ class FirebaseViewModel : ViewModel() {
         }
         if(password != passwordConfirm){
             _error.value = "Passwords are not maching"
+            return;
         }
         viewModelScope.launch {
             FAuthUtil.createUserWithEmail(email,password) { exception ->
