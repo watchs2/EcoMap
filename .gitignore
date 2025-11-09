@@ -20,5 +20,6 @@ local.properties
 # IntelliJ / Android Studio
 .idea/
 *.iml
+/.kotlin
 
 Todo

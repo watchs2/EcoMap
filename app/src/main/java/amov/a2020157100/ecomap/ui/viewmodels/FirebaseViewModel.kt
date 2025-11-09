@@ -9,6 +9,7 @@ import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
+
 class FirebaseViewModel : ViewModel() {
     private val _user = mutableStateOf(FAuthUtil.currentUser?.toUser())
     val user: State<User?>
@@ -20,11 +21,11 @@ class FirebaseViewModel : ViewModel() {
 
     fun createUserWithEmail(email: String, password: String, passwordConfirm: String){
         if(email.isBlank() || password.isBlank() || passwordConfirm.isBlank()){
-            return;
+            return
         }
         if(password != passwordConfirm){
-            _error.value = "Passwords are not maching"
-            return;
+            _error.value = "Passwords do not match"
+            return
         }
         viewModelScope.launch {
             FAuthUtil.createUserWithEmail(email,password) { exception ->

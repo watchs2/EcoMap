@@ -13,4 +13,5 @@
 
     <string name="label_confirm_password">Confirmar palavra-passe</string>
     <string name="text_have_account">Já tens conta?</string>
+    <string name="passwords_not_match">As palavras-passe não coincidem</string>
 </resources>

@@ -14,6 +14,7 @@ import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.screens.LoginScreen
 import amov.a2020157100.ecomap.ui.screens.MainScreen
 import amov.a2020157100.ecomap.ui.screens.RegisterScreen
+import amov.a2020157100.ecomap.ui.screens.MapViewScreen
 
 
 
@@ -23,6 +24,7 @@ class MainActivity : ComponentActivity() {
         const val LOGIN_SCREEN = "Login"
         const val MAIN_SCREEN = "Main"
         const val REGISTER_SCREEN = "Register"
+        const val MapViewScreen = "MapView"
     }
 
     private val viewModel : FirebaseViewModel by viewModels()
@@ -42,7 +44,7 @@ class MainActivity : ComponentActivity() {
                             LoginScreen(
                                 viewModel,
                                 onSuccess = {
-                                    navController.navigate(MAIN_SCREEN) {
+                                    navController.navigate(MapViewScreen) {
                                         //usa-se desta maneira caso se faça botao retroceder, obriga a fazer signout
                                         //em vez de ir para o login screen
                                         popUpTo(LOGIN_SCREEN) { inclusive = true }
@@ -57,7 +59,7 @@ class MainActivity : ComponentActivity() {
                             RegisterScreen(
                                 viewModel,
                                 onSuccess = {
-                                    navController.navigate(MAIN_SCREEN) {
+                                    navController.navigate(LOGIN_SCREEN) {
                                         //usa-se desta maneira caso se faça botao retroceder, obriga a fazer signout
                                         //em vez de ir para o login screen
                                         popUpTo(REGISTER_SCREEN) { inclusive = true }
@@ -77,6 +79,9 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             )
+                        }
+                        composable(MapViewScreen) {
+                            MapViewScreen()
                         }
                     }
                 }
