@@ -15,7 +15,8 @@ import amov.a2020157100.ecomap.ui.screens.LoginScreen
 import amov.a2020157100.ecomap.ui.screens.MainScreen
 import amov.a2020157100.ecomap.ui.screens.RegisterScreen
 import amov.a2020157100.ecomap.ui.screens.MapViewScreen
-
+import amov.a2020157100.ecomap.ui.screens.ListViewScreen
+import amov.a2020157100.ecomap.ui.screens.ProfileScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -24,7 +25,9 @@ class MainActivity : ComponentActivity() {
         const val LOGIN_SCREEN = "Login"
         const val MAIN_SCREEN = "Main"
         const val REGISTER_SCREEN = "Register"
-        const val MapViewScreen = "MapView"
+        const val MAPVIEW_SCREEN = "MapView"
+        const val LISTVIEW_SCREEN = "ListView"
+        const val PROFILE_SCREEN = "Profile"
     }
 
     private val viewModel : FirebaseViewModel by viewModels()
@@ -33,6 +36,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+
             val navController = rememberNavController()
             EcoMapTheme {
                 Surface{
@@ -44,7 +48,7 @@ class MainActivity : ComponentActivity() {
                             LoginScreen(
                                 viewModel,
                                 onSuccess = {
-                                    navController.navigate(MapViewScreen) {
+                                    navController.navigate(MAPVIEW_SCREEN) {
                                         //usa-se desta maneira caso se faça botao retroceder, obriga a fazer signout
                                         //em vez de ir para o login screen
                                         popUpTo(LOGIN_SCREEN) { inclusive = true }
@@ -80,8 +84,14 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-                        composable(MapViewScreen) {
-                            MapViewScreen()
+                        composable(MAPVIEW_SCREEN) {
+                            MapViewScreen(navController)
+                        }
+                        composable(LISTVIEW_SCREEN) {
+                            ListViewScreen(navController)
+                        }
+                        composable(PROFILE_SCREEN) {
+                            ProfileScreen(navController)
                         }
                     }
                 }
