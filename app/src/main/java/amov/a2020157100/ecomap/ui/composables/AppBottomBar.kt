@@ -1,6 +1,6 @@
 package amov.a2020157100.ecomap.ui.composables
 
-import amov.a2020157100.ecomap.MainActivity
+import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.screens.Branco
 import amov.a2020157100.ecomap.ui.screens.Green
 import androidx.compose.foundation.background

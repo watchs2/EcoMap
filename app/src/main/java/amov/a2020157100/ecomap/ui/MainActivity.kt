@@ -1,5 +1,13 @@
-package amov.a2020157100.ecomap
+package amov.a2020157100.ecomap.ui
 
+import amov.a2020157100.ecomap.ui.screens.ListViewScreen
+import amov.a2020157100.ecomap.ui.screens.LoginScreen
+import amov.a2020157100.ecomap.ui.screens.MainScreen
+import amov.a2020157100.ecomap.ui.screens.MapViewScreen
+import amov.a2020157100.ecomap.ui.screens.ProfileScreen
+import amov.a2020157100.ecomap.ui.screens.RegisterScreen
+import amov.a2020157100.ecomap.ui.theme.EcoMapTheme
+import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,15 +17,6 @@ import androidx.compose.material3.Surface
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import amov.a2020157100.ecomap.ui.theme.EcoMapTheme
-import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
-import amov.a2020157100.ecomap.ui.screens.LoginScreen
-import amov.a2020157100.ecomap.ui.screens.MainScreen
-import amov.a2020157100.ecomap.ui.screens.RegisterScreen
-import amov.a2020157100.ecomap.ui.screens.MapViewScreen
-import amov.a2020157100.ecomap.ui.screens.ListViewScreen
-import amov.a2020157100.ecomap.ui.screens.ProfileScreen
-
 
 class MainActivity : ComponentActivity() {
 
@@ -39,11 +38,11 @@ class MainActivity : ComponentActivity() {
 
             val navController = rememberNavController()
             EcoMapTheme {
-                Surface{
+                Surface {
                     NavHost(
                         navController = navController,
                         startDestination = LOGIN_SCREEN,
-                    ){
+                    ) {
                         composable(LOGIN_SCREEN) {
                             LoginScreen(
                                 viewModel,
@@ -54,7 +53,7 @@ class MainActivity : ComponentActivity() {
                                         popUpTo(LOGIN_SCREEN) { inclusive = true }
                                     }
                                 },
-                                onNavigationRegister ={
+                                onNavigationRegister = {
                                     navController.navigate(REGISTER_SCREEN)
                                 }
                             )
@@ -76,10 +75,11 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(MAIN_SCREEN) {
                             MainScreen(
-                                viewModel= viewModel,
+                                viewModel = viewModel,
                                 onSignOut = {
                                     viewModel.signOut()
-                                    navController.navigate(LOGIN_SCREEN){ popUpTo(MAIN_SCREEN) { inclusive = true }
+                                    navController.navigate(LOGIN_SCREEN) {
+                                        popUpTo(MAIN_SCREEN) { inclusive = true }
                                     }
                                 }
                             )
@@ -99,4 +99,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
