@@ -1,5 +1,6 @@
 package amov.a2020157100.ecomap.ui.screens
 
+import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.composables.AppBottomBar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -108,7 +109,7 @@ fun ListViewScreen(
 
                 FloatingActionButton(
                     containerColor = Green,
-                    onClick = { /* Todo */ }
+                    onClick = { navController.navigate(MainActivity.ADDECOPONTO_SCREEN) }
                 ) {
                     Icon(Icons.Filled.Add, tint = Branco, contentDescription = "Add")
                 }

@@ -6,6 +6,7 @@ import amov.a2020157100.ecomap.ui.screens.MainScreen
 import amov.a2020157100.ecomap.ui.screens.MapViewScreen
 import amov.a2020157100.ecomap.ui.screens.ProfileScreen
 import amov.a2020157100.ecomap.ui.screens.RegisterScreen
+import amov.a2020157100.ecomap.ui.screens.AddEcopontoScreen
 import amov.a2020157100.ecomap.ui.theme.EcoMapTheme
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import android.os.Bundle
@@ -27,6 +28,7 @@ class MainActivity : ComponentActivity() {
         const val MAPVIEW_SCREEN = "MapView"
         const val LISTVIEW_SCREEN = "ListView"
         const val PROFILE_SCREEN = "Profile"
+        const val ADDECOPONTO_SCREEN = "AddEcoponto"
     }
 
     private val viewModel : FirebaseViewModel by viewModels()
@@ -92,6 +94,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(PROFILE_SCREEN) {
                             ProfileScreen(navController)
+                        }
+                        composable(ADDECOPONTO_SCREEN) {
+                            AddEcopontoScreen(navController)
                         }
                     }
                 }
