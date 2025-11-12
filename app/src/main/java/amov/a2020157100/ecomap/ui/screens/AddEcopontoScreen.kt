@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.BottomAppBar
@@ -30,6 +33,27 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material3.Card
+import amov.a2020157100.ecomap.ui.composables.AppBottomBar
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 
 
 
@@ -132,7 +156,10 @@ fun AddEcopontoScreen(
                 contentPadding = PaddingValues(vertical = 16.dp)
             ){
                 item{
-
+                    EcoPointTypeSection(
+                        selectedType = tipo.value,
+                        onTypeSelected = { tipo.value = it }
+                    )
                 }
             }
 
@@ -153,21 +180,62 @@ private fun MyTtitle(title: String){
 }
 
 @Composable
-private fun EcopontoTypeSection(
-    selected: String,
-    onTypeSelected: (String)-> Unit
-){
+private fun EcoPointTypeSection(
+    selectedType: String,
+    onTypeSelected: (String) -> Unit
+) {
     val types = mapOf(
         "Blue bin" to blueBinColor,
-        
+        "Green bin" to greenBinColor,
+        "Yellow bin" to yellowBinColor,
+        "Red bin" to redBinColor,
+        "Black bin" to blackBinColor
     )
 
-}
-/*
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Branco)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            MyTtitle("Eco-Point Type *")
 
-val blueBinColor = Color(0xFF2196F3)
-val greenBinColor = Color(0xFF4CAF50)
-val yellowBinColor = Color(0xFFFFEB3B)
-val redBinColor = Color(0xFFC0172F)
-val blackBinColor = Color(0xFF1A1A19)
- */
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(types.keys.toList()) { type ->
+                    val isSelected = selectedType == type
+                    val buttonColor = types[type] ?: Color.Gray
+
+                    val containerColor = if (isSelected) buttonColor else Color.Transparent
+                    val contentColor = if (isSelected) Color.White else buttonColor
+                    val border = if (isSelected) null else BorderStroke(2.dp, buttonColor)
+
+                    Button(
+                        onClick = { onTypeSelected(type) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = containerColor,
+                            contentColor = contentColor
+                        ),
+                        border = border
+                    ) {
+                        if (isSelected) {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(Modifier.width(4.dp))
+                        }
+                        Text(type)
+                    }
+                }
+            }
+        }
+    }
+}
+
