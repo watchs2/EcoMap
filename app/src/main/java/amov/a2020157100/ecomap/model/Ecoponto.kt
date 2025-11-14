@@ -11,7 +11,8 @@ enum class Tipo{
 enum class Condicao{
     CHEIO,
     DANIFICADO,
-    DESAPARECIDO
+    DESAPARECIDO,
+    BOM,
 }
 
 enum class Estado{

@@ -1,23 +1,17 @@
 package amov.a2020157100.ecomap.ui.screens
 
-import amov.a2020157100.ecomap.ui.composables.AppBottomBar
+import amov.a2020157100.ecomap.R
+import amov.a2020157100.ecomap.ui.theme.GreenLimeLight
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,27 +28,15 @@ import androidx.navigation.NavHostController
 import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Card
-import amov.a2020157100.ecomap.ui.composables.AppBottomBar
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Navigation
-import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CardDefaults
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
-
+import androidx.compose.ui.res.painterResource
 
 
 /*
@@ -101,12 +83,13 @@ fun AddEcopontoScreen(
     //localização
     val latitude = remember { mutableStateOf("") }
     val longitude= remember { mutableStateOf("") }
+    val localization = remember { mutableStateOf("") }
     //info
     val tipo = remember { mutableStateOf("") }
     val picture= remember { mutableStateOf("") }
     val condicao= remember { mutableStateOf("") }
     val observacoes= remember { mutableStateOf("") }
-    val estado= remember { mutableStateOf("") }
+
 
     Scaffold(
         topBar = {
@@ -141,11 +124,11 @@ fun AddEcopontoScreen(
                         )
                     }
                 }
-                // 2. Para NÃO ter o botão "Guardar", basta não definir o parâmetro 'actions'.
-                // O seu código já estava correto nessa parte.
             )
         },
-        content = { paddingValues ->
+
+        content = {   paddingValues ->
+
             LazyColumn(
                 modifier = Modifier
                     .padding(paddingValues)
@@ -161,10 +144,45 @@ fun AddEcopontoScreen(
                         onTypeSelected = { tipo.value = it }
                     )
                 }
+                item{
+                    CondicionSection(  selectedType = condicao.value,
+                        onTypeSelected = { condicao.value = it })
+                }
+                item{
+                    LocationSection(localization)
+                }
+                item {
+                    PhotoSection()
+                }
+                item{
+                    NotesSection(observacoes)
+                }
+                item{
+                    InfoSection()
+                }
+                item{
+                    Button(
+                        modifier= Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        onClick = {/* */} ,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Green,
+                            contentColor = Branco
+                        )
+
+                    ) {
+                        Text(
+                            "Add Ecoponto",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                }
             }
 
-        },
 
+        },
     )
 
 
@@ -177,6 +195,77 @@ private fun MyTtitle(title: String){
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.padding(bottom = 8.dp)
     )
+}
+
+@Composable
+private fun LocationSection(
+    localization: MutableState<String>
+){
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Branco)
+
+    ){
+        Column(modifier = Modifier.padding(16.dp)) {
+            MyTtitle("Location *")
+
+            OutlinedTextField(
+                value = if (localization.value.isEmpty()) "41.5518° N, 8.4229° W" else localization.value,
+                onValueChange = { /* Não fazer nada */ },
+                readOnly = true,
+                placeholder = { Text("41.5518° N, 8.4229° W") },
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(R.drawable.location2),
+                        contentDescription = "Pin de Localização",
+                        tint = Green,
+                        modifier = Modifier.size(20.dp)
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedContainerColor = CinzentoClaro,
+                    unfocusedContainerColor = CinzentoClaro,
+                    cursorColor = Color.Transparent,
+
+                    focusedTextColor = Black,
+                    unfocusedTextColor = Black
+                )
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = {/* Todo: Obter Localização Atual */},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Green,
+                    contentColor = Branco
+                ),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.compass),
+                        contentDescription = "Usar Localização Atual",
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text="Use Current Location", style = MaterialTheme.typography.bodyLarge)
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -198,44 +287,248 @@ private fun EcoPointTypeSection(
         colors = CardDefaults.cardColors(containerColor = Branco)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            MyTtitle("Eco-Point Type *")
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            MyTtitle("EcoPonto Type *")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp) // Espaço entre os chips
             ) {
-                items(types.keys.toList()) { type ->
-                    val isSelected = selectedType == type
-                    val buttonColor = types[type] ?: Color.Gray
-
-                    val containerColor = if (isSelected) buttonColor else Color.Transparent
-                    val contentColor = if (isSelected) Color.White else buttonColor
-                    val border = if (isSelected) null else BorderStroke(2.dp, buttonColor)
-
-                    Button(
-                        onClick = { onTypeSelected(type) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = containerColor,
-                            contentColor = contentColor
-                        ),
-                        border = border
-                    ) {
-                        if (isSelected) {
-                            Icon(
-                                Icons.Default.Check,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(Modifier.width(4.dp))
-                        }
-                        Text(type)
-                    }
+                types.entries.take(3).forEach { (name, color) ->
+                    TypeChipManual(
+                        name = name,
+                        color = color,
+                        isSelected = name == selectedType,
+                        onClick = { onTypeSelected(name) },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp)) // Espaço entre as linhas
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp) // Espaço entre os chips
+            ) {
+                types.entries.drop(3).forEach { (name, color) ->
+                    TypeChipManual(
+                        name = name,
+                        color = color,
+                        isSelected = name == selectedType,
+                        onClick = { onTypeSelected(name) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TypeChipManual(
+    name: String,
+    color: Color,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    FilterChip(
+        selected = isSelected,
+        onClick = onClick,
+        modifier = modifier,
+        label = { Text(name, color = if (isSelected) Black else Color.Black) },
+        leadingIcon = {
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .background(color, shape = CircleShape)
+            )
+        },
+        colors = FilterChipDefaults.filterChipColors(
+            selectedContainerColor = LightGreen,
+            containerColor = CinzentoClaro,
+            selectedLabelColor = Black
+        ),
+        border = if (isSelected) BorderStroke(1.dp, Green) else null
+    )
+}
+
+
+@Composable
+private fun CondicionSection(
+    selectedType: String,
+    onTypeSelected: (String) -> Unit
+){
+    // Usando as cores e nomes sugeridos
+    val types = mapOf(
+        "Good" to greenBinColor,
+        "Full" to yellowBinColor,
+        "Damaged" to redBinColor,
+        "Missing" to blackBinColor, // Usei blackBinColor ou similar para diferenciar visualmente do Good
+    )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Branco)
+    ) {
+
+        Column(modifier = Modifier.padding(16.dp)) {
+            MyTtitle("Condicion *")
+            Box(modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center){
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Good, Full
+                    types.entries.take(2).forEach { (name, color) ->
+                        TypeChipManual(
+                            name = name,
+                            color = color,
+                            isSelected = name == selectedType,
+                            onClick = { onTypeSelected(name) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    // Adiciona um Spacer de peso 1 para preencher o espaço restante,
+                    // forçando Good e Full a ocupar 1/3 da largura cada (2 + 1 = 3 partes).
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+
+                Spacer(modifier = Modifier.height(8.dp)) // Espaço entre as linhas
+
+                // --- SEGUNDA LINHA (2 Itens) ---
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Damaged, Missing
+                    types.entries.drop(2).forEach { (name, color) ->
+                        TypeChipManual(
+                            name = name,
+                            color = color,
+                            isSelected = name == selectedType,
+                            onClick = { onTypeSelected(name) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    // Adiciona um Spacer de peso 1. Isto garante que os dois chips
+                    // ocupem 2/3 da largura da linha, alinhados com a primeira linha.
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+            }
+            // --- PRIMEIRA LINHA (2 Itens) ---
+
+    }
+}
+
+@Composable
+private fun PhotoSection(
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Branco)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            MyTtitle("Photo (Optional)")
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp), // **Adicionado uma altura para ser visível**
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = CinzentoClaro),
+                border = BorderStroke(1.dp, LightGreen),
+                onClick = { /* TODO: Abrir Câmara/Galeria */ } // Torná-lo clicável!
+            ){
+                Box(
+                    modifier = Modifier.fillMaxSize(), // Preenche o Card pai
+                    contentAlignment = Alignment.Center
+                ){
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+
+                    ){
+                        Icon(
+                            painter = painterResource(R.drawable.camera), // Use o seu ícone
+                            contentDescription = "Camara",
+                            tint = Color.Black,
+                            modifier = Modifier.size(48.dp)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Tap to take a photo",
+                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
+                        )
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+@Composable
+private fun NotesSection(text: MutableState<String>) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Branco)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            MyTtitle("Notes (Optional)")
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = text.value,
+                onValueChange = {text.value = it},
+                shape = RoundedCornerShape(10.dp),
+                label = { Text("Adicione informações adicionais ")},
+                minLines = 3,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Green,
+                    unfocusedBorderColor = LightGreen,
+                    cursorColor = Green
+                )
+            )
+
+        }
+    }
+}
+
+@Composable
+fun InfoSection() {
+ //TODO passar para public e passar cor texto
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        color = GreenLimeLight,
+        shape = RoundedCornerShape(8.dp),
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.info),
+                contentDescription = "Informação",
+                tint = Green,
+                modifier = Modifier.size(24.dp)
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(
+                text = "Your eco-point will be pending until verified by 2 other users.",
+                color = Green,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+
 
