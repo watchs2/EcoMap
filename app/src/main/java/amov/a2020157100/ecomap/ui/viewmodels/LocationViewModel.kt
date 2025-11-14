@@ -30,11 +30,9 @@ class LocationViewModel(
     var hasLocationPermission: Boolean = false
     private val _currentLocation = mutableStateOf(Location(null))
 
-
     init {
         locationHandler.onLocation =  { location ->
             _currentLocation.value = location
-
         }
     }
 

@@ -1,5 +1,6 @@
 package amov.a2020157100.ecomap.utils.firebase
 
+import android.content.ContentValues.TAG
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
@@ -14,10 +15,37 @@ import android.content.res.AssetManager
 class FStorageUtil {
     companion object {
 
-        fun addRecyclingPoint(){
 
+        fun addRecyclingPoint(
+            creator: String,
+            type: String,
+            latatitude: Double,
+            longitude: Double,
+            imgUrl: String?,
+            Notes: String?
+        ) {
+            val db = Firebase.firestore
+            val recyclingPoint = hashMapOf(
+                "creator" to creator,
+                "type" to type,
+                "latatitude" to latatitude,
+                "longitude" to longitude,
+                "imgUrl" to imgUrl,
+                "Notes" to Notes,
+            )
+
+            // Adiciona o documento à coleção "RecyclingPoints".
+            // O Firestore irá gerar automaticamente o ID do documento.
+            db.collection("RecyclingPoints")
+                .add(recyclingPoint)
+                .addOnSuccessListener { documentReference ->
+                    // O ID gerado pode ser acessado aqui: documentReference.id
+                    Log.d(TAG, "Document added with ID: ${documentReference.id}")
+                }
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "Error adding document", e)
+                }
         }
-
         fun confirmRecyclingPoint(){
 
         }
@@ -26,8 +54,14 @@ class FStorageUtil {
 
         }
 
-        fun viewRecyclingPoints(){
-            
+        fun viewRecyclingPoints(
+
+        ){
+
+        }
+
+        fun deleteRecyclingPoint(){
+
         }
 
 

@@ -2,6 +2,7 @@ package amov.a2020157100.ecomap.ui.screens
 
 import amov.a2020157100.ecomap.R
 import amov.a2020157100.ecomap.ui.theme.GreenLimeLight
+import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -41,34 +42,7 @@ import androidx.compose.ui.res.painterResource
 
 
 
-/*
-    val id: String,
 
-    //localização
-    val latitude: Double,
-    val longitude: Double,
-
-    //info
-    val tipo: Tipo,
-    val picture: String?,
-    val condicao: Condicao,
-    val observacoes: String?,
-    val estado: Estado,
-
-    val nConfirmados: Int = 0,
-    val nEliminados: Int = 0,
-
-    AZUL → Blue bin → for paper and cardboard
-
-VERDE → Green bin → for glass
-
-AMARELO → Yellow bin → for plastic and metal packaging
-
-VERMELHO → Red bin → for hazardous waste (ou às vezes batteries/electronics, depende do país)
-
-INDIFERENCIADO → Grey bin (ou Black bin, dependendo do sistema) → for general waste / no
-
- */
 
 val blueBinColor = Color(0xFF2196F3)
 val greenBinColor = Color(0xFF4CAF50)
@@ -79,18 +53,17 @@ val blackBinColor = Color(0xFF1A1A19)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEcopontoScreen(
+    viewModel: FirebaseViewModel,
     locationViewModel: LocationViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ){
-    //localização
-    val latitude = remember { mutableStateOf("") }
-    val longitude= remember { mutableStateOf("") }
+
+    val latitude = remember { mutableStateOf<Double>(0.0) }
+    val longitude= remember { mutableStateOf<Double>(0.0) }
     val localization = remember { mutableStateOf("") }
-    //info
-    val tipo = remember { mutableStateOf("") }
+    val type = remember { mutableStateOf("") }
     val picture= remember { mutableStateOf("") }
-    val condicao= remember { mutableStateOf("") }
     val observacoes= remember { mutableStateOf("") }
 
 
@@ -117,13 +90,13 @@ fun AddEcopontoScreen(
                     containerColor = Branco, // Use a sua cor definida
                     titleContentColor = Color.Black // Pode usar 'Black' se estiver definida
                 ),
-                navigationIcon = { // <-- 1. SETA ADICIONADA AQUI
+                navigationIcon = {
                     IconButton(onClick = {
-                        navController.popBackStack() // Ação para voltar atrás
+                        navController.popBackStack()
                     }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBackIosNew,
-                            contentDescription = "Voltar" // Importante para acessibilidade
+                            contentDescription = "Voltar"
                         )
                     }
                 }
@@ -143,13 +116,9 @@ fun AddEcopontoScreen(
             ){
                 item{
                     EcoPointTypeSection(
-                        selectedType = tipo.value,
-                        onTypeSelected = { tipo.value = it }
+                        selectedType = type.value,
+                        onTypeSelected = { type.value = it }
                     )
-                }
-                item{
-                    CondicionSection(  selectedType = condicao.value,
-                        onTypeSelected = { condicao.value = it })
                 }
                 item{
                     LocationSection(localization,locationViewModel)
@@ -168,7 +137,15 @@ fun AddEcopontoScreen(
                         modifier= Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        onClick = {/* */} ,
+                        onClick = {
+                            viewModel.addRecyclingPoint(
+                                    type.value,
+                                    latitude.value,
+                                longitude.value,
+                                null,
+                                observacoes.value
+                            )
+                        } ,
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Green,
@@ -202,6 +179,7 @@ private fun MyTtitle(title: String){
 
 @Composable
 private fun LocationSection(
+
     localization: MutableState<String>,
     locationViewModel: LocationViewModel
 ){
@@ -222,10 +200,10 @@ private fun LocationSection(
 
             OutlinedTextField(
 
-                value = if (localization.value.isEmpty()) "0° N, 0° W" else localization.value,
+                value = if (localization.value.isEmpty()) "" else localization.value,
                 onValueChange = { /* Não fazer nada */ },
                 readOnly = true,
-                placeholder = { Text("0° N, 0° W") },
+                placeholder = { Text("") },
                 leadingIcon = {
                     Icon(
                         painter = painterResource(R.drawable.location2),
@@ -253,6 +231,7 @@ private fun LocationSection(
             Button(
                 onClick = {
                     if(currentLocation !=null ){
+
                         val lat = currentLocation.latitude
                         val lon = currentLocation.longitude
 
@@ -310,7 +289,7 @@ private fun EcoPointTypeSection(
             MyTtitle("EcoPonto Type *")
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp) // Espaço entre os chips
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 types.entries.take(3).forEach { (name, color) ->
                     TypeChipManual(
@@ -374,76 +353,6 @@ fun TypeChipManual(
     )
 }
 
-
-@Composable
-private fun CondicionSection(
-    selectedType: String,
-    onTypeSelected: (String) -> Unit
-){
-    // Usando as cores e nomes sugeridos
-    val types = mapOf(
-        "Good" to greenBinColor,
-        "Full" to yellowBinColor,
-        "Damaged" to redBinColor,
-        "Missing" to blackBinColor, // Usei blackBinColor ou similar para diferenciar visualmente do Good
-    )
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco)
-    ) {
-
-        Column(modifier = Modifier.padding(16.dp)) {
-            MyTtitle("Condicion *")
-            Box(modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center){
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Good, Full
-                    types.entries.take(2).forEach { (name, color) ->
-                        TypeChipManual(
-                            name = name,
-                            color = color,
-                            isSelected = name == selectedType,
-                            onClick = { onTypeSelected(name) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    // Adiciona um Spacer de peso 1 para preencher o espaço restante,
-                    // forçando Good e Full a ocupar 1/3 da largura cada (2 + 1 = 3 partes).
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-
-                Spacer(modifier = Modifier.height(8.dp)) // Espaço entre as linhas
-
-                // --- SEGUNDA LINHA (2 Itens) ---
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Damaged, Missing
-                    types.entries.drop(2).forEach { (name, color) ->
-                        TypeChipManual(
-                            name = name,
-                            color = color,
-                            isSelected = name == selectedType,
-                            onClick = { onTypeSelected(name) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    // Adiciona um Spacer de peso 1. Isto garante que os dois chips
-                    // ocupem 2/3 da largura da linha, alinhados com a primeira linha.
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            }
-            }
-            // --- PRIMEIRA LINHA (2 Itens) ---
-
-    }
-}
 
 @Composable
 private fun PhotoSection(

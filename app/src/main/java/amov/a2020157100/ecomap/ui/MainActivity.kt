@@ -107,7 +107,7 @@ class MainActivity : ComponentActivity() {
                             ProfileScreen(navController)
                         }
                         composable(ADDECOPONTO_SCREEN) {
-                            AddEcopontoScreen(locationViewModel,navController, )
+                            AddEcopontoScreen(viewModel,locationViewModel,navController, )
                         }
                     }
                 }

@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-
+import amov.a2020157100.ecomap.utils.firebase.FStorageUtil
 
 class FirebaseViewModel : ViewModel() {
     private val _user = mutableStateOf(FAuthUtil.currentUser?.toUser())
@@ -56,5 +56,29 @@ class FirebaseViewModel : ViewModel() {
         FAuthUtil.signOut()
         _user.value = null
         _error.value = null
+    }
+
+    //Storage
+
+    fun addRecyclingPoint(
+        type: String,
+        latatitude: Double,
+        longitude: Double,
+        imgUrl: String?,
+        notes: String?
+    ){
+
+        _user.value?.let { user ->
+            viewModelScope.launch {
+                FStorageUtil.addRecyclingPoint(
+                    user.uid,
+                    type,
+                    latatitude,
+                    longitude,
+                    imgUrl,
+                    notes
+                )
+            }
+        }
     }
 }
