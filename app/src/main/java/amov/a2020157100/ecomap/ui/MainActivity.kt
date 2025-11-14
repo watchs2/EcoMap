@@ -1,5 +1,8 @@
 package amov.a2020157100.ecomap.ui
 
+import android.content.pm.PackageManager
+import amov.a2020157100.ecomap.EcoMap
+import androidx.activity.result.contract.ActivityResultContracts
 import amov.a2020157100.ecomap.ui.screens.ListViewScreen
 import amov.a2020157100.ecomap.ui.screens.LoginScreen
 import amov.a2020157100.ecomap.ui.screens.MainScreen
@@ -9,6 +12,8 @@ import amov.a2020157100.ecomap.ui.screens.RegisterScreen
 import amov.a2020157100.ecomap.ui.screens.AddEcopontoScreen
 import amov.a2020157100.ecomap.ui.theme.EcoMapTheme
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
+import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
+import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModelFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +26,17 @@ import androidx.navigation.compose.rememberNavController
 
 class MainActivity : ComponentActivity() {
 
+    private val app by lazy{
+        application as EcoMap
+    }
+
+    private val viewModel : FirebaseViewModel by viewModels()
+
+    private val locationViewModel : LocationViewModel by viewModels {
+        LocationViewModelFactory(app.locationHandler)
+    }
+
+
     companion object {
         const val LOGIN_SCREEN = "Login"
         const val MAIN_SCREEN = "Main"
@@ -30,8 +46,6 @@ class MainActivity : ComponentActivity() {
         const val PROFILE_SCREEN = "Profile"
         const val ADDECOPONTO_SCREEN = "AddEcoponto"
     }
-
-    private val viewModel : FirebaseViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,8 +78,6 @@ class MainActivity : ComponentActivity() {
                                 viewModel,
                                 onSuccess = {
                                     navController.navigate(LOGIN_SCREEN) {
-                                        //usa-se desta maneira caso se faça botao retroceder, obriga a fazer signout
-                                        //em vez de ir para o login screen
                                         popUpTo(REGISTER_SCREEN) { inclusive = true }
                                     }
                                 },
@@ -95,11 +107,53 @@ class MainActivity : ComponentActivity() {
                             ProfileScreen(navController)
                         }
                         composable(ADDECOPONTO_SCREEN) {
-                            AddEcopontoScreen(navController)
+                            AddEcopontoScreen(locationViewModel,navController, )
                         }
                     }
                 }
             }
         }
+        //Permissões
+
+        /*
+        if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            askSinglePermissionCamera.launch(android.Manifest.permission.CAMERA)
+        }
+
+         */
+        verifyLocationPermissions()
+
+    }
+
+    private val askSinglePermissionCamera = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        /* TODO */
+       // verifyLocationPermissions()
+    }
+
+    fun verifyLocationPermissions() {
+        locationViewModel.hasLocationPermission = (
+                checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED ||
+                        checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED)
+        if (!locationViewModel.hasLocationPermission) {
+            askLocationPermissions.launch(
+                arrayOf(
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            )
+        }
+
+    }
+
+    private val askLocationPermissions = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { map ->
+        locationViewModel.hasLocationPermission =
+            map[android.Manifest.permission.ACCESS_COARSE_LOCATION] == true ||
+                    map[android.Manifest.permission.ACCESS_FINE_LOCATION] == true
     }
 }

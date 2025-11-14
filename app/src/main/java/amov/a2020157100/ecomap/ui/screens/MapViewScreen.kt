@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
 
+//TODO Cores tem de sair daqui
 val MapColor = Color(0xFFD2EAD3)
 
 @OptIn(ExperimentalMaterial3Api::class)

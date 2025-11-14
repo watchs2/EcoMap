@@ -13,6 +13,35 @@ import android.content.res.AssetManager
 
 class FStorageUtil {
     companion object {
+
+        fun addRecyclingPoint(){
+
+        }
+
+        fun confirmRecyclingPoint(){
+
+        }
+
+        fun reportStatus(){
+
+        }
+
+        fun viewRecyclingPoints(){
+            
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
         fun addDataToFirestore(onResult: (Throwable?) -> Unit) {
             val db = Firebase.firestore
 

@@ -2,6 +2,7 @@ package amov.a2020157100.ecomap.ui.screens
 
 import amov.a2020157100.ecomap.R
 import amov.a2020157100.ecomap.ui.theme.GreenLimeLight
+import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,6 +38,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
+
 
 
 /*
@@ -77,6 +79,7 @@ val blackBinColor = Color(0xFF1A1A19)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEcopontoScreen(
+    locationViewModel: LocationViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ){
@@ -149,7 +152,7 @@ fun AddEcopontoScreen(
                         onTypeSelected = { condicao.value = it })
                 }
                 item{
-                    LocationSection(localization)
+                    LocationSection(localization,locationViewModel)
                 }
                 item {
                     PhotoSection()
@@ -199,22 +202,30 @@ private fun MyTtitle(title: String){
 
 @Composable
 private fun LocationSection(
-    localization: MutableState<String>
+    localization: MutableState<String>,
+    locationViewModel: LocationViewModel
 ){
+    //TODO provavelmente isto n é aqui que fica
+    locationViewModel.startLocationUpdates()
+    val currentLocation = locationViewModel.currentLocation.value
+
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Branco)
 
     ){
+
         Column(modifier = Modifier.padding(16.dp)) {
             MyTtitle("Location *")
 
             OutlinedTextField(
-                value = if (localization.value.isEmpty()) "41.5518° N, 8.4229° W" else localization.value,
+
+                value = if (localization.value.isEmpty()) "0° N, 0° W" else localization.value,
                 onValueChange = { /* Não fazer nada */ },
                 readOnly = true,
-                placeholder = { Text("41.5518° N, 8.4229° W") },
+                placeholder = { Text("0° N, 0° W") },
                 leadingIcon = {
                     Icon(
                         painter = painterResource(R.drawable.location2),
@@ -240,7 +251,16 @@ private fun LocationSection(
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = {/* Todo: Obter Localização Atual */},
+                onClick = {
+                    if(currentLocation !=null ){
+                        val lat = currentLocation.latitude
+                        val lon = currentLocation.longitude
+
+                        val latDir = if (lat >= 0) "N" else "S"
+                        val lonDir = if (lon >= 0) "E" else "W"
+                        localization.value = "${currentLocation.latitude}° ${latDir}, ${currentLocation.longitude}° ${lonDir}"
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
