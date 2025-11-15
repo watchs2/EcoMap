@@ -61,7 +61,7 @@ fun AddEcopontoScreen(
 
     val latitude = remember { mutableStateOf<Double>(0.0) }
     val longitude= remember { mutableStateOf<Double>(0.0) }
-    val localization = remember { mutableStateOf("") }
+
     val type = remember { mutableStateOf("") }
     val picture= remember { mutableStateOf("") }
     val observacoes= remember { mutableStateOf("") }
@@ -121,7 +121,7 @@ fun AddEcopontoScreen(
                     )
                 }
                 item{
-                    LocationSection(localization,locationViewModel)
+                    LocationSection(locationViewModel,longitude,latitude)
                 }
                 item {
                     PhotoSection()
@@ -138,6 +138,7 @@ fun AddEcopontoScreen(
                             .fillMaxWidth()
                             .height(50.dp),
                         onClick = {
+                            //tlvz tenha de mandar um callback
                             viewModel.addRecyclingPoint(
                                     type.value,
                                     latitude.value,
@@ -179,12 +180,13 @@ private fun MyTtitle(title: String){
 
 @Composable
 private fun LocationSection(
-
-    localization: MutableState<String>,
-    locationViewModel: LocationViewModel
+    locationViewModel: LocationViewModel,
+    longitude :  MutableState<Double>,
+    latitude :  MutableState<Double>
 ){
     //TODO provavelmente isto n é aqui que fica
     locationViewModel.startLocationUpdates()
+    val localization = remember { mutableStateOf("") }
     val currentLocation = locationViewModel.currentLocation.value
 
 
@@ -231,6 +233,8 @@ private fun LocationSection(
             Button(
                 onClick = {
                     if(currentLocation !=null ){
+                        latitude.value = currentLocation.latitude
+                        longitude.value = currentLocation.longitude;
 
                         val lat = currentLocation.latitude
                         val lon = currentLocation.longitude

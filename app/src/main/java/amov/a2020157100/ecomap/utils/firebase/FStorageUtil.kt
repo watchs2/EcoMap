@@ -24,6 +24,7 @@ class FStorageUtil {
             imgUrl: String?,
             Notes: String?
         ) {
+
             val db = Firebase.firestore
             val recyclingPoint = hashMapOf(
                 "creator" to creator,
@@ -33,13 +34,9 @@ class FStorageUtil {
                 "imgUrl" to imgUrl,
                 "Notes" to Notes,
             )
-
-            // Adiciona o documento à coleção "RecyclingPoints".
-            // O Firestore irá gerar automaticamente o ID do documento.
             db.collection("RecyclingPoints")
                 .add(recyclingPoint)
                 .addOnSuccessListener { documentReference ->
-                    // O ID gerado pode ser acessado aqui: documentReference.id
                     Log.d(TAG, "Document added with ID: ${documentReference.id}")
                 }
                 .addOnFailureListener { e ->

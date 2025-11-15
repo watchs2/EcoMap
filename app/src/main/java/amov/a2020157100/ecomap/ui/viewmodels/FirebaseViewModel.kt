@@ -68,6 +68,13 @@ class FirebaseViewModel : ViewModel() {
         notes: String?
     ){
 
+        //validar dados
+        if(type == "" || latatitude == 0.0 || longitude == 0.0 ){
+            //campos obrigatorios não preenchidos
+            //TODO fazer ui toast ou assim
+            return
+        }
+
         _user.value?.let { user ->
             viewModelScope.launch {
                 FStorageUtil.addRecyclingPoint(
