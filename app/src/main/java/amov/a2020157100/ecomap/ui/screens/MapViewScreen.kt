@@ -3,6 +3,8 @@ package amov.a2020157100.ecomap.ui.screens
 
 import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.composables.AppBottomBar
+import amov.a2020157100.ecomap.ui.composables.Map
+import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -28,6 +30,7 @@ val MapColor = Color(0xFFD2EAD3)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapViewScreen(
+    locationViewModel: LocationViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
@@ -76,14 +79,6 @@ fun MapViewScreen(
                             )
 
                         }
-                        /*
-                        // Linha Verde que ocupa toda a largura
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            thickness = 2.dp,
-                            color = Green
-                        )
-                        */
 
                     }
                 },
@@ -105,7 +100,9 @@ fun MapViewScreen(
                     .background(MapColor)
                     .fillMaxSize()
 
-            )
+            ){
+                Map(locationViewModel)
+            }
 
         },
         floatingActionButton = {

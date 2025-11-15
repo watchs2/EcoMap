@@ -19,15 +19,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.google.firebase.firestore.GeoPoint
 import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.gms.maps.MapView
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import org.osmdroid.config.Configuration
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.MapView
+import org.osmdroid.util.GeoPoint
 
 
 @Composable
@@ -36,7 +35,7 @@ fun Map(
     modifier: Modifier = Modifier
 ) {
 
-
+    locationViewModel.startLocationUpdates()
     val currentLocation = locationViewModel.currentLocation.value
 
     val currentGeoPoint = remember(currentLocation) {
