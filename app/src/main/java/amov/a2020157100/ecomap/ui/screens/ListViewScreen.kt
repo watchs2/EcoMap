@@ -104,7 +104,7 @@ fun ListViewScreen(
         },
         floatingActionButton = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp) // espaçamento entre eles
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
                 FloatingActionButton(
