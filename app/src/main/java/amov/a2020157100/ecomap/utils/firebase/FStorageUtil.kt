@@ -13,64 +13,75 @@ import com.google.firebase.storage.ktx.storage
 import java.io.IOException
 import java.io.InputStream
 import android.content.res.AssetManager
+import kotlinx.coroutines.tasks.await
 
 
 class FStorageUtil {
     companion object {
 
-        fun addRecyclingPoint(
+        suspend fun addRecyclingPoint(
             creator: String,
             type: String,
             latatitude: Double,
             longitude: Double,
             imgUrl: String?,
-            Notes: String?
-        ) {
+            notes: String?
+        ): Boolean {
+            return try {
+                val db = Firebase.firestore
 
-            val db = Firebase.firestore
-            val recyclingPoint = hashMapOf(
-                "creator" to creator,
-                "type" to type,
-                "latatitude" to latatitude,
-                "longitude" to longitude,
-                "imgUrl" to imgUrl,
-                "notes" to Notes,
-                "status" to Status.PENDING,
-            )
-            db.collection("RecyclingPoints")
-                .add(recyclingPoint)
-                .addOnSuccessListener { documentReference ->
-                    Log.d(TAG, "Document added with ID: ${documentReference.id}")
-                }
-                .addOnFailureListener { e ->
-                    Log.w(TAG, "Error adding document", e)
-                }
+                val recyclingPoint = hashMapOf(
+                    "creator" to creator,
+                    "type" to type,
+                    "latatitude" to latatitude,
+                    "longitude" to longitude,
+                    "imgUrl" to imgUrl,
+                    "notes" to notes,
+                    "status" to Status.PENDING
+                )
+
+                db.collection("RecyclingPoints")
+                    .add(recyclingPoint)
+                    .await()
+
+                true
+
+            } catch (e: Exception) {
+                //erro
+                false
+            }
         }
 
         //Todos
-        fun getRecyclingPoints() {
+        suspend fun getRecyclingPoints(): List<RecyclingPoint> {
             val db = Firebase.firestore
-            db.collection("RecyclingPoints").get()
-                .addOnSuccessListener { result ->
-                    val recyclingPoints = mutableListOf<RecyclingPoint>()
-                    for(document in result){
-                        recyclingPoints.add(
-                            RecyclingPoint(
-                                id = document.id,
-                                creator = document.data["creator"].toString(),
-                                type = document.data["type"].toString(),
-                                latatitude = document.data["latatitude"] as Double,
-                                longitude = document.data["longitude"] as Double,
-                                imgUrl = document.data["imgUrl"]?.toString(),
-                                notes = document.data["notes"]?.toString(),
-                                status = document.data["status"].toString(),
-                                idsVoteRemove = document.data["idsVoteRemove"] as? List<String>,
-                                idsVoteAprove = document.data["idsVoteAprove"] as? List<String>
-                            )
-                        )
-                    }
-                }
+
+            val result = db.collection("RecyclingPoints")
+                .get()
+                .await()
+
+            val recyclingPoints = mutableListOf<RecyclingPoint>()
+
+            for (document in result) {
+                recyclingPoints.add(
+                    RecyclingPoint(
+                        id = document.id,
+                        creator = document.getString("creator") ?: "",
+                        type = document.getString("type") ?: "",
+                        latatitude = document.getDouble("latatitude") ?: 0.0,
+                        longitude = document.getDouble("longitude") ?: 0.0,
+                        imgUrl = document.getString("imgUrl"),
+                        notes = document.getString("notes"),
+                        status = document.getString("status") ?: "",
+                        idsVoteRemove = document.get("idsVoteRemove") as? List<String>,
+                        idsVoteAprove = document.get("idsVoteAprove") as? List<String>
+                    )
+                )
+            }
+
+            return recyclingPoints
         }
+
 
         //get de um especifico ecoponto
         fun getRecyclingPoint(recyclingPointId: String, onResult: (RecyclingPoint?) -> Unit) {

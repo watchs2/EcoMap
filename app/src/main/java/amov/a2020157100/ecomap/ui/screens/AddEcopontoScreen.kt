@@ -1,6 +1,7 @@
 package amov.a2020157100.ecomap.ui.screens
 
 import amov.a2020157100.ecomap.R
+import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.theme.GreenLimeLight
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
@@ -60,12 +61,13 @@ fun AddEcopontoScreen(
     modifier: Modifier = Modifier
 ){
 
-    /*
-    LaunchedEffect(viewModel.locations.value) {
-        //se não existir erro então vai para outro sitio
 
+    LaunchedEffect(viewModel.recyclingPoints.value) {
+        if (viewModel.recyclingPoints.value != null && viewModel.error.value == null) {
+            navController.navigate(MainActivity.MAPVIEW_SCREEN)
+        }
     }
-*/
+
 
     val latitude = remember { mutableStateOf<Double>(0.0) }
     val longitude= remember { mutableStateOf<Double>(0.0) }

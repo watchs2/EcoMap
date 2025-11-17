@@ -74,17 +74,17 @@ class FirebaseViewModel : ViewModel() {
         longitude: Double,
         imgUrl: String?,
         notes: String?
-    ){
+    ) {
         _error.value = null
-        //validar dados
-        if(type == "" || latatitude == 0.0 || longitude == 0.0 ){
-            _error.value = "Prencha todos os campos obrigatórios"
+
+        if (type.isBlank() || latatitude == 0.0 || longitude == 0.0) {
+            _error.value = "Preencha todos os campos obrigatórios"
             return
         }
 
         _user.value?.let { user ->
             viewModelScope.launch {
-                FStorageUtil.addRecyclingPoint(
+                val success = FStorageUtil.addRecyclingPoint(
                     user.uid,
                     type,
                     latatitude,
@@ -92,15 +92,41 @@ class FirebaseViewModel : ViewModel() {
                     imgUrl,
                     notes
                 )
+
+                if (!success) {
+                    _error.value = "Erro ao adicionar ponto de reciclagem"
+                }else{
+                    getRecyclingPoints()
+                }
             }
         }
     }
 
-    fun getRecyclingPoints(){
+    fun getRecyclingPoints() {
         viewModelScope.launch {
-            FStorageUtil.getRecyclingPoints()
+            val recyclingPoints = FStorageUtil.getRecyclingPoints()
+            if(recyclingPoints != null){
+                _recyclingPoints.value = recyclingPoints
+            }else{
+               //erro ou vazio
+                _error.value="Erro"
+            }
         }
     }
+
+    fun getRecyclingPoint(recyclingPointId: String){
+        viewModelScope.launch {
+            FStorageUtil.getRecyclingPoint(recyclingPointId){ recyclingPoint ->
+                if(recyclingPoint!= null){
+                  //Curreu tudo bem
+                }else{
+                    //curreu mal
+                }
+            }
+        }
+    }
+
+
 
 
 
