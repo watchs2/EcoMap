@@ -98,7 +98,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(MAPVIEW_SCREEN) {
-                            MapViewScreen(locationViewModel,navController)
+                            MapViewScreen(viewModel ,locationViewModel,navController)
                         }
                         composable(LISTVIEW_SCREEN) {
                             ListViewScreen(navController)

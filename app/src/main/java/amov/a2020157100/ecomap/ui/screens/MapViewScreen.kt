@@ -4,6 +4,7 @@ package amov.a2020157100.ecomap.ui.screens
 import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.composables.AppBottomBar
 import amov.a2020157100.ecomap.ui.composables.Map
+import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.background
@@ -30,6 +31,7 @@ val MapColor = Color(0xFFD2EAD3)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapViewScreen(
+    firebaseViewModel: FirebaseViewModel,
     locationViewModel: LocationViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier,
@@ -101,7 +103,7 @@ fun MapViewScreen(
                     .fillMaxSize()
 
             ){
-                Map(locationViewModel)
+                Map(firebaseViewModel,locationViewModel)
             }
 
         },

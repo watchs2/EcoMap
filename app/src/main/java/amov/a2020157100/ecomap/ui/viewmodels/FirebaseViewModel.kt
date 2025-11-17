@@ -10,6 +10,7 @@ import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import amov.a2020157100.ecomap.utils.firebase.FStorageUtil
+import android.util.Log
 import kotlin.collections.mutableListOf
 
 class FirebaseViewModel : ViewModel() {
@@ -73,7 +74,8 @@ class FirebaseViewModel : ViewModel() {
         latatitude: Double,
         longitude: Double,
         imgUrl: String?,
-        notes: String?
+        notes: String?,
+        onSuccess: () -> Unit
     ) {
         _error.value = null
 
@@ -97,6 +99,7 @@ class FirebaseViewModel : ViewModel() {
                     _error.value = "Erro ao adicionar ponto de reciclagem"
                 }else{
                     getRecyclingPoints()
+                    onSuccess()
                 }
             }
         }
@@ -105,7 +108,9 @@ class FirebaseViewModel : ViewModel() {
     fun getRecyclingPoints() {
         viewModelScope.launch {
             val recyclingPoints = FStorageUtil.getRecyclingPoints()
+            Log.d("FIREBASE", "📥 Resultado recebido: ${recyclingPoints?.size ?: "null"} pontos")
             if(recyclingPoints != null){
+                Log.d("FIREBASE", "✅ Dados válidos, a atualizar _recyclingPoints...")
                 _recyclingPoints.value = recyclingPoints
             }else{
                //erro ou vazio

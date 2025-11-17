@@ -1,24 +1,15 @@
 package amov.a2020157100.ecomap.ui.composables
 
+import amov.a2020157100.ecomap.ui.screens.MapColor
+import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import androidx.compose.runtime.*
@@ -29,14 +20,20 @@ import org.osmdroid.views.MapView
 import org.osmdroid.util.GeoPoint
 
 
+
 @Composable
 fun Map(
+    firebaseViewModel: FirebaseViewModel,
     locationViewModel: LocationViewModel,
     modifier: Modifier = Modifier
 ) {
-
+    val recyclingPoints = firebaseViewModel.recyclingPoints.value
     locationViewModel.startLocationUpdates()
     val currentLocation = locationViewModel.currentLocation.value
+
+    LaunchedEffect(recyclingPoints) {
+        firebaseViewModel.getRecyclingPoints()
+    }
 
     val currentGeoPoint = remember(currentLocation) {
         GeoPoint(
@@ -59,29 +56,14 @@ fun Map(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(8.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(0.8f),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = "Lat: ${currentLocation?.latitude ?: "--"}")
-            Text(text = "Lon: ${currentLocation?.longitude ?: "--"}")
-        }
-        Spacer(Modifier.height(16.dp))
-
-
         Box(
             modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth()
-                .fillMaxHeight(0.9f) // Use mais espaço para o mapa
-                .background(Color.LightGray)
+                .fillMaxSize()
+                .background(MapColor)
         ) {
             AndroidView(
+                modifier = Modifier.fillMaxSize(),
                 factory = {
                     MapView(it).apply {
                         setTileSource(TileSourceFactory.MAPNIK)
@@ -97,8 +79,18 @@ fun Map(
 
                         }
                         overlays.add(locationMarker)
-
                         tag = locationMarker
+
+                        for(recyclingpoint in firebaseViewModel.recyclingPoints.value){
+                            overlays.add(
+                                Marker(this).apply {
+                                    position = GeoPoint(recyclingpoint.latatitude, recyclingpoint.longitude)
+                                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                                    title = recyclingpoint.type
+                                }
+                            )
+                        }
+
                     }
                 },
                 update = { view ->

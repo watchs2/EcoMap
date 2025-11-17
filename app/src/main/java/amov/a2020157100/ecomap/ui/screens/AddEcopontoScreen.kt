@@ -62,13 +62,6 @@ fun AddEcopontoScreen(
 ){
 
 
-    LaunchedEffect(viewModel.recyclingPoints.value) {
-        if (viewModel.recyclingPoints.value != null && viewModel.error.value == null) {
-            navController.navigate(MainActivity.MAPVIEW_SCREEN)
-        }
-    }
-
-
     val latitude = remember { mutableStateOf<Double>(0.0) }
     val longitude= remember { mutableStateOf<Double>(0.0) }
 
@@ -142,19 +135,33 @@ fun AddEcopontoScreen(
                 item{
                     InfoSection()
                 }
+                item {
+                    if (viewModel.error.value != null) {
+                        Spacer(Modifier.height(5.dp))
+                        Text(
+                            text = viewModel.error.value.toString(),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Red,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Spacer(Modifier.height(5.dp))
+                    }
+                }
                 item{
                     Button(
                         modifier= Modifier
                             .fillMaxWidth()
                             .height(50.dp),
                         onClick = {
-                            //tlvz tenha de mandar um callback
                             viewModel.addRecyclingPoint(
                                     type.value,
                                     latitude.value,
                                 longitude.value,
                                 null,
-                                observacoes.value
+                                observacoes.value,
+                                onSuccess = {
+                                    navController.navigate(MainActivity.MAPVIEW_SCREEN)
+                                }
                             )
                         } ,
                         shape = RoundedCornerShape(12.dp),
