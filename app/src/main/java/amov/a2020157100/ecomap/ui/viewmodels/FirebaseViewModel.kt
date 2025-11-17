@@ -1,5 +1,6 @@
 package amov.a2020157100.ecomap.ui.viewmodels
 
+import amov.a2020157100.ecomap.model.RecyclingPoint
 import amov.a2020157100.ecomap.model.toUser
 import amov.a2020157100.ecomap.model.User
 import amov.a2020157100.ecomap.utils.firebase.FAuthUtil
@@ -9,17 +10,23 @@ import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import amov.a2020157100.ecomap.utils.firebase.FStorageUtil
+import kotlin.collections.mutableListOf
 
 class FirebaseViewModel : ViewModel() {
     private val _user = mutableStateOf(FAuthUtil.currentUser?.toUser())
     val user: State<User?>
         get() = _user
 
+    private val _recyclingPoints = mutableStateOf<List<RecyclingPoint>>(emptyList())
+    val recyclingPoints: State<List<RecyclingPoint>>
+        get() = _recyclingPoints
+
     private val _error = mutableStateOf<String?>(null)
     val error: State<String?>
         get() = _error
 
     fun createUserWithEmail(email: String, password: String, passwordConfirm: String){
+        _error.value = null
         if(email.isBlank() || password.isBlank() || passwordConfirm.isBlank()){
             return
         }
@@ -39,6 +46,7 @@ class FirebaseViewModel : ViewModel() {
     }
 
     fun signInWithEmail(email: String,password: String){
+        _error.value = null
         if(email.isBlank() || password.isBlank()){
             return
         }
@@ -67,11 +75,10 @@ class FirebaseViewModel : ViewModel() {
         imgUrl: String?,
         notes: String?
     ){
-
+        _error.value = null
         //validar dados
         if(type == "" || latatitude == 0.0 || longitude == 0.0 ){
-            //campos obrigatorios não preenchidos
-            //TODO fazer ui toast ou assim
+            _error.value = "Prencha todos os campos obrigatórios"
             return
         }
 
@@ -88,4 +95,14 @@ class FirebaseViewModel : ViewModel() {
             }
         }
     }
+
+    fun getRecyclingPoints(){
+        viewModelScope.launch {
+            FStorageUtil.getRecyclingPoints()
+        }
+    }
+
+
+
+
 }

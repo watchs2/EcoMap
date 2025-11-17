@@ -1,5 +1,7 @@
 package amov.a2020157100.ecomap.model
 
+import com.google.android.datatransport.cct.StringMerger
+
 enum class Tipo{
     AZUL,
     VERDE,
@@ -15,36 +17,33 @@ enum class Condicao{
     BOM,
 }
 
-enum class Estado{
-    TEMPORARIO,
-    DEFINITIVO,
-    ELIMINAR
+enum class Status {
+    PENDING,
+    FINAL,
+    DELETE
 }
 
 
-data class Ecoponto(
+
+data class RecyclingPoint(
+
     val id: String,
-
-    //localização
-    val latitude: Double,
+    val creator: String,
+    val type: String,
+    val latatitude: Double,
     val longitude: Double,
+    val imgUrl: String?,
+    val notes: String?,
+    val status: String,
 
-    //info
-    val tipo: Tipo,
-    val picture: String?,
-    val condicao: Condicao,
-    val observacoes: String?,
-    val estado: Estado,
+    //Aprovar e Remover
+    val idsVoteRemove : List<String>?,
+    val idsVoteAprove : List<String>?,
 
-    val nConfirmados: Int = 0,
-    val nEliminados: Int = 0,
-
-    //Tlvz seja necessario
-    val creatorId: String,
-    val removerId: String,
-
-    //Lista de quem votou em quem
 )
+
+
+
 /*
     Tlvz precise de um metodo para converter de fb para este tipo
  */

@@ -27,7 +27,6 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.MapView
 import org.osmdroid.util.GeoPoint
-import amov.a2020157100.ecomap.R
 
 
 @Composable

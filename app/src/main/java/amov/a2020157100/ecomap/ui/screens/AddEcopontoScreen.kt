@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.material3.CardDefaults
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
@@ -58,6 +59,13 @@ fun AddEcopontoScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ){
+
+    /*
+    LaunchedEffect(viewModel.locations.value) {
+        //se não existir erro então vai para outro sitio
+
+    }
+*/
 
     val latitude = remember { mutableStateOf<Double>(0.0) }
     val longitude= remember { mutableStateOf<Double>(0.0) }
