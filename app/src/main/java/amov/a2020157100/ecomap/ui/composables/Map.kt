@@ -23,7 +23,7 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.MapView
 import org.osmdroid.util.GeoPoint
-import androidx.core.content.ContextCompat
+
 
 
 @Composable
@@ -50,11 +50,11 @@ fun Map(
     val context = LocalContext.current
     val recyclingPointIcons = remember(context) {
         mapOf(
-            "Blue bin" to getMarkerIcon(context, R.drawable.recycable, size = 64, tintColorId = R.color.blue_bin),
-            "Green bin" to getMarkerIcon(context, R.drawable.recycable, size = 64, tintColorId =R.color.green_bin),
-            "Yellow bin" to getMarkerIcon(context, R.drawable.recycable, size = 64, tintColorId = R.color.yellow_bin),
-            "Red bin" to getMarkerIcon(context, R.drawable.recycable, size = 64, tintColorId = R.color.red_bin),
-            "Black bin" to getMarkerIcon(context, R.drawable.recycable, size = 64, tintColorId = R.color.black_bin)
+            "Blue bin" to getMarkerIcon(context, R.drawable.recycable, size = 84, tintColorId = R.color.blue_bin),
+            "Green bin" to getMarkerIcon(context, R.drawable.recycable, size = 84, tintColorId =R.color.green_bin),
+            "Yellow bin" to getMarkerIcon(context, R.drawable.recycable, size = 84, tintColorId = R.color.yellow_bin),
+            "Red bin" to getMarkerIcon(context, R.drawable.recycable, size = 84, tintColorId = R.color.red_bin),
+            "Black bin" to getMarkerIcon(context, R.drawable.recycable, size = 84, tintColorId = R.color.black_bin)
         )
     }
 
@@ -102,7 +102,7 @@ fun Map(
                         view.overlays.add(locationMarker)
                     }
                     // view.controller.animateTo(currentGeoPoint)
-                    for (recyclingpoint in recyclingPoints) {
+                    for (recyclingpoint in recyclingPoints){
                         view.overlays.add(
                             Marker(view).apply {
                                 position = GeoPoint(recyclingpoint.latatitude, recyclingpoint.longitude)

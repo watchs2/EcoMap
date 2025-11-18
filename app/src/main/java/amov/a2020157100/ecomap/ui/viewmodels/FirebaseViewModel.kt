@@ -26,6 +26,12 @@ class FirebaseViewModel : ViewModel() {
     val error: State<String?>
         get() = _error
 
+    //ver se esta é a melhor forma
+    private val _selectedRecyclingPoint = mutableStateOf<RecyclingPoint?>(null)
+    val selectedRecyclingPoint: State<RecyclingPoint?>
+        get() = _selectedRecyclingPoint
+
+
     fun createUserWithEmail(email: String, password: String, passwordConfirm: String){
         _error.value = null
         if(email.isBlank() || password.isBlank() || passwordConfirm.isBlank()){
@@ -119,15 +125,50 @@ class FirebaseViewModel : ViewModel() {
         }
     }
 
-    fun getRecyclingPoint(recyclingPointId: String){
+    fun getRecyclingPoint(recyclingPointId: String) {
         viewModelScope.launch {
-            FStorageUtil.getRecyclingPoint(recyclingPointId){ recyclingPoint ->
-                if(recyclingPoint!= null){
-                  //Curreu tudo bem
-                }else{
-                    //curreu mal
+            _selectedRecyclingPoint.value = null
+            FStorageUtil.getRecyclingPoint(recyclingPointId) { recyclingPoint ->
+                if (recyclingPoint != null) {
+                    _selectedRecyclingPoint.value = recyclingPoint
+                } else {
+                    _error.value = "Falha ao carregar detalhes do Ecoponto" // TODO: Mover para strings
                 }
             }
+        }
+    }
+
+    fun clearSelectedRecyclingPoint() {
+        _selectedRecyclingPoint.value = null
+    }
+
+
+    fun confirmEcoponto(recyclingPointId: String) {
+        _user.value?.let { user ->
+            Log.d("FirebaseViewModel", "Utilizador ${user.uid} confirmou o ecoponto $recyclingPointId")
+            // Chamar a função stub
+            FStorageUtil.confirmRecyclingPoint(recyclingPointId, user.uid)
+
+            // TODO: Adicionar lógica real.
+            // Por agora, apenas atualiza o estado local (se necessário) ou recarrega.
+            // A lógica de "idsVoteAprove" deve ser tratada no FStorageUtil ou Cloud Function.
+
+            // Exemplo: recarregar os dados
+            getRecyclingPoint(recyclingPointId)
+        }
+    }
+
+    // NOVAS FUNÇÕES (Stubs para a lógica de verificação)
+    fun reportEcoponto(recyclingPointId: String) {
+        _user.value?.let { user ->
+            Log.d("FirebaseViewModel", "Utilizador ${user.uid} reportou o ecoponto $recyclingPointId")
+            // Chamar a função stub
+            FStorageUtil.deleteRecyclingPoint(recyclingPointId, user.uid)
+
+            // TODO: Adicionar lógica real.
+
+            // Exemplo: recarregar os dados
+            getRecyclingPoint(recyclingPointId)
         }
     }
 

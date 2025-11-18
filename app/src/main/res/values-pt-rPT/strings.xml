@@ -14,4 +14,36 @@
     <string name="label_confirm_password">Confirmar palavra-passe</string>
     <string name="text_have_account">Já tens conta?</string>
     <string name="passwords_not_match">As palavras-passe não coincidem</string>
+
+    <string name="list_title">Ecopontos Próximos</string>
+    <string name="list_filter_all">Todos</string>
+    <string name="list_filter_paper">Papel</string>
+    <string name="list_filter_glass">Vidro</string>
+    <string name="list_filter_plastic">Plástico</string>
+    <string name="list_filter_metal">Metal</string>
+    <string name="list_status_pending">Pendente</string>
+    <string name="list_status_verified">Verificado</string>
+    <string name="list_distance_metres">%dm</string>
+    <string name="list_view_details_cd">Ver detalhes</string>
+    <string name="list_add_ecopoint_cd">Adicionar Ecoponto</string>
+
+    <string name="bin_blue">Ecoponto Azul</string>
+    <string name="bin_green">Ecoponto Verde</string>
+    <string name="bin_yellow">Ecoponto Amarelo</string>
+    <string name="bin_red">Ecoponto Vermelho</string>
+    <string name="bin_black">Ecoponto Indiferenciado</string>
+    <string name="bin_unknown">Ecoponto</string>
+
+    <string name="detail_loading">A carregar detalhes…</string>
+    <string name="detail_back_cd">Voltar</string>
+    <string name="detail_image_title">Fotografia</string>
+    <string name="detail_no_image">Nenhuma fotografia disponível</string>
+    <string name="detail_status_title">Estado</string>
+    <string name="detail_location_title">Localização</string>
+    <string name="detail_view_on_map">Ver no Mapa</string>
+    <string name="detail_notes_title">Observações</string>
+    <string name="detail_verify_title">Ajudar a Verificar</string>
+    <string name="detail_verify_desc">Este ecoponto está correto e em boas condições?</string>
+    <string name="detail_button_confirm">Confirmar</string>
+    <string name="detail_button_report">Reportar</string>
 </resources>

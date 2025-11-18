@@ -10,6 +10,7 @@ import amov.a2020157100.ecomap.ui.screens.MapViewScreen
 import amov.a2020157100.ecomap.ui.screens.ProfileScreen
 import amov.a2020157100.ecomap.ui.screens.RegisterScreen
 import amov.a2020157100.ecomap.ui.screens.AddEcopontoScreen
+import amov.a2020157100.ecomap.ui.screens.EcopontoDetails
 import amov.a2020157100.ecomap.ui.theme.EcoMapTheme
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
@@ -20,9 +21,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.material3.Surface
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 class MainActivity : ComponentActivity() {
 
@@ -45,6 +48,8 @@ class MainActivity : ComponentActivity() {
         const val LISTVIEW_SCREEN = "ListView"
         const val PROFILE_SCREEN = "Profile"
         const val ADDECOPONTO_SCREEN = "AddEcoponto"
+
+        const val DETAIL_SCREEN = "Detail"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,13 +106,31 @@ class MainActivity : ComponentActivity() {
                             MapViewScreen(viewModel ,locationViewModel,navController)
                         }
                         composable(LISTVIEW_SCREEN) {
-                            ListViewScreen(navController)
+                            ListViewScreen(viewModel,navController)
                         }
                         composable(PROFILE_SCREEN) {
                             ProfileScreen(navController)
                         }
                         composable(ADDECOPONTO_SCREEN) {
                             AddEcopontoScreen(viewModel,locationViewModel,navController, )
+                        }
+                        composable(
+                            route="$DETAIL_SCREEN/{recyclingPointId}",
+                            arguments = listOf(navArgument("recyclingPointId") {
+                                type = NavType.StringType
+                            })
+                        ) { backStackEntry ->
+                            val recyclingPointId =
+                                backStackEntry.arguments?.getString("recyclingPointId")
+                            if (recyclingPointId != null) {
+                                EcopontoDetails(
+                                    viewModel = viewModel,
+                                    navController = navController,
+                                    recyclingPointId = recyclingPointId
+                                )
+                            } else {
+                                navController.popBackStack()
+                            }
                         }
                     }
                 }

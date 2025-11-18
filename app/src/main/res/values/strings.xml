@@ -14,6 +14,38 @@
     <string name="text_have_account">Already have an account?</string>
     <string name="passwords_not_match">Passwords do not match</string>
 
+    <string name="list_title">Nearby Eco-Points</string>
+    <string name="list_filter_all">All</string>
+    <string name="list_filter_paper">Paper</string>
+    <string name="list_filter_glass">Glass</string>
+    <string name="list_filter_plastic">Plastic</string>
+    <string name="list_filter_metal">Metal</string>
+    <string name="list_status_pending">Pending</string>
+    <string name="list_status_verified">Verified</string>
+    <string name="list_distance_metres">%dm</string>
+    <string name="list_view_details_cd">View details</string>
+    <string name="list_add_ecopoint_cd">Add Eco-Point</string>
+
+    <string name="bin_blue">Paper Bin</string>
+    <string name="bin_green">Glass Bin</string>
+    <string name="bin_yellow">Plastic Bin</string>
+    <string name="bin_red">Metal Bin</string>
+    <string name="bin_black">Black Bin</string>
+    <string name="bin_unknown">Eco-Point</string>
+
+    <string name="detail_loading">Loading details…</string>
+    <string name="detail_back_cd">Back</string>
+    <string name="detail_image_title">Photo</string>
+    <string name="detail_no_image">No photo available</string>
+    <string name="detail_status_title">Status</string>
+    <string name="detail_location_title">Location</string>
+    <string name="detail_view_on_map">View on Map</string>
+    <string name="detail_notes_title">Notes</string>
+    <string name="detail_verify_title">Help Verify</string>
+    <string name="detail_verify_desc">Is this eco-point correct and in good condition?</string>
+    <string name="detail_button_confirm">Confirm</string>
+    <string name="detail_button_report">Report</string>
+
 
 </resources>
 
