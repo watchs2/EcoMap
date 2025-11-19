@@ -47,4 +47,5 @@
     <string name="detail_verify_desc">Este ecoponto está correto e em boas condições?</string>
     <string name="detail_button_confirm">Confirmar</string>
     <string name="detail_button_report">Reportar</string>
+    <string name="detail_current_distance">Distância até ao ecoponto: %1$d m</string>
 </resources>

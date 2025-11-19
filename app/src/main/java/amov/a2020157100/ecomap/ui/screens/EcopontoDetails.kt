@@ -93,7 +93,7 @@ fun EcopontoDetails(
                     item { PhotoSection(recyclingPoint) }
 
                     // Secção Principal (Info + Votação Admin)
-                    item { MainSection(viewModel, recyclingPoint) }
+                    item { MainSection(viewModel, recyclingPoint,currentLocation) }
 
                  
                 }
@@ -103,8 +103,20 @@ fun EcopontoDetails(
 }
 
 @Composable
-private fun MainSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint?) {
+private fun MainSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint?,currentLocation: Location?,) {
     if (recyclingPoint == null) return
+    val distance = remember(currentLocation, recyclingPoint) {
+        if (currentLocation != null) {
+            val ecopontoLocation = Location("").apply {
+                latitude = recyclingPoint.latatitude
+                longitude = recyclingPoint.longitude
+            }
+            currentLocation.distanceTo(ecopontoLocation).toInt()
+        } else {
+            null
+        }
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -112,7 +124,7 @@ private fun MainSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingP
         colors = CardDefaults.cardColors(containerColor = Branco)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -165,6 +177,17 @@ private fun MainSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingP
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray
                     )
+                    Text(
+                        text = if (distance != null) {
+                            stringResource(R.string.detail_current_distance, distance)
+                        } else {
+                            "-- m"
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                  
                 }
             }
             

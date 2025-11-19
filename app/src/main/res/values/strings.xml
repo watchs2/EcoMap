@@ -46,6 +46,7 @@
     <string name="detail_verify_desc">Is this eco-point correct and in good condition?</string>
     <string name="detail_button_confirm">Confirm</string>
     <string name="detail_button_report">Report</string>
+    <string name="detail_current_distance">Distance to the recycling point: %1$d m</string>
 
 
 </resources>
