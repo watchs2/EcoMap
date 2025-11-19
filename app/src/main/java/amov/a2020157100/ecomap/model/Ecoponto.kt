@@ -40,11 +40,12 @@ data class RecyclingPoint(
     val idsVoteRemove : List<String>?,
     val idsVoteAprove : List<String>?,
 
+    val condition: Condition?,
+
 )
 
 //cheio, danificado, desaparecido
 data class Condition(
-    val id: String,
     val creator: String,
     val state: String,
     val notes: String?,

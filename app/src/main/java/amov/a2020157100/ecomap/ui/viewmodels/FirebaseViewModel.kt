@@ -1,5 +1,6 @@
 package amov.a2020157100.ecomap.ui.viewmodels
 
+import amov.a2020157100.ecomap.model.Condition
 import amov.a2020157100.ecomap.model.RecyclingPoint
 import amov.a2020157100.ecomap.model.Status
 import amov.a2020157100.ecomap.model.toUser
@@ -115,6 +116,7 @@ class FirebaseViewModel : ViewModel() {
     }
 
     fun getRecyclingPoints() {
+        _error.value = null
         viewModelScope.launch {
             val recyclingPoints = FStorageUtil.getRecyclingPoints()
             if(recyclingPoints != null){
@@ -127,6 +129,7 @@ class FirebaseViewModel : ViewModel() {
     }
 
     fun getRecyclingPoint(recyclingPointId: String) {
+        _error.value = null
         viewModelScope.launch {
             _selectedRecyclingPoint.value = null
             FStorageUtil.getRecyclingPoint(recyclingPointId) { recyclingPoint ->
@@ -145,55 +148,68 @@ class FirebaseViewModel : ViewModel() {
 
 
     fun confirmEcoponto(recyclingPointId: String) {
+        _error.value = null
+
         _user.value?.let { user ->
-            _error.value = null
+            viewModelScope.launch {
+                val selectedPoint = _selectedRecyclingPoint.value
 
-            val selectedPoint = _selectedRecyclingPoint.value
+                if (selectedPoint != null && selectedPoint.id == recyclingPointId) {
 
-            if (selectedPoint != null && selectedPoint.id == recyclingPointId) {
+                    if (selectedPoint.creator == user.uid) {
+                        _error.value =
+                            "O criador não pode votar para confirmar" // The error message suggested in your notes
 
-                if (selectedPoint.creator == user.uid) {
-                    _error.value = "O criador não pode votar para confirmar" // The error message suggested in your notes
-                    return
+                    }
+
+                    if (selectedPoint.idsVoteAprove.orEmpty().contains(user.uid)) {
+                        _error.value =
+                            "Já votaste para confirmar este ecoponto." // Feedback for repeat voting
+
+                    }
+
+                    if (selectedPoint.status == Status.FINAL.name) {
+                        _error.value = "Este ecoponto já está verificado."
+
+                    }
+                    FStorageUtil.confirmRecyclingPoint(recyclingPointId, user.uid)
+                    getRecyclingPoint(recyclingPointId)
                 }
-
-                if (selectedPoint.idsVoteAprove.orEmpty().contains(user.uid)) {
-                    _error.value = "Já votaste para confirmar este ecoponto." // Feedback for repeat voting
-                    return
-                }
-
-                if (selectedPoint.status == Status.FINAL.name) {
-                    _error.value = "Este ecoponto já está verificado."
-                    return
-                }
-                FStorageUtil.confirmRecyclingPoint(recyclingPointId, user.uid)
-                getRecyclingPoint(recyclingPointId)
             }
-            return
         }
     }
-
+//TODO tem de ser courutine
     fun deleteEcoponto(recyclingPointId: String) {
+        _error.value = null
         _user.value?.let { user ->
+            viewModelScope.launch {
+                val selectedPoint = _selectedRecyclingPoint.value
 
-            _error.value = null
-            val selectedPoint = _selectedRecyclingPoint.value
+                if (selectedPoint != null && selectedPoint.id == recyclingPointId) {
 
-            if (selectedPoint != null && selectedPoint.id == recyclingPointId) {
+                    if (selectedPoint.idsVoteRemove.orEmpty().contains(user.uid)) {
+                        _error.value =
+                            "Já votaste para eliminar este ecoponto." // Feedback for repeat voting
 
-                if (selectedPoint.idsVoteRemove.orEmpty().contains(user.uid)) {
-                    _error.value = "Já votaste para eliminar este ecoponto." // Feedback for repeat voting
-                    return
+                    }
+                    FStorageUtil.deleteRecyclingPoint(recyclingPointId, user.uid)
+                    getRecyclingPoint(recyclingPointId)
                 }
-
-                FStorageUtil.deleteRecyclingPoint(recyclingPointId, user.uid)
-                getRecyclingPoint(recyclingPointId)
             }
-            return
         }
     }
 
+    fun updateEcopontoCondicion(recyclingPointId: String,state: String, notes: String?,imgUrl: String?){
 
+        _error.value = null
+        _user.value?.let { user ->
+            viewModelScope.launch {
+                val condition = Condition(user.uid, state, notes, imgUrl)
+                FStorageUtil.updateCondition(recyclingPointId, condition)
+                getRecyclingPoint(recyclingPointId)
+            }
+        }
+    }
 
 
 

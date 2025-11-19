@@ -1,5 +1,6 @@
 package amov.a2020157100.ecomap.utils.firebase
 
+import amov.a2020157100.ecomap.model.Condition
 import amov.a2020157100.ecomap.model.Status
 import amov.a2020157100.ecomap.model.RecyclingPoint
 import android.content.ContentValues.TAG
@@ -64,6 +65,20 @@ class FStorageUtil {
             val recyclingPoints = mutableListOf<RecyclingPoint>()
 
             for (document in result) {
+
+                val conditionMap = document.get("condition") as? Map<String, Any>
+
+                val conditionObj = if (conditionMap != null) {
+                    Condition(
+                        creator = conditionMap["creator"] as? String ?: "",
+                        state = conditionMap["state"] as? String ?: "",
+                        notes = conditionMap["notes"] as? String,
+                        imgUrl = conditionMap["imgUrl"] as? String
+                    )
+                } else {
+                    null
+                }
+
                 recyclingPoints.add(
                     RecyclingPoint(
                         id = document.id,
@@ -75,7 +90,8 @@ class FStorageUtil {
                         notes = document.getString("notes"),
                         status = document.getString("status") ?: "",
                         idsVoteRemove = document.get("idsVoteRemove") as? List<String>,
-                        idsVoteAprove = document.get("idsVoteAprove") as? List<String>
+                        idsVoteAprove = document.get("idsVoteAprove") as? List<String>,
+                        condition = conditionObj
                     )
                 )
             }
@@ -93,6 +109,16 @@ class FStorageUtil {
                 .get()
                 .addOnSuccessListener { document ->
                     if (document != null && document.exists()) {
+                        val conditionMap = document.get("condition") as? Map<String, Any>
+                        val conditionObj = if (conditionMap != null) {
+                            Condition(
+                                creator = conditionMap["creator"] as? String ?: "",
+                                state = conditionMap["state"] as? String ?: "",
+                                notes = conditionMap["notes"] as? String,
+                                imgUrl = conditionMap["imgUrl"] as? String
+                            )
+                        } else null
+
                         val recyclingPoint = RecyclingPoint(
                             id = document.id,
                             creator = document.getString("creator") ?: "",
@@ -103,7 +129,8 @@ class FStorageUtil {
                             notes = document.getString("notes"),
                             status = document.getString("status") ?: "",
                             idsVoteRemove = document.get("idsVoteRemove") as? List<String>,
-                            idsVoteAprove = document.get("idsVoteAprove") as? List<String>
+                            idsVoteAprove = document.get("idsVoteAprove") as? List<String>,
+                            condition = conditionObj
                         )
 
                         onResult(recyclingPoint)
@@ -159,12 +186,21 @@ class FStorageUtil {
                                     }
                             }
                             if( currentVotes.size >= 3){
-                                //eliminar o ecoponto ;/
+                                recyclingPoint.delete()
+                                    .addOnFailureListener {e ->
+                                        Log.e(TAG, "Error deleting $recyclingPointId", e)
+                                    }
                             }
 
                         }
 
                 }
+        }
+
+        fun updateCondition(recyclingPointId: String, condition: Condition) {
+            val db = Firebase.firestore
+            db.collection("RecyclingPoints").document(recyclingPointId)
+                .update("condition", condition)
         }
 
     }

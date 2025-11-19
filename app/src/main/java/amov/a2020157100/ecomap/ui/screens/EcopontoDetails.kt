@@ -60,8 +60,6 @@ fun EcopontoDetails(
     val binNameRes = getBinStringRes(recyclingPoint?.type)
     val currentLocation by locationViewModel.currentLocation
 
-
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -94,6 +92,7 @@ fun EcopontoDetails(
 
                     // Secção Principal (Info + Votação Admin)
                     item { MainSection(viewModel, recyclingPoint,currentLocation) }
+
 
                  
                 }
@@ -185,15 +184,14 @@ private fun MainSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingP
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray,
-                        fontWeight = FontWeight.SemiBold
                     )
                   
                 }
             }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
             
             if (recyclingPoint.status == Status.PENDING.name || recyclingPoint.status == Status.DELETE.name) {
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
 
                 Text(
                     text = "Ações da Comunidade",
@@ -228,8 +226,6 @@ private fun MainSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingP
                             Spacer(modifier = Modifier.width(8.dp))
                             Column(horizontalAlignment = Alignment.Start) {
                                 Text("Remover")
-                               // val votes = recyclingPoint.idsVoteRemove?.size ?: 0
-                               // Text("Votos: ${votes - 1}/2", fontSize = 10.sp, lineHeight = 10.sp)
                             }
                         }
                     }
@@ -252,58 +248,18 @@ private fun MainSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingP
                     }
                 }
             }
-        }
-    }
-}
 
-@Composable
-private fun ReportStateSection(
-    recyclingPoint: RecyclingPoint?,
-    onReportClick: () -> Unit
-) {
-    if (recyclingPoint == null) return
-    val userLat = 0.0 // Stub
-    val userLong = 0.0 // Stub
-    // Função auxiliar simples para calcular distância (Stub)
-    val isClose = true // calculateDistance(userLat, userLong, recyclingPoint.latatitude, recyclingPoint.longitude) < 50.0
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco)
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.ReportProblem, contentDescription = null, tint = Color(0xFFFF9800))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Reportar Problema / Atualizar",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+            if(recyclingPoint.condition != null){
+                Text(text = stringResource(R.string.detail_button_report))
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Encontra-se perto deste ecoponto? Ajude a comunidade atualizando o estado (Cheio, Avariado, etc).",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-
         }
     }
 }
 
-
-// --- Componentes Auxiliares e Stubs ---
 
 @Composable
 private fun PhotoSection(recyclingPoint: RecyclingPoint?) {
-    // Mantém o teu código original ou o simplificado abaixo
+
     Card(
         modifier = Modifier.fillMaxWidth().height(200.dp),
         shape = RoundedCornerShape(16.dp),

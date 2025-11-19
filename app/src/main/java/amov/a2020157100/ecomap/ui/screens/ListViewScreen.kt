@@ -288,22 +288,13 @@ private fun RecyclingPointItem(
                         )
                     }
                 }
-
-                if (recyclingPoint.notes?.isNotBlank() == true) {
-                    Text(
-                        text = recyclingPoint.notes,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray,
-                        maxLines = 1
+                IconButton(onClick = onViewDetails) {
+                    Icon(
+                        imageVector = Icons.Outlined.Visibility,
+                        contentDescription = stringResource(R.string.list_view_details_cd),
+                        tint = Color.Gray
                     )
                 }
-            }
-            IconButton(onClick = onViewDetails) {
-                Icon(
-                    imageVector = Icons.Outlined.Visibility,
-                    contentDescription = stringResource(R.string.list_view_details_cd),
-                    tint = Color.Gray
-                )
             }
         }
     }
