@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 
 
@@ -129,7 +130,7 @@ fun MapViewScreen(
             }
         },
         bottomBar = {
-            AppBottomBar(navController = navController)
+            AppBottomBar(navController)
         }
 
 

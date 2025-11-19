@@ -82,16 +82,13 @@ fun ListViewScreen(
     val currentLocation by locationViewModel.currentLocation
 
     var selectedFilter by remember { mutableStateOf("All") }
-    val filters = listOf("All", "Paper", "Glass", "Plastic", "Metal") // As per mockup
+    val filters = listOf("All", "Paper", "Glass", "Plastic", "Metal")
 
     val filteredPoints = remember(recyclingPoints, selectedFilter) {
         if (selectedFilter == "All") {
             recyclingPoints
         } else {
             recyclingPoints.filter {
-                // This logic assumes your `type` string contains the filter word
-                // e.g., "Blue bin" contains "Paper" (if we map it)
-                // Let's assume a simple mapping for the filter
                 when (selectedFilter) {
                     "Paper" -> it.type == "Blue bin"
                     "Glass" -> it.type == "Green bin"
@@ -165,7 +162,7 @@ fun ListViewScreen(
             }
         },
         bottomBar = {
-            AppBottomBar(navController = navController)
+            AppBottomBar(navController)
         }
     )
 }

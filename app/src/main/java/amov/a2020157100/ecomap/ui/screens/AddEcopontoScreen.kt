@@ -201,7 +201,7 @@ private fun LocationSection(
     longitude :  MutableState<Double>,
     latitude :  MutableState<Double>
 ){
-    //TODO provavelmente isto n é aqui que fica
+
     val localization = remember { mutableStateOf("") }
     val currentLocation = locationViewModel.currentLocation.value
 

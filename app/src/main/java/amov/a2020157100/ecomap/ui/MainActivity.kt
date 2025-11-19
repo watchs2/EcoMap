@@ -7,10 +7,10 @@ import amov.a2020157100.ecomap.ui.screens.ListViewScreen
 import amov.a2020157100.ecomap.ui.screens.LoginScreen
 import amov.a2020157100.ecomap.ui.screens.MainScreen
 import amov.a2020157100.ecomap.ui.screens.MapViewScreen
-import amov.a2020157100.ecomap.ui.screens.ProfileScreen
 import amov.a2020157100.ecomap.ui.screens.RegisterScreen
 import amov.a2020157100.ecomap.ui.screens.AddEcopontoScreen
 import amov.a2020157100.ecomap.ui.screens.EcopontoDetails
+import amov.a2020157100.ecomap.ui.screens.ProfileScreen
 import amov.a2020157100.ecomap.ui.theme.EcoMapTheme
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
@@ -68,8 +68,6 @@ class MainActivity : ComponentActivity() {
                                 viewModel,
                                 onSuccess = {
                                     navController.navigate(MAPVIEW_SCREEN) {
-                                        //usa-se desta maneira caso se faça botao retroceder, obriga a fazer signout
-                                        //em vez de ir para o login screen
                                         popUpTo(LOGIN_SCREEN) { inclusive = true }
                                     }
                                 },
@@ -108,11 +106,17 @@ class MainActivity : ComponentActivity() {
                         composable(LISTVIEW_SCREEN) {
                             ListViewScreen(viewModel,locationViewModel,navController)
                         }
-                        composable(PROFILE_SCREEN) {
-                            ProfileScreen(navController)
-                        }
                         composable(ADDECOPONTO_SCREEN) {
-                            AddEcopontoScreen(viewModel,locationViewModel,navController, )
+                            AddEcopontoScreen(viewModel,locationViewModel,navController)
+                        }
+                        composable(PROFILE_SCREEN) {
+                            ProfileScreen(navController,
+                                onSignOut = {
+                                    viewModel.signOut()
+                                    navController.navigate(LOGIN_SCREEN){
+                                        popUpTo(MAIN_SCREEN) { inclusive = true }
+                                    }
+                            })
                         }
                         composable(
                             route="$DETAIL_SCREEN/{recyclingPointId}",

@@ -7,18 +7,14 @@ import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
 import android.location.Location
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.ReportProblem
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material3.*
@@ -60,6 +56,9 @@ fun EcopontoDetails(
     val binNameRes = getBinStringRes(recyclingPoint?.type)
     val currentLocation by locationViewModel.currentLocation
 
+    val reportState = remember { mutableStateOf("") } // Estado reportado (e.g., "CHEIO", "BOM")
+    val reportNotes = remember { mutableStateOf(recyclingPoint?.condition?.notes ?: "") } // Notas
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -90,9 +89,20 @@ fun EcopontoDetails(
                 ) {
                     item { PhotoSection(recyclingPoint) }
 
-                    // Secção Principal (Info + Votação Admin)
                     item { MainSection(viewModel, recyclingPoint,currentLocation) }
-
+                    item {
+                        ReportSection(
+                            recyclingPoint = recyclingPoint,
+                            selectedState = reportState.value,
+                            notes = reportNotes.value,
+                            onStateSelected = { reportState.value = it },
+                            onNotesChange = { reportNotes.value = it },
+                            currentLocation= currentLocation,
+                            onSubmitReport = {
+                                viewModel.updateEcopontoCondicion(recyclingPointId, reportState.value, reportNotes.value, null)
+                            }
+                        )
+                    }
 
                  
                 }
@@ -102,8 +112,13 @@ fun EcopontoDetails(
 }
 
 @Composable
-private fun MainSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint?,currentLocation: Location?,) {
+private fun MainSection(
+    viewModel: FirebaseViewModel,
+    recyclingPoint: RecyclingPoint?,
+    currentLocation: Location?,
+) {
     if (recyclingPoint == null) return
+
     val distance = remember(currentLocation, recyclingPoint) {
         if (currentLocation != null) {
             val ecopontoLocation = Location("").apply {
@@ -124,39 +139,32 @@ private fun MainSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingP
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = "Estado Atual",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.Gray
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
+            // --- 1. Secção de Status Principal ---
+            Text(
+                text = "Estado de Verificação",
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.Gray
+            )
+            Spacer(modifier = Modifier.height(4.dp))
 
-                    var statusText = stringResource(R.string.list_status_pending)
-                    var statusColor = pendingColor
-                    if (recyclingPoint.status == Status.DELETE.name) {
-                        statusText =stringResource(R.string.list_status_deleting)
-                        statusColor= deleteColor
-
-                    } else if (recyclingPoint.status == Status.FINAL.name) {
-                        statusText =stringResource(R.string.list_status_verified)
-                        statusColor=verifiedColor
-
-                    }
-
-
-                    StatusBadge(text = statusText, color = statusColor)
-                }
+            val statusText = when (recyclingPoint.status) {
+                Status.DELETE.name -> stringResource(R.string.list_status_deleting)
+                Status.FINAL.name -> stringResource(R.string.list_status_verified)
+                else -> stringResource(R.string.list_status_pending)
             }
+            val statusColor = when (recyclingPoint.status) {
+                Status.DELETE.name -> deleteColor
+                Status.FINAL.name -> verifiedColor
+                else -> pendingColor
+            }
+
+            // Reutiliza a função StatusBadge
+            StatusBadge(text = statusText, color = statusColor)
+
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
 
-            // Localização
+            // --- 2. Secção de Localização e Distância ---
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
@@ -185,22 +193,89 @@ private fun MainSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingP
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray,
                     )
-                  
                 }
             }
 
+            // --- 3. Secção de Notas (Se existirem) ---
+            if (!recyclingPoint.notes.isNullOrBlank()) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
+
+                Text(
+                    text = stringResource(R.string.detail_notes_title),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = CinzentoClaro.copy(alpha = 0.5f)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = recyclingPoint.notes,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Black.copy(alpha = 0.8f),
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+            }
+            // --- 3. Secção de  Report---
+            if(recyclingPoint.condition != null){
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
+                Text(
+                    text = "Último Reporte de Condição",
+                    style =MaterialTheme.typography.titleMedium,
+                    color = Color.Gray
+                )/*
+                Text(
+                    text = "Último Reporte de Condição",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = CinzentoEscuro
+                )*/
+                Spacer(modifier = Modifier.height(12.dp))
+                Column {
+                    Text(
+                        text = "Condição Reportada",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    val (displayText, color) = getConditionDisplay(recyclingPoint.condition.state)
+                    StatusBadge(text = displayText, color = color)
+                    if (!recyclingPoint.condition.notes.isNullOrBlank()) {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
+
+                        Text(
+                            text = stringResource(R.string.detail_notes_title),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = recyclingPoint.condition.notes,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Black.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+            }
+
+
+            // --- 4. Secção de Ações da Comunidade ---
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
-            
+
             if (recyclingPoint.status == Status.PENDING.name || recyclingPoint.status == Status.DELETE.name) {
 
                 Text(
                     text = "Ações da Comunidade",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.Gray,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    // Botão de Confirmação (Visível apenas em PENDING)
                     if (recyclingPoint.status == Status.PENDING.name) {
                         Button(
                             onClick = { viewModel.confirmEcoponto(recyclingPoint.id) },
@@ -216,23 +291,12 @@ private fun MainSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingP
                                 Text("Votos: $votes/2", fontSize = 10.sp, lineHeight = 10.sp)
                             }
                         }
-                        Button(
-                            onClick = { viewModel.deleteEcoponto(recyclingPoint.id) }, // Assumindo que reportEcoponto aqui é para confirmar delete
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Red)
-                        ) {
-                            Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column(horizontalAlignment = Alignment.Start) {
-                                Text("Remover")
-                            }
-                        }
                     }
 
-                    if (recyclingPoint.status == Status.DELETE.name) {
+                    // Botão de Remover (Visível em PENDING e DELETE)
+                    if (recyclingPoint.status == Status.PENDING.name || recyclingPoint.status == Status.DELETE.name) {
                         Button(
-                            onClick = { viewModel.deleteEcoponto(recyclingPoint.id) }, // Assumindo que reportEcoponto aqui é para confirmar delete
+                            onClick = { viewModel.deleteEcoponto(recyclingPoint.id) },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Red)
@@ -241,20 +305,182 @@ private fun MainSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingP
                             Spacer(modifier = Modifier.width(8.dp))
                             Column(horizontalAlignment = Alignment.Start) {
                                 Text("Remover")
-                                val votes = recyclingPoint.idsVoteRemove?.size ?: 0
-                                Text("Votos: ${votes - 1}/2", fontSize = 10.sp, lineHeight = 10.sp)
+                                val currentVotes = recyclingPoint.idsVoteRemove?.size ?: 0
+                                // Se estiver em DELETE, já tem o voto inicial. Se estiver em PENDING, ainda não tem.
+                                val votesDisplay = if (recyclingPoint.status == Status.DELETE.name) {
+                                    "${currentVotes}/3"
+                                } else {
+                                    "${currentVotes}/3"
+                                }
+                                Text("Votos: $votesDisplay", fontSize = 10.sp, lineHeight = 10.sp)
                             }
                         }
                     }
                 }
             }
+        }
+    }
+}
 
-            if(recyclingPoint.condition != null){
-                Text(text = stringResource(R.string.detail_button_report))
+@Composable
+private fun ReportSection(
+    recyclingPoint: RecyclingPoint?,
+    onStateSelected: (String) -> Unit,
+    onNotesChange: (String) -> Unit,
+    onSubmitReport: () -> Unit,
+    selectedState: String,
+    notes: String,
+    currentLocation: Location?
+) {
+    if (recyclingPoint == null || currentLocation == null) return
+    val ecopontoLocation = Location("").apply {
+        latitude = recyclingPoint.latatitude
+        longitude = recyclingPoint.longitude
+    }
+    if( currentLocation.distanceTo(ecopontoLocation).toInt() > 5) return
+
+    val conditionOptions = remember {
+        listOf(
+            "BOM" to Pair("Bom", Green), // Estado positivo
+            "CHEIO" to Pair("Cheio", pendingColor), // Alerta/Aviso
+            "DANIFICADO" to Pair("Danificado", Red), // Estado negativo/Problema
+            "DESAPARECIDO" to Pair("Desaparecido", Black.copy(alpha = 0.6f)) // Problema Grave
+        )
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = Branco)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+
+            // --- Título e Descrição ---
+            Text(
+                text = stringResource(R.string.detail_verify_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Green
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.detail_verify_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
+
+            // --- Seleção de Estado ---
+            Text(
+                text = "Estado Atual do Ecoponto *",
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                conditionOptions.forEach { (stateKey, stateInfo) ->
+                    val (displayText, color) = stateInfo
+                    ReportStateChip(
+                        text = displayText,
+                        color = color,
+                        isSelected = stateKey == selectedState,
+                        onClick = { onStateSelected(stateKey) }
+                    )
+                }
+            }
+
+            // --- Secção de Notas (Opcional) ---
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = stringResource(R.string.detail_notes_title) + " (Opcional)",
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp),
+                value = notes,
+                onValueChange = onNotesChange,
+                shape = RoundedCornerShape(10.dp),
+                placeholder = { Text("Adicione observações sobre a condição...") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Green,
+                    unfocusedBorderColor = LightGreen,
+                    cursorColor = Green,
+                    focusedContainerColor = Branco,
+                    unfocusedContainerColor = Branco
+                )
+            )
+
+            // TODO: Inserir aqui a lógica da foto, se necessário. Por enquanto, só a UI de texto/botão.
+
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
+
+            // --- Botão de Reportar ---
+            Button(
+                onClick = onSubmitReport,
+                enabled = selectedState.isNotBlank(), // O utilizador tem de selecionar um estado
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Green,
+                    disabledContainerColor = Green.copy(alpha = 0.5f)
+                )
+            ) {
+                Icon(Icons.Outlined.Flag, contentDescription = null, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.detail_button_report), fontWeight = FontWeight.SemiBold)
             }
         }
     }
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ReportStateChip(
+    text: String,
+    color: Color,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    FilterChip(
+        selected = isSelected,
+        onClick = onClick,
+        label = { Text(text, color = if (isSelected) Branco else Black.copy(alpha = 0.8f)) },
+        leadingIcon = {
+            Box(
+                modifier = Modifier
+                    .size(10.dp)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+        },
+        colors = FilterChipDefaults.filterChipColors(
+            containerColor = CinzentoClaro,
+            selectedContainerColor = color, // Cor do estado para o fundo
+            selectedLabelColor = Branco,
+            labelColor = Black.copy(alpha = 0.8f)
+        ),
+        border = FilterChipDefaults.filterChipBorder(
+            borderColor = color,
+            selected = isSelected,
+            enabled = false
+        )
+    )
+}
+
 
 
 @Composable
@@ -314,4 +540,25 @@ private fun getBinStringRes(type: String?): Int {
         "Black bin" -> R.string.bin_black
         else -> R.string.bin_unknown
     }
+}
+
+@Composable
+private fun getConditionDisplay(state: String): Pair<String, Color> {
+    // Mapeamento das strings de estado para o texto de display e cor
+    val displayText = when (state) {
+        "BOM" -> "Bom"
+        "CHEIO" -> "Cheio"
+        "DANIFICADO" -> "Danificado"
+        "DESAPARECIDO" -> "Desaparecido"
+        else -> "Desconhecido"
+    }
+
+    val color = when (state) {
+        "BOM" -> Green
+        "CHEIO" -> pendingColor // Usar amarelo para CHEIO
+        "DANIFICADO" -> Red
+        "DESAPARECIDO" -> Black.copy(alpha = 0.6f) // Usar cinza escuro para DESAPARECIDO
+        else -> Color.Gray
+    }
+    return Pair(displayText, color)
 }

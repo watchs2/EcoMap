@@ -3,6 +3,7 @@ package amov.a2020157100.ecomap.ui.composables
 import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.screens.Branco
 import amov.a2020157100.ecomap.ui.screens.Green
+import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -64,7 +65,6 @@ fun AppBottomBar(navController: NavHostController) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 2. Cada botão sabe a sua rota e destaca-se se for a rota atual
                 BottomNavItem(
                     icon = Icons.Filled.Map,
                     label = "Map",
@@ -81,7 +81,7 @@ fun AppBottomBar(navController: NavHostController) {
 
                 BottomNavItem(
                     icon = Icons.Filled.Person,
-                    label = "Profile",
+                    label = "Signout",
                     isSelected = (currentRoute == MainActivity.PROFILE_SCREEN),
                     onClick = { navController.navigate(MainActivity.PROFILE_SCREEN) }
                 )
