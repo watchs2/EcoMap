@@ -6,6 +6,7 @@ import amov.a2020157100.ecomap.model.Status
 import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.composables.AppBottomBar
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
+import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import android.location.Location
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -63,10 +65,13 @@ import androidx.navigation.NavHostController
 val pendingColor = Color(0xFFFBC02D)
 val verifiedColor = Green
 
+val deleteColor = Red
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListViewScreen(
     viewModel: FirebaseViewModel,
+    locationViewModel: LocationViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
@@ -74,6 +79,8 @@ fun ListViewScreen(
         viewModel.getRecyclingPoints()
     }
     val recyclingPoints = viewModel.recyclingPoints.value
+    val currentLocation by locationViewModel.currentLocation
+
     var selectedFilter by remember { mutableStateOf("All") }
     val filters = listOf("All", "Paper", "Glass", "Plastic", "Metal") // As per mockup
 
@@ -137,6 +144,7 @@ fun ListViewScreen(
                 items(filteredPoints) { point ->
                     RecyclingPointItem(
                         recyclingPoint = point,
+                        currentLocation = currentLocation,
                         onViewDetails = {
                             navController.navigate("${MainActivity.DETAIL_SCREEN}/${point.id}")
                         }
@@ -194,12 +202,23 @@ private fun FilterChips(
 @Composable
 private fun RecyclingPointItem(
     recyclingPoint: RecyclingPoint,
+    currentLocation: Location?,
     onViewDetails: () -> Unit
 ) {
     val binColor = getBinColor(recyclingPoint.type)
     val binName = getBinStringRes(recyclingPoint.type)
 
-    val distance = remember { (100..900).random() }
+    val distance = remember(currentLocation, recyclingPoint) {
+        if (currentLocation != null) {
+            val ecopontoLocation = Location("").apply {
+                latitude = recyclingPoint.latatitude
+                longitude = recyclingPoint.longitude
+            }
+            currentLocation.distanceTo(ecopontoLocation).toInt()
+        } else {
+            null
+        }
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -240,7 +259,11 @@ private fun RecyclingPointItem(
                         modifier = Modifier.weight(1f)
                     )
                     Text(
-                        text = stringResource(R.string.list_distance_metres, distance),
+                        text = if (distance != null) {
+                            stringResource(R.string.list_distance_metres, distance)
+                        } else {
+                            "-- m"
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray,
                         fontWeight = FontWeight.SemiBold
@@ -252,6 +275,11 @@ private fun RecyclingPointItem(
                         StatusBadge(
                             text = stringResource(R.string.list_status_pending),
                             color = pendingColor
+                        )
+                    } else if (recyclingPoint.status == Status.DELETE.name) {
+                        StatusBadge(
+                            text = stringResource(R.string.list_status_deleting),
+                            color = deleteColor
                         )
                     } else if (recyclingPoint.status == Status.FINAL.name) {
                         StatusBadge(
@@ -281,6 +309,7 @@ private fun RecyclingPointItem(
     }
 }
 
+//TODO meter em composables partilhados
 @Composable
 private fun StatusBadge(
     text: String,

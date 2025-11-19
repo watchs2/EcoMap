@@ -202,7 +202,6 @@ private fun LocationSection(
     latitude :  MutableState<Double>
 ){
     //TODO provavelmente isto n é aqui que fica
-    locationViewModel.startLocationUpdates()
     val localization = remember { mutableStateOf("") }
     val currentLocation = locationViewModel.currentLocation.value
 

@@ -106,7 +106,7 @@ class MainActivity : ComponentActivity() {
                             MapViewScreen(viewModel ,locationViewModel,navController)
                         }
                         composable(LISTVIEW_SCREEN) {
-                            ListViewScreen(viewModel,navController)
+                            ListViewScreen(viewModel,locationViewModel,navController)
                         }
                         composable(PROFILE_SCREEN) {
                             ProfileScreen(navController)
@@ -124,9 +124,10 @@ class MainActivity : ComponentActivity() {
                                 backStackEntry.arguments?.getString("recyclingPointId")
                             if (recyclingPointId != null) {
                                 EcopontoDetails(
-                                    viewModel = viewModel,
-                                    navController = navController,
-                                    recyclingPointId = recyclingPointId
+                                    viewModel,
+                                    locationViewModel,
+                                   navController,
+                                    recyclingPointId
                                 )
                             } else {
                                 navController.popBackStack()
@@ -153,6 +154,18 @@ class MainActivity : ComponentActivity() {
     ) { granted ->
         /* TODO */
        // verifyLocationPermissions()
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        locationViewModel.startLocationUpdates()
+    }
+
+
+    override fun onPause() {
+        super.onPause()
+        locationViewModel.stopLocationUpdates()
     }
 
     fun verifyLocationPermissions() {

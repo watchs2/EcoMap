@@ -32,9 +32,8 @@ fun Map(
     locationViewModel: LocationViewModel,
     modifier: Modifier = Modifier
 ) {
-    val recyclingPoints = firebaseViewModel.recyclingPoints.value
-    locationViewModel.startLocationUpdates()
-    val currentLocation = locationViewModel.currentLocation.value
+    val recyclingPoints by firebaseViewModel.recyclingPoints
+    val currentLocation by locationViewModel.currentLocation
 
     LaunchedEffect(Unit) {
         firebaseViewModel.getRecyclingPoints()
@@ -101,7 +100,7 @@ fun Map(
                         locationMarker.position = currentGeoPoint
                         view.overlays.add(locationMarker)
                     }
-                    // view.controller.animateTo(currentGeoPoint)
+                    view.controller.animateTo(currentGeoPoint)
                     for (recyclingpoint in recyclingPoints){
                         view.overlays.add(
                             Marker(view).apply {

@@ -42,10 +42,16 @@ data class RecyclingPoint(
 
 )
 
+//cheio, danificado, desaparecido
+data class Condition(
+    val id: String,
+    val creator: String,
+    val state: String,
+    val notes: String?,
+    val imgUrl: String?,
+)
 
 
-/*
-    Tlvz precise de um metodo para converter de fb para este tipo
- */
+
 
 

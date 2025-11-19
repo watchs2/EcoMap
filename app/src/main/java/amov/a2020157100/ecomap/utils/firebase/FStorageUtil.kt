@@ -13,6 +13,7 @@ import com.google.firebase.storage.ktx.storage
 import java.io.IOException
 import java.io.InputStream
 import android.content.res.AssetManager
+import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.tasks.await
 
 
@@ -118,12 +119,52 @@ class FStorageUtil {
 
         //para confirmar o ecoponto
         fun confirmRecyclingPoint(recyclingPointId: String,userId: String) {
+            val db = Firebase.firestore
+            val recyclingPoint = db.collection("RecyclingPoints").document(recyclingPointId)
+            recyclingPoint.update("idsVoteAprove", FieldValue.arrayUnion(userId))
+                .addOnSuccessListener {
+                    recyclingPoint.get()
+                        .addOnSuccessListener { recycleP ->
+                            val currentVotes = recycleP.get("idsVoteAprove") as? List<String> ?: emptyList()
+                            val currentStatus = recycleP.getString("status")
+
+                            if(currentVotes.size >= 2 && currentStatus == Status.PENDING.name){
+                                recyclingPoint.update("status", Status.FINAL.name)
+                                    .addOnSuccessListener {
+
+                                    }
+                                    .addOnFailureListener { e->
+                                        Log.e(TAG, "Error updating status to FINAL for $recyclingPointId: ", e)
+                                    }
+                            }
+                        }
+                }
 
         }
 
         //votos para eliminar
         fun deleteRecyclingPoint(recyclingPointId: String,userId: String){
+            val db = Firebase.firestore
+            val recyclingPoint = db.collection("RecyclingPoints").document(recyclingPointId)
+            recyclingPoint.update("idsVoteRemove", FieldValue.arrayUnion(userId))
+                .addOnSuccessListener {
+                    recyclingPoint.get()
+                        .addOnSuccessListener { recycleP ->
+                            val currentVotes = recycleP.get("idsVoteRemove") as? List<String> ?: emptyList()
+                            val currentStatus = recycleP.getString("status")
+                            if( currentStatus != Status.DELETE.name){
+                                recyclingPoint.update("status", Status.DELETE.name)
+                                    .addOnFailureListener { e ->
+                                        Log.e(TAG, "Error updating status to Delete for $recyclingPointId: ", e)
+                                    }
+                            }
+                            if( currentVotes.size >= 3){
+                                //eliminar o ecoponto ;/
+                            }
 
+                        }
+
+                }
         }
 
     }

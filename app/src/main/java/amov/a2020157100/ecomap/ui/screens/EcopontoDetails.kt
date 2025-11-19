@@ -1,26 +1,28 @@
 package amov.a2020157100.ecomap.ui.screens
 
-
-
 import amov.a2020157100.ecomap.R
 import amov.a2020157100.ecomap.model.RecyclingPoint
 import amov.a2020157100.ecomap.model.Status
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
+import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
+import android.location.Location
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.ReportProblem
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,10 +37,12 @@ import java.util.Locale
 
 
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EcopontoDetails(
     viewModel: FirebaseViewModel,
+    locationViewModel: LocationViewModel,
     navController: NavHostController,
     recyclingPointId: String
 ) {
@@ -48,12 +52,15 @@ fun EcopontoDetails(
 
     DisposableEffect(Unit) {
         onDispose {
-            viewModel.clearSelectedRecyclingPoint()
+           // viewModel.clearSelectedRecyclingPoint()
         }
     }
 
     val recyclingPoint by viewModel.selectedRecyclingPoint
     val binNameRes = getBinStringRes(recyclingPoint?.type)
+    val currentLocation by locationViewModel.currentLocation
+
+
 
     Scaffold(
         topBar = {
@@ -61,34 +68,20 @@ fun EcopontoDetails(
                 title = {
                     Text(
                         text = if (recyclingPoint != null) stringResource(binNameRes)
-                        else stringResource(R.string.detail_loading)
+                        else stringResource(R.string.detail_loading),
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBackIosNew,
-                            contentDescription = stringResource(R.string.detail_back_cd)
-                        )
+                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Branco,
-                    titleContentColor = Color.Black
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Branco)
             )
         },
         content = { paddingValues ->
-            if (recyclingPoint == null) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = Green)
-                }
-            } else {
+
                 LazyColumn(
                     modifier = Modifier
                         .padding(paddingValues)
@@ -97,28 +90,214 @@ fun EcopontoDetails(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    item {
-                        PhotoSection(recyclingPoint)
+                    item { PhotoSection(recyclingPoint) }
+
+                    // Secção Principal (Info + Votação Admin)
+                    item { MainSection(viewModel, recyclingPoint) }
+
+                 
+                }
+
+        }
+    )
+}
+
+@Composable
+private fun MainSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint?) {
+    if (recyclingPoint == null) return
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = Branco)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Estado Atual",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    var statusText = stringResource(R.string.list_status_pending)
+                    var statusColor = pendingColor
+                    if (recyclingPoint.status == Status.DELETE.name) {
+                        statusText =stringResource(R.string.list_status_deleting)
+                        statusColor= deleteColor
+
+                    } else if (recyclingPoint.status == Status.FINAL.name) {
+                        statusText =stringResource(R.string.list_status_verified)
+                        statusColor=verifiedColor
+
                     }
-                    item {
-                        StatusSection(recyclingPoint)
+
+
+                    StatusBadge(text = statusText, color = statusColor)
+                }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
+
+            // Localização
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = Green,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(
+                        text = stringResource(R.string.detail_location_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = String.format(Locale.US, "%.5f, %.5f", recyclingPoint.latatitude, recyclingPoint.longitude),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                }
+            }
+            
+            if (recyclingPoint.status == Status.PENDING.name || recyclingPoint.status == Status.DELETE.name) {
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
+
+                Text(
+                    text = "Ações da Comunidade",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (recyclingPoint.status == Status.PENDING.name) {
+                        Button(
+                            onClick = { viewModel.confirmEcoponto(recyclingPoint.id) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Green)
+                        ) {
+                            Icon(Icons.Default.ThumbUp, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column(horizontalAlignment = Alignment.Start) {
+                                Text("Confirmar")
+                                val votes = recyclingPoint.idsVoteAprove?.size ?: 0
+                                Text("Votos: $votes/2", fontSize = 10.sp, lineHeight = 10.sp)
+                            }
+                        }
+                        Button(
+                            onClick = { viewModel.deleteEcoponto(recyclingPoint.id) }, // Assumindo que reportEcoponto aqui é para confirmar delete
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Red)
+                        ) {
+                            Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column(horizontalAlignment = Alignment.Start) {
+                                Text("Remover")
+                               // val votes = recyclingPoint.idsVoteRemove?.size ?: 0
+                               // Text("Votos: ${votes - 1}/2", fontSize = 10.sp, lineHeight = 10.sp)
+                            }
+                        }
                     }
-                    item {
-                        LocationSection(recyclingPoint)
-                    }
-                    item {
-                        NotesSection(recyclingPoint)
-                    }
-                    item {
-                        VerificationSection(
-                            viewModel = viewModel,
-                            recyclingPoint = recyclingPoint
-                        )
+
+                    if (recyclingPoint.status == Status.DELETE.name) {
+                        Button(
+                            onClick = { viewModel.deleteEcoponto(recyclingPoint.id) }, // Assumindo que reportEcoponto aqui é para confirmar delete
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Red)
+                        ) {
+                            Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column(horizontalAlignment = Alignment.Start) {
+                                Text("Remover")
+                                val votes = recyclingPoint.idsVoteRemove?.size ?: 0
+                                Text("Votos: ${votes - 1}/2", fontSize = 10.sp, lineHeight = 10.sp)
+                            }
+                        }
                     }
                 }
             }
         }
-    )
+    }
+}
+
+@Composable
+private fun ReportStateSection(
+    recyclingPoint: RecyclingPoint?,
+    onReportClick: () -> Unit
+) {
+    if (recyclingPoint == null) return
+    val userLat = 0.0 // Stub
+    val userLong = 0.0 // Stub
+    // Função auxiliar simples para calcular distância (Stub)
+    val isClose = true // calculateDistance(userLat, userLong, recyclingPoint.latatitude, recyclingPoint.longitude) < 50.0
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Branco)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.ReportProblem, contentDescription = null, tint = Color(0xFFFF9800))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Reportar Problema / Atualizar",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Encontra-se perto deste ecoponto? Ajude a comunidade atualizando o estado (Cheio, Avariado, etc).",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+
+        }
+    }
+}
+
+
+// --- Componentes Auxiliares e Stubs ---
+
+@Composable
+private fun PhotoSection(recyclingPoint: RecyclingPoint?) {
+    // Mantém o teu código original ou o simplificado abaixo
+    Card(
+        modifier = Modifier.fillMaxWidth().height(200.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = CinzentoClaro)
+    ) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (recyclingPoint?.imgUrl.isNullOrBlank()) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(painterResource(R.drawable.camera), null, tint = Color.Gray, modifier = Modifier.size(48.dp)) // Verifica se tens este drawable ou usa um Vector
+                    Text("Sem imagem", color = Color.Gray)
+                }
+            } else {
+                // AsyncImage logic here
+                Text("Imagem carregada")
+            }
+        }
+    }
 }
 
 @Composable
@@ -131,222 +310,21 @@ private fun MyTtitle(title: String) {
 }
 
 @Composable
-private fun PhotoSection(recyclingPoint: RecyclingPoint?) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco)
+private fun StatusBadge(text: String, color: Color) {
+    Surface(
+        color = color.copy(alpha = 0.1f),
+        shape = RoundedCornerShape(8.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            MyTtitle(stringResource(R.string.detail_image_title))
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = CinzentoClaro)
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (recyclingPoint?.imgUrl.isNullOrBlank()) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.camera), //
-                                contentDescription = null,
-                                tint = Color.Gray,
-                                modifier = Modifier.size(48.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = stringResource(R.string.detail_no_image),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Gray
-                            )
-                        }
-                    } else {
-                        // TODO: Carregar a imagem com Coil/Glide
-                        // Por agora, mostrar um placeholder
-                        Icon(
-                            painter = painterResource(R.drawable.camera),
-                            contentDescription = stringResource(R.string.detail_image_title),
-                            tint = Green,
-                            modifier = Modifier.size(64.dp)
-                        )
-                        // AsyncImage(model = recyclingPoint.imgUrl, contentDescription = "Eco-Point Photo")
-                    }
-                }
-            }
-        }
+        Text(
+            text = text,
+            color = color,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
-@Composable
-private fun StatusSection(recyclingPoint: RecyclingPoint?) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            MyTtitle(stringResource(R.string.detail_status_title))
-            val statusText = if (recyclingPoint?.status == Status.PENDING.name) {
-                stringResource(R.string.list_status_pending)
-            } else {
-                stringResource(R.string.list_status_verified)
-            }
-            val statusColor = if (recyclingPoint?.status == Status.PENDING.name) {
-                pendingColor
-            } else {
-                verifiedColor
-            }
-            StatusBadge(text = statusText, color = statusColor)
-        }
-    }
-}
-
-@Composable
-private fun LocationSection(recyclingPoint: RecyclingPoint?) {
-    val locationText = String.format(
-        Locale.US,
-        "%.6f, %.6f",
-        recyclingPoint?.latatitude ?: 0.0,
-        recyclingPoint?.longitude ?: 0.0
-    )
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            MyTtitle(stringResource(R.string.detail_location_title))
-            OutlinedTextField(
-                value = locationText,
-                onValueChange = { },
-                readOnly = true,
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = null,
-                        tint = Green
-                    )
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.Transparent,
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedContainerColor = CinzentoClaro,
-                    unfocusedContainerColor = CinzentoClaro,
-                )
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = { /* TODO mudar isto */ },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = CinzentoEscuro)
-            ) {
-                Text(stringResource(R.string.detail_view_on_map))
-            }
-        }
-    }
-}
-
-@Composable
-private fun NotesSection(recyclingPoint: RecyclingPoint?) {
-    val notes = recyclingPoint?.notes
-    if (!notes.isNullOrBlank()) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = Branco)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                MyTtitle(stringResource(R.string.detail_notes_title))
-                Text(
-                    text = notes,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Black
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun VerificationSection(
-    viewModel: FirebaseViewModel,
-    recyclingPoint: RecyclingPoint?
-) {
-    if (recyclingPoint == null) return
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            MyTtitle(stringResource(R.string.detail_verify_title))
-            Text(
-                text = stringResource(R.string.detail_verify_desc),
-                style = MaterialTheme.typography.bodyMedium,
-                color = CinzentoEscuro,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Button(
-                    onClick = { viewModel.reportEcoponto(recyclingPoint.id) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Red.copy(alpha = 0.1f),
-                        contentColor = Red
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Flag,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.detail_button_report))
-                }
-                Button(
-                    onClick = { viewModel.confirmEcoponto(recyclingPoint.id) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Green,
-                        contentColor = Branco
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ThumbUp,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.detail_button_confirm))
-                }
-            }
-        }
-    }
-}
-
-// Helper Functions
 @Composable
 private fun getBinStringRes(type: String?): Int {
     return when (type) {
@@ -356,25 +334,5 @@ private fun getBinStringRes(type: String?): Int {
         "Red bin" -> R.string.bin_red
         "Black bin" -> R.string.bin_black
         else -> R.string.bin_unknown
-    }
-}
-
-@Composable
-private fun StatusBadge(
-    text: String,
-    color: Color
-) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(color.copy(alpha = 0.1f))
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-    ) {
-        Text(
-            text = text,
-            color = color,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold
-        )
     }
 }

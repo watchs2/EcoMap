@@ -23,6 +23,7 @@
     <string name="list_filter_metal">Metal</string>
     <string name="list_status_pending">Pendente</string>
     <string name="list_status_verified">Verificado</string>
+    <string name="list_status_deleting">Eliminação pendente</string>
     <string name="list_distance_metres">%dm</string>
     <string name="list_view_details_cd">Ver detalhes</string>
     <string name="list_add_ecopoint_cd">Adicionar Ecoponto</string>

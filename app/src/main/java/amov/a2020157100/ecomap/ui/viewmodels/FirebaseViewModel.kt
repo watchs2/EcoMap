@@ -1,6 +1,7 @@
 package amov.a2020157100.ecomap.ui.viewmodels
 
 import amov.a2020157100.ecomap.model.RecyclingPoint
+import amov.a2020157100.ecomap.model.Status
 import amov.a2020157100.ecomap.model.toUser
 import amov.a2020157100.ecomap.model.User
 import amov.a2020157100.ecomap.utils.firebase.FAuthUtil
@@ -11,7 +12,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import amov.a2020157100.ecomap.utils.firebase.FStorageUtil
 import android.util.Log
-import kotlin.collections.mutableListOf
+import kotlin.collections.orEmpty
 
 class FirebaseViewModel : ViewModel() {
     private val _user = mutableStateOf(FAuthUtil.currentUser?.toUser())
@@ -26,11 +27,13 @@ class FirebaseViewModel : ViewModel() {
     val error: State<String?>
         get() = _error
 
-    //ver se esta é a melhor forma
     private val _selectedRecyclingPoint = mutableStateOf<RecyclingPoint?>(null)
     val selectedRecyclingPoint: State<RecyclingPoint?>
         get() = _selectedRecyclingPoint
 
+    private val _confirmRecyclingPoint = mutableStateOf<RecyclingPoint?>(null)
+    val confirmRecyclingPoint: State<RecyclingPoint?>
+        get() = _confirmRecyclingPoint
 
     fun createUserWithEmail(email: String, password: String, passwordConfirm: String){
         _error.value = null
@@ -114,12 +117,10 @@ class FirebaseViewModel : ViewModel() {
     fun getRecyclingPoints() {
         viewModelScope.launch {
             val recyclingPoints = FStorageUtil.getRecyclingPoints()
-            Log.d("FIREBASE", "📥 Resultado recebido: ${recyclingPoints?.size ?: "null"} pontos")
             if(recyclingPoints != null){
                 Log.d("FIREBASE", "✅ Dados válidos, a atualizar _recyclingPoints...")
                 _recyclingPoints.value = recyclingPoints
             }else{
-               //erro ou vazio
                 _error.value="Erro"
             }
         }
@@ -145,30 +146,50 @@ class FirebaseViewModel : ViewModel() {
 
     fun confirmEcoponto(recyclingPointId: String) {
         _user.value?.let { user ->
-            Log.d("FirebaseViewModel", "Utilizador ${user.uid} confirmou o ecoponto $recyclingPointId")
-            // Chamar a função stub
-            FStorageUtil.confirmRecyclingPoint(recyclingPointId, user.uid)
+            _error.value = null
 
-            // TODO: Adicionar lógica real.
-            // Por agora, apenas atualiza o estado local (se necessário) ou recarrega.
-            // A lógica de "idsVoteAprove" deve ser tratada no FStorageUtil ou Cloud Function.
+            val selectedPoint = _selectedRecyclingPoint.value
 
-            // Exemplo: recarregar os dados
-            getRecyclingPoint(recyclingPointId)
+            if (selectedPoint != null && selectedPoint.id == recyclingPointId) {
+
+                if (selectedPoint.creator == user.uid) {
+                    _error.value = "O criador não pode votar para confirmar" // The error message suggested in your notes
+                    return
+                }
+
+                if (selectedPoint.idsVoteAprove.orEmpty().contains(user.uid)) {
+                    _error.value = "Já votaste para confirmar este ecoponto." // Feedback for repeat voting
+                    return
+                }
+
+                if (selectedPoint.status == Status.FINAL.name) {
+                    _error.value = "Este ecoponto já está verificado."
+                    return
+                }
+                FStorageUtil.confirmRecyclingPoint(recyclingPointId, user.uid)
+                getRecyclingPoint(recyclingPointId)
+            }
+            return
         }
     }
 
-    // NOVAS FUNÇÕES (Stubs para a lógica de verificação)
-    fun reportEcoponto(recyclingPointId: String) {
+    fun deleteEcoponto(recyclingPointId: String) {
         _user.value?.let { user ->
-            Log.d("FirebaseViewModel", "Utilizador ${user.uid} reportou o ecoponto $recyclingPointId")
-            // Chamar a função stub
-            FStorageUtil.deleteRecyclingPoint(recyclingPointId, user.uid)
 
-            // TODO: Adicionar lógica real.
+            _error.value = null
+            val selectedPoint = _selectedRecyclingPoint.value
 
-            // Exemplo: recarregar os dados
-            getRecyclingPoint(recyclingPointId)
+            if (selectedPoint != null && selectedPoint.id == recyclingPointId) {
+
+                if (selectedPoint.idsVoteRemove.orEmpty().contains(user.uid)) {
+                    _error.value = "Já votaste para eliminar este ecoponto." // Feedback for repeat voting
+                    return
+                }
+
+                FStorageUtil.deleteRecyclingPoint(recyclingPointId, user.uid)
+                getRecyclingPoint(recyclingPointId)
+            }
+            return
         }
     }
 

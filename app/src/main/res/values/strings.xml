@@ -21,6 +21,7 @@
     <string name="list_filter_plastic">Plastic</string>
     <string name="list_filter_metal">Metal</string>
     <string name="list_status_pending">Pending</string>
+    <string name="list_status_deleting">Pending deletion</string>
     <string name="list_status_verified">Verified</string>
     <string name="list_distance_metres">%dm</string>
     <string name="list_view_details_cd">View details</string>

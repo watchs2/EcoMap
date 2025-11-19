@@ -38,6 +38,8 @@ fun MapViewScreen(
 ) {
     //location
     val location = remember { mutableStateOf("") }
+    //val location by locationViewModel.currentLocation
+
     Scaffold(
         topBar = {
             TopAppBar(
