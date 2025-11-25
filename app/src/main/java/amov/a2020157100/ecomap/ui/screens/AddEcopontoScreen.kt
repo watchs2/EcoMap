@@ -5,30 +5,40 @@ import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.theme.GreenLimeLight
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
+import amov.a2020157100.ecomap.utils.camera.FileUtils
 import android.content.res.Configuration
+import coil3.compose.AsyncImage
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
+import java.io.File
 
+// Cores
 val blueBinColor = Color(0xFF2196F3)
 val greenBinColor = Color(0xFF4CAF50)
 val yellowBinColor = Color(0xFFFFEB3B)
@@ -43,32 +53,88 @@ fun AddEcopontoScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ){
-    // 1. Detetar Landscape
+    val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    
+    // --- LÓGICA DA CÂMARA E GALERIA ---
+    var showImageSourceDialog by remember { mutableStateOf(false) }
+    var tempCameraPath by remember { mutableStateOf<String?>(null) }
+
+    // 1. Launcher Galeria
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            val path = FileUtils.createFileFromUri(context, uri)
+            viewModel.addPhotoPath.value = path
+        }
+        showImageSourceDialog = false
+    }
+
+    // 2. Launcher Câmara
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && tempCameraPath != null) {
+            viewModel.addPhotoPath.value = tempCameraPath
+        }
+        showImageSourceDialog = false
+    }
+
+    // Função para lançar a câmara
+    fun launchCamera() {
+        val path = FileUtils.getTempFilename(context)
+        tempCameraPath = path
+        val file = File(path)
+
+        // Certifica-te que o authority aqui é igual ao do AndroidManifest.xml
+        val authority = "amov.a2020157100.ecomap.utils.camera.FileUtils"
+
+        val uri = FileProvider.getUriForFile(context, authority, file)
+        cameraLauncher.launch(uri)
+    }
+
+    // DIALOG DE ESCOLHA
+    if (showImageSourceDialog) {
+        AlertDialog(
+            onDismissRequest = { showImageSourceDialog = false },
+            title = { Text("Choose Image Source") },
+            text = {
+                Column {
+                    ListItem(
+                        headlineContent = { Text("Camera") },
+                        leadingContent = { Icon(Icons.Default.CameraAlt, null) },
+                        modifier = Modifier.clickable { launchCamera() }
+                    )
+                    ListItem(
+                        headlineContent = { Text("Gallery") },
+                        leadingContent = { Icon(Icons.Default.PhotoLibrary, null) },
+                        modifier = Modifier.clickable {
+                            galleryLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
+                    )
+                }
+            },
+            confirmButton = {},
+            dismissButton = { TextButton(onClick = { showImageSourceDialog = false }) { Text("Cancel") } }
+        )
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "New Recycling Point",
-                        style = MaterialTheme.typography.titleLarge, // TitleLarge é melhor que HeadlineLarge aqui
-                        color = Black,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text("New Recycling Point", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Branco,
-                    titleContentColor = Color.Black
-                ),
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         },
         content = { paddingValues ->
@@ -76,61 +142,41 @@ fun AddEcopontoScreen(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
-                    .background(CinzentoClaro)
+                    .background(Color(0xFFEAEDEF)) // CinzentoClaro
             ) {
                 if (isLandscape) {
-                    // --- LAYOUT LANDSCAPE (2 Colunas) ---
+                    // --- LAYOUT LANDSCAPE (Split View) ---
                     Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
+                        modifier = Modifier.fillMaxSize().padding(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Coluna Esquerda: Tipo e Localização
                         Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .verticalScroll(rememberScrollState()),
+                            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            EcoPointTypeSection(
-                                selectedType = viewModel.addType.value,
-                                onTypeSelected = { viewModel.addType.value = it }
-                            )
+                            EcoPointTypeSection(viewModel.addType.value) { viewModel.addType.value = it }
                             LocationSection(locationViewModel, viewModel)
                         }
-
-                        // Coluna Direita: Foto, Notas, Info e Botão
                         Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .verticalScroll(rememberScrollState()),
+                            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            PhotoSection()
-                            NotesSection(viewModel) // Passamos o viewModel agora
+                            PhotoSection(viewModel) { showImageSourceDialog = true }
+                            NotesSection(viewModel)
                             InfoSection()
                             SubmitButtonSection(viewModel, navController)
-
-                            // Espaço extra no fundo
                             Spacer(modifier = Modifier.height(20.dp))
                         }
                     }
                 } else {
-                    // --- LAYOUT PORTRAIT (1 Coluna) ---
+                    // --- LAYOUT PORTRAIT (Single Column) ---
                     Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp)
-                            .verticalScroll(rememberScrollState()), // Scroll na coluna toda
+                        modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        EcoPointTypeSection(
-                            selectedType = viewModel.addType.value,
-                            onTypeSelected = { viewModel.addType.value = it }
-                        )
+                        EcoPointTypeSection(viewModel.addType.value) { viewModel.addType.value = it }
                         LocationSection(locationViewModel, viewModel)
-                        PhotoSection()
+                        PhotoSection(viewModel) { showImageSourceDialog = true }
                         NotesSection(viewModel)
                         InfoSection()
                         SubmitButtonSection(viewModel, navController)
@@ -141,207 +187,131 @@ fun AddEcopontoScreen(
     )
 }
 
-// --- SECÇÕES REUTILIZÁVEIS ---
+// --- COMPONENTES ---
+
+@Composable
+private fun PhotoSection(
+    viewModel: FirebaseViewModel,
+    onPhotoClick: () -> Unit
+) {
+    val photoPath = viewModel.addPhotoPath.value
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Photo (Optional)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFEAEDEF)),
+                border = BorderStroke(1.dp, GreenLimeLight),
+                onClick = onPhotoClick
+            ) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    if (photoPath != null) {
+                        AsyncImage(
+                            model = photoPath,
+                            contentDescription = "Selected Photo",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                        Box(modifier = Modifier.fillMaxSize().padding(8.dp), contentAlignment = Alignment.BottomEnd) {
+                            Surface(shape = CircleShape, color = Color.White.copy(alpha = 0.7f)) {
+                                Icon(Icons.Default.CameraAlt, null, modifier = Modifier.padding(8.dp), tint = Color(0xFF2E7C32))
+                            }
+                        }
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(painterResource(R.drawable.camera), null, tint = Color.Gray, modifier = Modifier.size(40.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("Tap to take a photo", color = Color.Gray)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun SubmitButtonSection(viewModel: FirebaseViewModel, navController: NavHostController) {
     Column {
         if (viewModel.error.value != null) {
-            Text(
-                text = viewModel.error.value.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Red,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+            Text(viewModel.error.value.toString(), color = Color(0xFFD22F2F), modifier = Modifier.padding(bottom = 8.dp))
         }
-
         Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
+            modifier = Modifier.fillMaxWidth().height(50.dp),
             onClick = {
                 viewModel.addRecyclingPoint(
                     type = viewModel.addType.value,
-                    latatitude = viewModel.addLatitude.value,
+                    latitude = viewModel.addLatitude.value,
                     longitude = viewModel.addLongitude.value,
-                    imgUrl = null,
+                    imgPath = viewModel.addPhotoPath.value,
                     notes = viewModel.addNotes.value,
                     onSuccess = {
-                        viewModel.resetAddForm() // Limpar form após sucesso
+                        viewModel.resetAddForm()
                         navController.navigate(MainActivity.MAPVIEW_SCREEN)
                     }
                 )
             },
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Green,
-                contentColor = Branco
-            )
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7C32), contentColor = Color.White)
         ) {
-            Text(
-                "Add Ecoponto",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Text("Add Ecoponto", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         }
     }
 }
 
 @Composable
-private fun MyTtitle(title: String){
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(bottom = 8.dp)
-    )
-}
-
-@Composable
-private fun LocationSection(
-    locationViewModel: LocationViewModel,
-    viewModel: FirebaseViewModel // Recebe o FirebaseViewModel para guardar estado
-){
+private fun LocationSection(locationViewModel: LocationViewModel, viewModel: FirebaseViewModel){
     val currentLocation = locationViewModel.currentLocation.value
-
-
     val lat = viewModel.addLatitude.value
     val lon = viewModel.addLongitude.value
-    val displayLocation = if (lat != 0.0 || lon != 0.0) {
-        val latDir = if (lat >= 0) "N" else "S"
-        val lonDir = if (lon >= 0) "E" else "W"
-        "%.4f° %s, %.4f° %s".format(lat, latDir, lon, lonDir)
-    } else {
-        ""
-    }
+    val displayLocation = if (lat != 0.0 || lon != 0.0) "%.4f, %.4f".format(lat, lon) else ""
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco)
-    ) {
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
         Column(modifier = Modifier.padding(16.dp)) {
-            MyTtitle("Location *")
-
+            Text("Location *", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
             OutlinedTextField(
-                value = displayLocation,
-                onValueChange = { /* Read Only */ },
-                readOnly = true,
+                value = displayLocation, onValueChange = {}, readOnly = true,
                 placeholder = { Text("No location selected") },
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(R.drawable.location2),
-                        contentDescription = null,
-                        tint = Green,
-                        modifier = Modifier.size(20.dp)
-                    )
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.Transparent,
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedContainerColor = CinzentoClaro,
-                    unfocusedContainerColor = CinzentoClaro,
-                    disabledContainerColor = CinzentoClaro,
-                    disabledTextColor = Black,
-                    focusedTextColor = Black,
-                    unfocusedTextColor = Black
-                )
+                leadingIcon = { Icon(painterResource(R.drawable.location2), null, tint = Color(0xFF2E7C32), modifier = Modifier.size(20.dp)) },
+                modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Transparent, unfocusedBorderColor = Color.Transparent, focusedContainerColor = Color(0xFFEAEDEF), unfocusedContainerColor = Color(0xFFEAEDEF))
             )
-
             Spacer(modifier = Modifier.height(12.dp))
-
             Button(
-                onClick = {
-                    if(currentLocation != null){
-                        // Guardar no ViewModel
-                        viewModel.addLatitude.value = currentLocation.latitude
-                        viewModel.addLongitude.value = currentLocation.longitude
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(45.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Green,
-                    contentColor = Branco
-                )
+                onClick = { if(currentLocation != null){ viewModel.addLatitude.value = currentLocation.latitude; viewModel.addLongitude.value = currentLocation.longitude } },
+                modifier = Modifier.fillMaxWidth().height(45.dp), shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7C32), contentColor = Color.White)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.compass),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text="Use Current Location", style = MaterialTheme.typography.bodyMedium)
-                }
+                Icon(painterResource(R.drawable.compass), null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Use Current Location")
             }
         }
     }
 }
 
 @Composable
-private fun EcoPointTypeSection(
-    selectedType: String,
-    onTypeSelected: (String) -> Unit
-) {
-    val types = mapOf(
-        "Blue bin" to blueBinColor,
-        "Green bin" to greenBinColor,
-        "Yellow bin" to yellowBinColor,
-        "Red bin" to redBinColor,
-        "Black bin" to blackBinColor
-    )
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco)
-    ) {
+private fun EcoPointTypeSection(selectedType: String, onTypeSelected: (String) -> Unit) {
+    val types = mapOf("Blue bin" to blueBinColor, "Green bin" to greenBinColor, "Yellow bin" to yellowBinColor, "Red bin" to redBinColor, "Black bin" to blackBinColor)
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
         Column(modifier = Modifier.padding(16.dp)) {
-            MyTtitle("EcoPonto Type *")
-
-            // Usando FlowRow seria melhor, mas mantendo a lógica simples de Rows:
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                types.entries.take(3).forEach { (name, color) ->
-                    TypeChipManual(
-                        name = name,
-                        color = color,
-                        isSelected = name == selectedType,
-                        onClick = { onTypeSelected(name) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
+            Text("EcoPonto Type *", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                types.entries.take(3).forEach { TypeChipManual(it.key, it.value, it.key == selectedType, { onTypeSelected(it.key) }, Modifier.weight(1f)) }
             }
-
             Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                types.entries.drop(3).forEach { (name, color) ->
-                    TypeChipManual(
-                        name = name,
-                        color = color,
-                        isSelected = name == selectedType,
-                        onClick = { onTypeSelected(name) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                // Preencher espaço vazio se houver número impar
-                if (types.size % 3 != 0) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                types.entries.drop(3).forEach { TypeChipManual(it.key, it.value, it.key == selectedType, { onTypeSelected(it.key) }, Modifier.weight(1f)) }
+                if (types.size % 3 != 0) Spacer(modifier = Modifier.weight(1f))
             }
         }
     }
@@ -349,108 +319,25 @@ private fun EcoPointTypeSection(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TypeChipManual(
-    name: String,
-    color: Color,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun TypeChipManual(name: String, color: Color, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     FilterChip(
-        selected = isSelected,
-        onClick = onClick,
-        modifier = modifier,
-        label = {
-            Text(
-                name.replace(" bin", ""), // Simplificar texto (opcional)
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = if(isSelected) FontWeight.Bold else FontWeight.Normal,
-                maxLines = 1
-            )
-        },
-        leadingIcon = {
-            Box(
-                modifier = Modifier
-                    .size(10.dp)
-                    .background(color, shape = CircleShape)
-            )
-        },
-        colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = GreenLimeLight.copy(alpha=0.3f), // Cor de fundo mais suave
-            containerColor = CinzentoClaro,
-            selectedLabelColor = Black
-        ),
-        border = if (isSelected) BorderStroke(2.dp, Green) else BorderStroke(0.dp, Color.Transparent)
+        selected = isSelected, onClick = onClick, modifier = modifier,
+        label = { Text(name.replace(" bin", ""), style = MaterialTheme.typography.bodySmall, fontWeight = if(isSelected) FontWeight.Bold else FontWeight.Normal, maxLines = 1) },
+        leadingIcon = { Box(modifier = Modifier.size(10.dp).background(color, shape = CircleShape)) },
+        colors = FilterChipDefaults.filterChipColors(selectedContainerColor = GreenLimeLight.copy(alpha=0.3f), containerColor = Color(0xFFEAEDEF), selectedLabelColor = Color.Black),
+        border = if (isSelected) BorderStroke(2.dp, Color(0xFF2E7C32)) else BorderStroke(0.dp, Color.Transparent)
     )
 }
 
 @Composable
-private fun PhotoSection() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            MyTtitle("Photo (Optional)")
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(140.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = CinzentoClaro),
-                border = BorderStroke(1.dp, GreenLimeLight),
-                onClick = { /* TODO: Abrir Câmara/Galeria */ }
-            ){
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ){
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ){
-                        Icon(
-                            painter = painterResource(R.drawable.camera),
-                            contentDescription = "Camara",
-                            tint = Color.Gray,
-                            modifier = Modifier.size(40.dp)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Tap to take a photo",
-                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun NotesSection(viewModel: FirebaseViewModel) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco)
-    ) {
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
         Column(modifier = Modifier.padding(16.dp)) {
-            MyTtitle("Notes (Optional)")
+            Text("Notes (Optional)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = viewModel.addNotes.value,
-                onValueChange = { viewModel.addNotes.value = it },
-                shape = RoundedCornerShape(10.dp),
-                placeholder = { Text("Information about access, conditions, etc.")},
-                minLines = 3,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Green,
-                    unfocusedBorderColor = GreenLimeLight,
-                    cursorColor = Green,
-                    focusedContainerColor = Branco,
-                    unfocusedContainerColor = Branco
-                )
+                modifier = Modifier.fillMaxWidth(), value = viewModel.addNotes.value, onValueChange = { viewModel.addNotes.value = it },
+                shape = RoundedCornerShape(10.dp), placeholder = { Text("Info about access, etc.")}, minLines = 3,
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF2E7C32), unfocusedBorderColor = GreenLimeLight, cursorColor = Color(0xFF2E7C32), focusedContainerColor = Color.White, unfocusedContainerColor = Color.White)
             )
         }
     }
@@ -458,28 +345,11 @@ private fun NotesSection(viewModel: FirebaseViewModel) {
 
 @Composable
 fun InfoSection() {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = GreenLimeLight.copy(alpha = 0.4f),
-        shape = RoundedCornerShape(8.dp),
-    ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.info),
-                contentDescription = null,
-                tint = Green,
-                modifier = Modifier.size(24.dp)
-            )
+    Surface(modifier = Modifier.fillMaxWidth(), color = GreenLimeLight.copy(alpha = 0.4f), shape = RoundedCornerShape(8.dp)) {
+        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(painterResource(R.drawable.info), null, tint = Color(0xFF2E7C32), modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = "Your eco-point will be pending verification by the community.",
-                color = Green,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.weight(1f)
-            )
+            Text("Pending verification by community.", color = Color(0xFF2E7C32), style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
         }
     }
 }

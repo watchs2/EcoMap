@@ -16,6 +16,9 @@ import java.io.InputStream
 import android.content.res.AssetManager
 import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.tasks.await
+import java.io.File
+import java.util.concurrent.CompletableFuture
+import android.net.Uri
 
 
 class FStorageUtil {
@@ -201,6 +204,33 @@ class FStorageUtil {
             val db = Firebase.firestore
             db.collection("RecyclingPoints").document(recyclingPointId)
                 .update("condition", condition)
+        }
+
+        fun uploadFile(imgPath: String) : CompletableFuture<String> {
+            val storage = Firebase.storage
+            val storageReference = storage.reference
+
+            val file = File(imgPath)
+            val newFileNameInsideStorage = storageReference.child(file.name)
+
+            val future = CompletableFuture<String>()
+
+
+            val uploadTask = newFileNameInsideStorage.putFile(Uri.fromFile(file))
+            uploadTask.continueWithTask { task ->
+                if (!task.isSuccessful) {
+                    task.exception?.let {
+                        future.completeExceptionally(it)
+                    }
+                }
+                newFileNameInsideStorage.downloadUrl
+            }.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val downloadUri = task.result
+                    future.complete(downloadUri.toString())
+                }
+            }
+            return future
         }
 
     }

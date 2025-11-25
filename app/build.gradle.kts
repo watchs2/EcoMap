@@ -60,6 +60,8 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")

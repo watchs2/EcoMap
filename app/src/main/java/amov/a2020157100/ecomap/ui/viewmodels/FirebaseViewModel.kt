@@ -13,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import amov.a2020157100.ecomap.utils.firebase.FStorageUtil
 import android.util.Log
+import kotlinx.coroutines.future.await
 import kotlin.collections.orEmpty
 
 class FirebaseViewModel : ViewModel() {
@@ -44,12 +45,14 @@ class FirebaseViewModel : ViewModel() {
     var addLatitude = mutableStateOf(0.0)
     var addLongitude = mutableStateOf(0.0)
     var addNotes = mutableStateOf("")
+    var addPhotoPath = mutableStateOf<String?>(null)
 
     fun resetAddForm() {
         addType.value = ""
         addLatitude.value = 0.0
         addLongitude.value = 0.0
         addNotes.value = ""
+        addPhotoPath.value = null
     }
 
 
@@ -123,39 +126,58 @@ class FirebaseViewModel : ViewModel() {
 
     fun addRecyclingPoint(
         type: String,
-        latatitude: Double,
+        latitude: Double,
         longitude: Double,
-        imgUrl: String?,
+        imgPath: String?,
         notes: String?,
         onSuccess: () -> Unit
     ) {
         _error.value = null
 
-        if (type.isBlank() || latatitude == 0.0 || longitude == 0.0) {
+        // 1. Validação básica
+        if (type.isBlank() || latitude == 0.0 || longitude == 0.0) {
             _error.value = "Preencha todos os campos obrigatórios"
             return
         }
 
-        _user.value?.let { user ->
-            viewModelScope.launch {
+        viewModelScope.launch {
+            try {
+                // 2. Upload da imagem usando a TUA função
+                val downloadUri: String? = if (imgPath != null) {
+                    // O .await() suspende a coroutine até o CompletableFuture terminar
+                    FStorageUtil.uploadFile(imgPath).await()
+                } else {
+                    null
+                }
+
+                // 3. Obter utilizador atual
+                val user = _user.value ?: return@launch
+
+                // 4. Salvar dados no banco (mantendo a tua lógica antiga aqui)
                 val success = FStorageUtil.addRecyclingPoint(
                     user.uid,
                     type,
-                    latatitude,
+                    latitude,
                     longitude,
-                    imgUrl,
+                    downloadUri, // A URL retornada pelo teu uploadFile
                     notes
                 )
 
                 if (!success) {
                     _error.value = "Erro ao adicionar ponto de reciclagem"
-                }else{
+                } else {
                     getRecyclingPoints()
                     onSuccess()
                 }
+
+            } catch (e: Exception) {
+                // O await() lança exceção se o CompletableFuture falhar, caindo aqui
+                e.printStackTrace() // É bom logar o erro para debug
+                _error.value = "Erro ao enviar imagem: ${e.message}"
             }
         }
     }
+
 
     fun getRecyclingPoints() {
         _error.value = null
@@ -221,7 +243,7 @@ class FirebaseViewModel : ViewModel() {
         }
     }
 //TODO tem de ser courutine
-    fun deleteEcoponto(recyclingPointId: String) {
+    fun deleteEcoponto(recyclingPointId: String){
         _error.value = null
         _user.value?.let { user ->
             viewModelScope.launch {

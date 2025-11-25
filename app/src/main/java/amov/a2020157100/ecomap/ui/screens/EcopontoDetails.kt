@@ -308,7 +308,7 @@ fun ReportSection(
         latitude = recyclingPoint.latatitude
         longitude = recyclingPoint.longitude
     }
-    // Aumentei o raio para 50m para facilitar testes
+
     if(currentLocation.distanceTo(ecopontoLocation).toInt() > 50) return
 
     val conditionOptions = listOf(
@@ -409,7 +409,7 @@ fun PhotoSection(recyclingPoint: RecyclingPoint) {
                     Text(stringResource(R.string.detail_no_image), color = Color.Gray)
                 }
             } else {
-                Text("Imagem Carregada")
+
             }
         }
     }

@@ -1,15 +1,10 @@
 package amov.a2020157100.ecomap.ui
 
+import android.Manifest
 import android.content.pm.PackageManager
 import amov.a2020157100.ecomap.EcoMap
 import androidx.activity.result.contract.ActivityResultContracts
-import amov.a2020157100.ecomap.ui.screens.ListViewScreen
-import amov.a2020157100.ecomap.ui.screens.LoginScreen
-import amov.a2020157100.ecomap.ui.screens.MainScreen
-import amov.a2020157100.ecomap.ui.screens.MapViewScreen
-import amov.a2020157100.ecomap.ui.screens.RegisterScreen
-import amov.a2020157100.ecomap.ui.screens.AddEcopontoScreen
-import amov.a2020157100.ecomap.ui.screens.EcopontoDetails
+import amov.a2020157100.ecomap.ui.screens.*
 import amov.a2020157100.ecomap.ui.theme.EcoMapTheme
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
@@ -38,7 +33,6 @@ class MainActivity : ComponentActivity() {
         LocationViewModelFactory(app.locationHandler)
     }
 
-
     companion object {
         const val LOGIN_SCREEN = "Login"
         const val MAIN_SCREEN = "Main"
@@ -47,13 +41,16 @@ class MainActivity : ComponentActivity() {
         const val LISTVIEW_SCREEN = "ListView"
         const val PROFILE_SCREEN = "Profile"
         const val ADDECOPONTO_SCREEN = "AddEcoponto"
-
         const val DETAIL_SCREEN = "Detail"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // 1. Chamar a verificação aqui
+        verifyPermissions()
+
         setContent {
             val navController = rememberNavController()
             EcoMapTheme {
@@ -120,7 +117,7 @@ class MainActivity : ComponentActivity() {
                                 EcopontoDetails(
                                     viewModel,
                                     locationViewModel,
-                                   navController,
+                                    navController,
                                     recyclingPointId
                                 )
                             } else {
@@ -131,59 +128,62 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        //Permissões
-
-        /*
-        if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            askSinglePermissionCamera.launch(android.Manifest.permission.CAMERA)
-        }
-
-         */
-        verifyLocationPermissions()
-
     }
-
-    private val askSinglePermissionCamera = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        /* TODO */
-       // verifyLocationPermissions()
-    }
-
 
     override fun onResume() {
         super.onResume()
-        locationViewModel.startLocationUpdates()
+        if (locationViewModel.hasLocationPermission) {
+            locationViewModel.startLocationUpdates()
+        }
     }
-
 
     override fun onPause() {
         super.onPause()
         locationViewModel.stopLocationUpdates()
     }
 
-    fun verifyLocationPermissions() {
-        locationViewModel.hasLocationPermission = (
-                checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED ||
-                        checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED)
-        if (!locationViewModel.hasLocationPermission) {
-            askLocationPermissions.launch(
-                arrayOf(
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION
-                )
-            )
+    //Permissões
+    private fun verifyPermissions() {
+        val permissionsToRequest = ArrayList<String>()
+
+
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(Manifest.permission.CAMERA)
         }
 
+
+        val coarseGranted = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val fineGranted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+
+        locationViewModel.hasLocationPermission = coarseGranted || fineGranted
+
+
+        if (!coarseGranted && !fineGranted) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+            permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        } else if (!fineGranted) {
+
+            permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+
+        if (permissionsToRequest.isNotEmpty()) {
+            askMultiplePermissions.launch(permissionsToRequest.toTypedArray())
+        }
     }
 
-    private val askLocationPermissions = registerForActivityResult(
+    private val askMultiplePermissions = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { map ->
-        locationViewModel.hasLocationPermission =
-            map[android.Manifest.permission.ACCESS_COARSE_LOCATION] == true ||
-                    map[android.Manifest.permission.ACCESS_FINE_LOCATION] == true
+    ) { results ->
+
+        val coarse = results[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+        val fine = results[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+
+        locationViewModel.hasLocationPermission = coarse || fine
+
+        if (locationViewModel.hasLocationPermission) {
+            locationViewModel.startLocationUpdates()
+        }
     }
 }
