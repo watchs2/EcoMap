@@ -42,7 +42,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 
 
 @Composable
-fun AppBottomBar(navController: NavHostController) {
+fun AppBottomBar(navController: NavHostController,onSignOut: () -> Unit) {
 
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -82,8 +82,8 @@ fun AppBottomBar(navController: NavHostController) {
                 BottomNavItem(
                     icon = Icons.Filled.Person,
                     label = "Signout",
-                    isSelected = (currentRoute == MainActivity.PROFILE_SCREEN),
-                    onClick = { navController.navigate(MainActivity.PROFILE_SCREEN) }
+                    isSelected =false,
+                    onClick = { onSignOut() }
                 )
             }
         }

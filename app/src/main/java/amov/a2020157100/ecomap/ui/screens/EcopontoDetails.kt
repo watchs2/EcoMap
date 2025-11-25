@@ -5,12 +5,15 @@ import amov.a2020157100.ecomap.model.RecyclingPoint
 import amov.a2020157100.ecomap.model.Status
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
+import android.content.res.Configuration
 import android.location.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.DeleteForever
@@ -23,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,9 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import java.util.Locale
-
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,21 +44,25 @@ fun EcopontoDetails(
     recyclingPointId: String
 ) {
     LaunchedEffect(recyclingPointId) {
+        viewModel.resetReportState()
         viewModel.getRecyclingPoint(recyclingPointId)
     }
 
     DisposableEffect(Unit) {
         onDispose {
-           // viewModel.clearSelectedRecyclingPoint()
+            // viewModel.clearSelectedRecyclingPoint()
         }
     }
 
-    val recyclingPoint by viewModel.selectedRecyclingPoint
-    val binNameRes = getBinStringRes(recyclingPoint?.type)
-    val currentLocation by locationViewModel.currentLocation
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    val reportState = remember { mutableStateOf("") } // Estado reportado (e.g., "CHEIO", "BOM")
-    val reportNotes = remember { mutableStateOf(recyclingPoint?.condition?.notes ?: "") } // Notas
+    // CORREÇÃO: Usamos .value diretamente em vez de 'by'.
+    // Isto cria uma variável local estável que permite Smart Casts (o 'if != null' funciona).
+    val recyclingPoint = viewModel.selectedRecyclingPoint.value
+
+    val currentLocation by locationViewModel.currentLocation
+    val binNameRes = getBinStringRes(recyclingPoint?.type)
 
     Scaffold(
         topBar = {
@@ -66,7 +71,8 @@ fun EcopontoDetails(
                     Text(
                         text = if (recyclingPoint != null) stringResource(binNameRes)
                         else stringResource(R.string.detail_loading),
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge
                     )
                 },
                 navigationIcon = {
@@ -78,54 +84,93 @@ fun EcopontoDetails(
             )
         },
         content = { paddingValues ->
-
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(paddingValues)
-                        .fillMaxSize()
-                        .background(CinzentoClaro),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    item { PhotoSection(recyclingPoint) }
-
-                    item { MainSection(viewModel, recyclingPoint,currentLocation) }
-                    item {
-                        ReportSection(
-                            recyclingPoint = recyclingPoint,
-                            selectedState = reportState.value,
-                            notes = reportNotes.value,
-                            onStateSelected = { reportState.value = it },
-                            onNotesChange = { reportNotes.value = it },
-                            currentLocation= currentLocation,
-                            onSubmitReport = {
-                                viewModel.updateEcopontoCondicion(recyclingPointId, reportState.value, reportNotes.value, null)
+            Box(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .background(CinzentoClaro)
+            ) {
+                // Aqui o Smart Cast funciona porque 'recyclingPoint' é uma variável local e não um delegate
+                if (recyclingPoint != null) {
+                    if (isLandscape) {
+                        // --- LAYOUT LANDSCAPE (2 Colunas) ---
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // Coluna Esquerda
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .verticalScroll(rememberScrollState())
+                            ) {
+                                PhotoSection(recyclingPoint)
+                                Spacer(modifier = Modifier.height(16.dp))
+                                MainInfoSection(recyclingPoint, currentLocation)
                             }
-                        )
+
+                            // Coluna Direita
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .verticalScroll(rememberScrollState())
+                            ) {
+                                ActionsSection(viewModel, recyclingPoint)
+                                Spacer(modifier = Modifier.height(16.dp))
+                                ReportSection(
+                                    recyclingPoint = recyclingPoint,
+                                    currentLocation = currentLocation,
+                                    viewModel = viewModel
+                                )
+                                Spacer(modifier = Modifier.height(30.dp))
+                            }
+                        }
+                    } else {
+                        // --- LAYOUT PORTRAIT (1 Coluna) ---
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp)
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            PhotoSection(recyclingPoint)
+                            MainInfoSection(recyclingPoint, currentLocation)
+                            ActionsSection(viewModel, recyclingPoint)
+                            ReportSection(
+                                recyclingPoint = recyclingPoint,
+                                currentLocation = currentLocation,
+                                viewModel = viewModel
+                            )
+                        }
                     }
-
-                 
+                } else {
+                    // Loading State
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Green)
+                    }
                 }
-
+            }
         }
     )
 }
 
-@Composable
-private fun MainSection(
-    viewModel: FirebaseViewModel,
-    recyclingPoint: RecyclingPoint?,
-    currentLocation: Location?,
-) {
-    if (recyclingPoint == null) return
+// --- SECÇÕES REUTILIZÁVEIS ---
 
+@Composable
+fun MainInfoSection(
+    recyclingPoint: RecyclingPoint,
+    currentLocation: Location?
+) {
     val distance = remember(currentLocation, recyclingPoint) {
         if (currentLocation != null) {
-            val ecopontoLocation = Location("").apply {
+            val loc = Location("").apply {
                 latitude = recyclingPoint.latatitude
                 longitude = recyclingPoint.longitude
             }
-            currentLocation.distanceTo(ecopontoLocation).toInt()
+            currentLocation.distanceTo(loc).toInt()
         } else {
             null
         }
@@ -134,19 +179,13 @@ private fun MainSection(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco)
+        colors = CardDefaults.cardColors(containerColor = Branco),
+        elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-
-            // --- 1. Secção de Status Principal ---
-            Text(
-                text = "Estado de Verificação",
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.Gray
-            )
+            // Status
+            Text("Estado de Verificação", style = MaterialTheme.typography.labelMedium, color = Color.Gray)
             Spacer(modifier = Modifier.height(4.dp))
-
             val statusText = when (recyclingPoint.status) {
                 Status.DELETE.name -> stringResource(R.string.list_status_deleting)
                 Status.FINAL.name -> stringResource(R.string.list_status_verified)
@@ -157,125 +196,73 @@ private fun MainSection(
                 Status.FINAL.name -> verifiedColor
                 else -> pendingColor
             }
-
-            // Reutiliza a função StatusBadge
             StatusBadge(text = statusText, color = statusColor)
-
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
 
-            // --- 2. Secção de Localização e Distância ---
+            // Localização
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = null,
-                    tint = Green,
-                    modifier = Modifier.size(24.dp)
-                )
+                Icon(Icons.Default.LocationOn, null, tint = Green, modifier = Modifier.size(24.dp))
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
+                    Text(stringResource(R.string.detail_location_title), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    Text(String.format(Locale.US, "%.5f, %.5f", recyclingPoint.latatitude, recyclingPoint.longitude), style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
                     Text(
-                        text = stringResource(R.string.detail_location_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = String.format(Locale.US, "%.5f, %.5f", recyclingPoint.latatitude, recyclingPoint.longitude),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text = if (distance != null) {
-                            stringResource(R.string.detail_current_distance, distance)
-                        } else {
-                            "-- m"
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray,
+                        text = if (distance != null) stringResource(R.string.detail_current_distance, distance) else "-- m",
+                        style = MaterialTheme.typography.bodyMedium, color = Color.Gray
                     )
                 }
             }
 
-            // --- 3. Secção de Notas (Se existirem) ---
+            // Notas
             if (!recyclingPoint.notes.isNullOrBlank()) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
-
-                Text(
-                    text = stringResource(R.string.detail_notes_title),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.Gray
-                )
+                Text(stringResource(R.string.detail_notes_title), style = MaterialTheme.typography.labelMedium, color = Color.Gray)
                 Spacer(modifier = Modifier.height(4.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = CinzentoClaro.copy(alpha = 0.5f)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(
-                        text = recyclingPoint.notes,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Black.copy(alpha = 0.8f),
-                        modifier = Modifier.padding(12.dp)
-                    )
+                    Text(recyclingPoint.notes, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(12.dp), color = Black.copy(alpha = 0.8f))
                 }
             }
-            // --- 3. Secção de  Report---
+
+            // Condição
             if(recyclingPoint.condition != null){
                 HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
-                Text(
-                    text = "Último Reporte de Condição",
-                    style =MaterialTheme.typography.titleMedium,
-                    color = Color.Gray
-                )/*
-                Text(
-                    text = "Último Reporte de Condição",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = CinzentoEscuro
-                )*/
-                Spacer(modifier = Modifier.height(12.dp))
-                Column {
-                    Text(
-                        text = "Condição Reportada",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.Gray
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    val (displayText, color) = getConditionDisplay(recyclingPoint.condition.state)
-                    StatusBadge(text = displayText, color = color)
-                    if (!recyclingPoint.condition.notes.isNullOrBlank()) {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
-
-                        Text(
-                            text = stringResource(R.string.detail_notes_title),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color.Gray
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = recyclingPoint.condition.notes,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Black.copy(alpha = 0.8f)
-                        )
-                    }
+                Text("Último Reporte", style =MaterialTheme.typography.titleMedium, color = Color.Gray)
+                Spacer(modifier = Modifier.height(8.dp))
+                val (displayText, color) = getConditionDisplay(recyclingPoint.condition.state)
+                StatusBadge(text = displayText, color = color)
+                if (!recyclingPoint.condition.notes.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(recyclingPoint.condition.notes, style = MaterialTheme.typography.bodyMedium, color = Black.copy(alpha = 0.8f))
                 }
             }
+        }
+    }
+}
 
-
-            // --- 4. Secção de Ações da Comunidade ---
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
-
-            if (recyclingPoint.status == Status.PENDING.name || recyclingPoint.status == Status.DELETE.name) {
-
+@Composable
+fun ActionsSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint) {
+    if (recyclingPoint.status == Status.PENDING.name || recyclingPoint.status == Status.DELETE.name) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Branco),
+            elevation = CardDefaults.cardElevation(2.dp)
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
                 Text(
                     text = "Ações da Comunidade",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    // Botão de Confirmação (Visível apenas em PENDING)
+                    // Confirmar
                     if (recyclingPoint.status == Status.PENDING.name) {
                         Button(
                             onClick = { viewModel.confirmEcoponto(recyclingPoint.id) },
@@ -283,37 +270,24 @@ private fun MainSection(
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Green)
                         ) {
-                            Icon(Icons.Default.ThumbUp, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column(horizontalAlignment = Alignment.Start) {
-                                Text("Confirmar")
-                                val votes = recyclingPoint.idsVoteAprove?.size ?: 0
-                                Text("Votos: $votes/2", fontSize = 10.sp, lineHeight = 10.sp)
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(Icons.Default.ThumbUp, null, modifier = Modifier.size(20.dp))
+                                Text("Confirmar", fontSize = 12.sp)
+                                Text("${recyclingPoint.idsVoteAprove?.size ?: 0}/2", fontSize = 10.sp)
                             }
                         }
                     }
-
-                    // Botão de Remover (Visível em PENDING e DELETE)
-                    if (recyclingPoint.status == Status.PENDING.name || recyclingPoint.status == Status.DELETE.name) {
-                        Button(
-                            onClick = { viewModel.deleteEcoponto(recyclingPoint.id) },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Red)
-                        ) {
-                            Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column(horizontalAlignment = Alignment.Start) {
-                                Text("Remover")
-                                val currentVotes = recyclingPoint.idsVoteRemove?.size ?: 0
-                                // Se estiver em DELETE, já tem o voto inicial. Se estiver em PENDING, ainda não tem.
-                                val votesDisplay = if (recyclingPoint.status == Status.DELETE.name) {
-                                    "${currentVotes}/3"
-                                } else {
-                                    "${currentVotes}/3"
-                                }
-                                Text("Votos: $votesDisplay", fontSize = 10.sp, lineHeight = 10.sp)
-                            }
+                    // Remover
+                    Button(
+                        onClick = { viewModel.deleteEcoponto(recyclingPoint.id) },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Red)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.DeleteForever, null, modifier = Modifier.size(20.dp))
+                            Text("Remover", fontSize = 12.sp)
+                            Text("${recyclingPoint.idsVoteRemove?.size ?: 0}/3", fontSize = 10.sp)
                         }
                     }
                 }
@@ -322,95 +296,72 @@ private fun MainSection(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ReportSection(
-    recyclingPoint: RecyclingPoint?,
-    onStateSelected: (String) -> Unit,
-    onNotesChange: (String) -> Unit,
-    onSubmitReport: () -> Unit,
-    selectedState: String,
-    notes: String,
-    currentLocation: Location?
+fun ReportSection(
+    recyclingPoint: RecyclingPoint,
+    currentLocation: Location?,
+    viewModel: FirebaseViewModel
 ) {
-    if (recyclingPoint == null || currentLocation == null) return
+    if (currentLocation == null) return
     val ecopontoLocation = Location("").apply {
         latitude = recyclingPoint.latatitude
         longitude = recyclingPoint.longitude
     }
-    if( currentLocation.distanceTo(ecopontoLocation).toInt() > 5) return
+    // Aumentei o raio para 50m para facilitar testes
+    if(currentLocation.distanceTo(ecopontoLocation).toInt() > 50) return
 
-    val conditionOptions = remember {
-        listOf(
-            "BOM" to Pair("Bom", Green), // Estado positivo
-            "CHEIO" to Pair("Cheio", pendingColor), // Alerta/Aviso
-            "DANIFICADO" to Pair("Danificado", Red), // Estado negativo/Problema
-            "DESAPARECIDO" to Pair("Desaparecido", Black.copy(alpha = 0.6f)) // Problema Grave
-        )
-    }
+    val conditionOptions = listOf(
+        "BOM" to Pair("Bom", Green),
+        "CHEIO" to Pair("Cheio", pendingColor),
+        "DANIFICADO" to Pair("Danificado", Red),
+        "DESAPARECIDO" to Pair("Desaparecido", Black.copy(alpha = 0.6f))
+    )
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco)
+        colors = CardDefaults.cardColors(containerColor = Branco),
+        elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-
-            // --- Título e Descrição ---
-            Text(
-                text = stringResource(R.string.detail_verify_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = Green
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.detail_verify_desc),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
+            Text(stringResource(R.string.detail_verify_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Green)
+            Text(stringResource(R.string.detail_verify_desc), style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
 
-            // --- Seleção de Estado ---
-            Text(
-                text = "Estado Atual do Ecoponto *",
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.Gray,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+            Text("Estado Atual *", style = MaterialTheme.typography.labelMedium, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
 
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                conditionOptions.forEach { (stateKey, stateInfo) ->
-                    val (displayText, color) = stateInfo
-                    ReportStateChip(
-                        text = displayText,
-                        color = color,
-                        isSelected = stateKey == selectedState,
-                        onClick = { onStateSelected(stateKey) }
+                conditionOptions.forEach { (key, info) ->
+                    val (label, color) = info
+                    val isSelected = viewModel.reportState.value == key
+
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { viewModel.reportState.value = key },
+                        label = { Text(label) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = color,
+                            selectedLabelColor = Branco
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(borderColor = color, selected = isSelected, enabled = true)
                     )
                 }
             }
 
-            // --- Secção de Notas (Opcional) ---
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                text = stringResource(R.string.detail_notes_title) + " (Opcional)",
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.Gray,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
+            Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp),
-                value = notes,
-                onValueChange = onNotesChange,
-                shape = RoundedCornerShape(10.dp),
-                placeholder = { Text("Adicione observações sobre a condição...") },
+                modifier = Modifier.fillMaxWidth().height(100.dp),
+                value = viewModel.reportNotes.value,
+                onValueChange = { viewModel.reportNotes.value = it },
+                placeholder = { Text("Observações (Opcional)") },
+                shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Green,
                     unfocusedBorderColor = LightGreen,
@@ -420,113 +371,54 @@ private fun ReportSection(
                 )
             )
 
-            // TODO: Inserir aqui a lógica da foto, se necessário. Por enquanto, só a UI de texto/botão.
+            Spacer(modifier = Modifier.height(16.dp))
 
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
-
-            // --- Botão de Reportar ---
             Button(
-                onClick = onSubmitReport,
-                enabled = selectedState.isNotBlank(), // O utilizador tem de selecionar um estado
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
+                onClick = {
+                    viewModel.updateEcopontoCondicion(
+                        recyclingPoint.id,
+                        viewModel.reportState.value,
+                        viewModel.reportNotes.value,
+                        null
+                    )
+                },
+                enabled = viewModel.reportState.value.isNotBlank(),
+                modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Green,
-                    disabledContainerColor = Green.copy(alpha = 0.5f)
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = Green)
             ) {
-                Icon(Icons.Outlined.Flag, contentDescription = null, modifier = Modifier.size(20.dp))
+                Icon(Icons.Outlined.Flag, null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(R.string.detail_button_report), fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.detail_button_report))
             }
         }
     }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ReportStateChip(
-    text: String,
-    color: Color,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    FilterChip(
-        selected = isSelected,
-        onClick = onClick,
-        label = { Text(text, color = if (isSelected) Branco else Black.copy(alpha = 0.8f)) },
-        leadingIcon = {
-            Box(
-                modifier = Modifier
-                    .size(10.dp)
-                    .clip(CircleShape)
-                    .background(color)
-            )
-        },
-        colors = FilterChipDefaults.filterChipColors(
-            containerColor = CinzentoClaro,
-            selectedContainerColor = color, // Cor do estado para o fundo
-            selectedLabelColor = Branco,
-            labelColor = Black.copy(alpha = 0.8f)
-        ),
-        border = FilterChipDefaults.filterChipBorder(
-            borderColor = color,
-            selected = isSelected,
-            enabled = false
-        )
-    )
-}
-
-
-
-@Composable
-private fun PhotoSection(recyclingPoint: RecyclingPoint?) {
-
+fun PhotoSection(recyclingPoint: RecyclingPoint) {
     Card(
-        modifier = Modifier.fillMaxWidth().height(200.dp),
+        modifier = Modifier.fillMaxWidth().height(220.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = CinzentoClaro)
     ) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            if (recyclingPoint?.imgUrl.isNullOrBlank()) {
+            if (recyclingPoint.imgUrl.isNullOrBlank()) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(painterResource(R.drawable.camera), null, tint = Color.Gray, modifier = Modifier.size(48.dp)) // Verifica se tens este drawable ou usa um Vector
-                    Text("Sem imagem", color = Color.Gray)
+                    Icon(painterResource(R.drawable.camera), null, tint = Color.Gray, modifier = Modifier.size(48.dp))
+                    Text(stringResource(R.string.detail_no_image), color = Color.Gray)
                 }
             } else {
-                // AsyncImage logic here
-                Text("Imagem carregada")
+                Text("Imagem Carregada")
             }
         }
     }
 }
 
 @Composable
-private fun MyTtitle(title: String) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(bottom = 8.dp)
-    )
-}
-
-@Composable
 private fun StatusBadge(text: String, color: Color) {
-    Surface(
-        color = color.copy(alpha = 0.1f),
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Text(
-            text = text,
-            color = color,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold
-        )
+    Surface(color = color.copy(alpha = 0.1f), shape = RoundedCornerShape(8.dp)) {
+        Text(text, color = color, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -544,7 +436,6 @@ private fun getBinStringRes(type: String?): Int {
 
 @Composable
 private fun getConditionDisplay(state: String): Pair<String, Color> {
-    // Mapeamento das strings de estado para o texto de display e cor
     val displayText = when (state) {
         "BOM" -> "Bom"
         "CHEIO" -> "Cheio"
@@ -552,12 +443,11 @@ private fun getConditionDisplay(state: String): Pair<String, Color> {
         "DESAPARECIDO" -> "Desaparecido"
         else -> "Desconhecido"
     }
-
     val color = when (state) {
         "BOM" -> Green
-        "CHEIO" -> pendingColor // Usar amarelo para CHEIO
+        "CHEIO" -> pendingColor
         "DANIFICADO" -> Red
-        "DESAPARECIDO" -> Black.copy(alpha = 0.6f) // Usar cinza escuro para DESAPARECIDO
+        "DESAPARECIDO" -> Black.copy(alpha = 0.6f)
         else -> Color.Gray
     }
     return Pair(displayText, color)

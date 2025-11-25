@@ -10,7 +10,6 @@ import amov.a2020157100.ecomap.ui.screens.MapViewScreen
 import amov.a2020157100.ecomap.ui.screens.RegisterScreen
 import amov.a2020157100.ecomap.ui.screens.AddEcopontoScreen
 import amov.a2020157100.ecomap.ui.screens.EcopontoDetails
-import amov.a2020157100.ecomap.ui.screens.ProfileScreen
 import amov.a2020157100.ecomap.ui.theme.EcoMapTheme
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
@@ -108,15 +107,6 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(ADDECOPONTO_SCREEN) {
                             AddEcopontoScreen(viewModel,locationViewModel,navController)
-                        }
-                        composable(PROFILE_SCREEN) {
-                            ProfileScreen(navController,
-                                onSignOut = {
-                                    viewModel.signOut()
-                                    navController.navigate(LOGIN_SCREEN){
-                                        popUpTo(MAIN_SCREEN) { inclusive = true }
-                                    }
-                            })
                         }
                         composable(
                             route="$DETAIL_SCREEN/{recyclingPointId}",

@@ -16,6 +16,48 @@ import android.util.Log
 import kotlin.collections.orEmpty
 
 class FirebaseViewModel : ViewModel() {
+
+    //percistencia dos dados
+    //login
+    var loginEmail = mutableStateOf("")
+    var loginPassword = mutableStateOf("")
+
+    //register
+    var registerEmail = mutableStateOf("")
+    var registerPassword = mutableStateOf("")
+    var registerConfirmPassword = mutableStateOf("")
+
+    //ListView
+    var selectedFilter = mutableStateOf("All")
+
+    //ecoponto Detaisl
+    var reportState = mutableStateOf("")
+    var reportNotes = mutableStateOf("")
+
+    fun resetReportState() {
+        reportState.value = ""
+        reportNotes.value = ""
+    }
+
+    //add ecoponto
+    var addType = mutableStateOf("")
+    var addLatitude = mutableStateOf(0.0)
+    var addLongitude = mutableStateOf(0.0)
+    var addNotes = mutableStateOf("")
+
+    fun resetAddForm() {
+        addType.value = ""
+        addLatitude.value = 0.0
+        addLongitude.value = 0.0
+        addNotes.value = ""
+    }
+
+
+
+
+
+
+
     private val _user = mutableStateOf(FAuthUtil.currentUser?.toUser())
     val user: State<User?>
         get() = _user

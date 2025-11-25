@@ -1,30 +1,25 @@
 package amov.a2020157100.ecomap.ui.screens
 
-
 import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.composables.AppBottomBar
 import amov.a2020157100.ecomap.ui.composables.Map
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
-import androidx.compose.material3.ExperimentalMaterial3Api
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Navigation
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-
 
 //TODO Cores tem de sair daqui
 val MapColor = Color(0xFFD2EAD3)
@@ -37,65 +32,27 @@ fun MapViewScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    //location
-    val location = remember { mutableStateOf("") }
-    //val location by locationViewModel.currentLocation
+    // Detetar Landscape para ajustes finos (como remover a sombra)
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Branco)
-                            .padding(bottom = 16.dp)
-                    ) {
-                        Text(
-                            text = "EcoMap",
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = Green,
-                            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-                        )
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            OutlinedTextField(
-                                value = location.value,
-                                onValueChange = { location.value = it },
-                                placeholder = { Text("Search location...") },
-                                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search Icon") },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(56.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Green,
-                                    unfocusedBorderColor = Green.copy(alpha = 0.5f),
-                                    focusedContainerColor = Branco,
-                                    unfocusedContainerColor = Branco,
-                                    cursorColor = Green
-                                )
-                            )
-
-                        }
-
-                    }
+                    Text(
+                        text = "EcoMap",
+                        style = MaterialTheme.typography.headlineMedium, // Título maior e destacado
+                        color = Green,
+                        fontWeight = FontWeight.Bold
+                    )
                 },
-
-
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Branco,
                     titleContentColor = Color.Black
                 ),
-
-
-
+                // Em landscape, removemos a sombra para ganhar espaço visual vertical e parecer mais limpo
+                modifier = Modifier.shadow(if (isLandscape) 0.dp else 4.dp)
             )
         },
         content = { paddingValues ->
@@ -104,20 +61,17 @@ fun MapViewScreen(
                     .padding(paddingValues)
                     .background(MapColor)
                     .fillMaxSize()
-
             ){
-                Map(firebaseViewModel,locationViewModel)
+                Map(firebaseViewModel, locationViewModel)
             }
-
         },
         floatingActionButton = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp) // espaçamento entre eles
+                verticalArrangement = Arrangement.spacedBy(16.dp) // espaçamento entre os botões
             ) {
-
                 FloatingActionButton(
                     containerColor = Branco,
-                    onClick = { /* Todo */ }
+                    onClick = { /* Todo: Focar na localização do utilizador */ }
                 ) {
                     Icon(Icons.Filled.Navigation, tint = Green, contentDescription = "Me")
                 }
@@ -130,24 +84,7 @@ fun MapViewScreen(
             }
         },
         bottomBar = {
-            AppBottomBar(navController)
+            AppBottomBar(navController, onSignOut = {firebaseViewModel.signOut()})
         }
-
-
     )
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
