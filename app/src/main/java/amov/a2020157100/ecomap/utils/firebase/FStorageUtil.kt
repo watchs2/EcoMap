@@ -206,32 +206,32 @@ class FStorageUtil {
                 .update("condition", condition)
         }
 
-        fun uploadFile(imgPath: String) : CompletableFuture<String> {
+        fun uploadFile(imgPath: String): CompletableFuture<String> {
             val storage = Firebase.storage
             val storageReference = storage.reference
-
             val file = File(imgPath)
             val newFileNameInsideStorage = storageReference.child(file.name)
 
             val future = CompletableFuture<String>()
-
-
             val uploadTask = newFileNameInsideStorage.putFile(Uri.fromFile(file))
-            uploadTask.continueWithTask { task ->
-                if (!task.isSuccessful) {
-                    task.exception?.let {
-                        future.completeExceptionally(it)
+
+            uploadTask
+                .continueWithTask { task ->
+                    if (!task.isSuccessful) {
+                        task.exception?.let { future.completeExceptionally(it) }
+                    }
+                    newFileNameInsideStorage.downloadUrl
+                }
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val downloadUri = task.result
+                        future.complete(downloadUri.toString())
                     }
                 }
-                newFileNameInsideStorage.downloadUrl
-            }.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val downloadUri = task.result
-                    future.complete(downloadUri.toString())
-                }
-            }
+
             return future
         }
+
 
     }
 

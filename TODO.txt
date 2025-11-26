@@ -1,0 +1,25 @@
+TODO:
+
+cores tem de sair daquele sitio ns onde vão
+
+componente publico de ver fotos
+
+componente publico para tirar fotos
+
+diminuir espaço para adicionar condição
+
+rever todos os textos e passar para string
+
+rever mensagens de erro
+
+só quero na lista ecopontos perto
+
+uniformizar como chamamos os tipos dos ecopontos
+
+e meter isso publico
+
+diminuir a navbar e o top
+
+se não tiver imagem simplesmente não aparece
+
+erro de logout

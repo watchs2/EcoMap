@@ -245,25 +245,37 @@ fun SubmitButtonSection(viewModel: FirebaseViewModel, navController: NavHostCont
         if (viewModel.error.value != null) {
             Text(viewModel.error.value.toString(), color = Color(0xFFD22F2F), modifier = Modifier.padding(bottom = 8.dp))
         }
-        Button(
-            modifier = Modifier.fillMaxWidth().height(50.dp),
-            onClick = {
-                viewModel.addRecyclingPoint(
-                    type = viewModel.addType.value,
-                    latitude = viewModel.addLatitude.value,
-                    longitude = viewModel.addLongitude.value,
-                    imgPath = viewModel.addPhotoPath.value,
-                    notes = viewModel.addNotes.value,
-                    onSuccess = {
-                        viewModel.resetAddForm()
-                        navController.navigate(MainActivity.MAPVIEW_SCREEN)
-                    }
+        if (viewModel.isLoading.value) {
+            // Mostra indicador de progresso se estiver a carregar
+            CircularProgressIndicator(color = Color(0xFF2E7C32))
+        }else {
+            Button(
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                onClick = {
+                    viewModel.addRecyclingPoint(
+                        type = viewModel.addType.value,
+                        latitude = viewModel.addLatitude.value,
+                        longitude = viewModel.addLongitude.value,
+                        imgPath = viewModel.addPhotoPath.value,
+                        notes = viewModel.addNotes.value,
+                        onSuccess = {
+                            viewModel.resetAddForm()
+                            navController.navigate(MainActivity.MAPVIEW_SCREEN)
+                        }
+                    )
+                },
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2E7C32),
+                    contentColor = Color.White
                 )
-            },
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7C32), contentColor = Color.White)
-        ) {
-            Text("Add Ecoponto", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            ) {
+                Text(
+                    "Add Ecoponto",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }

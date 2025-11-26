@@ -3,6 +3,7 @@ package amov.a2020157100.ecomap.ui.screens
 import amov.a2020157100.ecomap.R
 import amov.a2020157100.ecomap.model.RecyclingPoint
 import amov.a2020157100.ecomap.model.Status
+import amov.a2020157100.ecomap.ui.composables.ImagePickerSelector
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
 import android.content.res.Configuration
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -33,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil3.compose.AsyncImage
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,15 +53,12 @@ fun EcopontoDetails(
 
     DisposableEffect(Unit) {
         onDispose {
-            // viewModel.clearSelectedRecyclingPoint()
+          viewModel.resetReportState()
         }
     }
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-
-    // CORREÇÃO: Usamos .value diretamente em vez de 'by'.
-    // Isto cria uma variável local estável que permite Smart Casts (o 'if != null' funciona).
     val recyclingPoint = viewModel.selectedRecyclingPoint.value
 
     val currentLocation by locationViewModel.currentLocation
@@ -90,8 +90,7 @@ fun EcopontoDetails(
                     .fillMaxSize()
                     .background(CinzentoClaro)
             ) {
-                // Aqui o Smart Cast funciona porque 'recyclingPoint' é uma variável local e não um delegate
-                if (recyclingPoint != null) {
+                if ((recyclingPoint != null) || (viewModel.isLoading.value && recyclingPoint != null)){
                     if (isLandscape) {
                         // --- LAYOUT LANDSCAPE (2 Colunas) ---
                         Row(
@@ -106,7 +105,7 @@ fun EcopontoDetails(
                                     .weight(1f)
                                     .verticalScroll(rememberScrollState())
                             ) {
-                                PhotoSection(recyclingPoint)
+                                PhotoSection(recyclingPoint.imgUrl)
                                 Spacer(modifier = Modifier.height(16.dp))
                                 MainInfoSection(recyclingPoint, currentLocation)
                             }
@@ -136,7 +135,7 @@ fun EcopontoDetails(
                                 .verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            PhotoSection(recyclingPoint)
+                            PhotoSection(recyclingPoint.imgUrl)
                             MainInfoSection(recyclingPoint, currentLocation)
                             ActionsSection(viewModel, recyclingPoint)
                             ReportSection(
@@ -147,7 +146,6 @@ fun EcopontoDetails(
                         }
                     }
                 } else {
-                    // Loading State
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = Green)
                     }
@@ -233,6 +231,16 @@ fun MainInfoSection(
                 HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
                 Text("Último Reporte", style =MaterialTheme.typography.titleMedium, color = Color.Gray)
                 Spacer(modifier = Modifier.height(8.dp))
+                if(recyclingPoint.condition.imgUrl != null){
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        AsyncImage(
+                            model = recyclingPoint.condition.imgUrl,
+                            contentDescription = stringResource(R.string.detail_image_title),
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
                 val (displayText, color) = getConditionDisplay(recyclingPoint.condition.state)
                 StatusBadge(text = displayText, color = color)
                 if (!recyclingPoint.condition.notes.isNullOrBlank()) {
@@ -240,6 +248,7 @@ fun MainInfoSection(
                     Text(recyclingPoint.condition.notes, style = MaterialTheme.typography.bodyMedium, color = Black.copy(alpha = 0.8f))
                 }
             }
+
         }
     }
 }
@@ -309,7 +318,7 @@ fun ReportSection(
         longitude = recyclingPoint.longitude
     }
 
-    if(currentLocation.distanceTo(ecopontoLocation).toInt() > 50) return
+    if(currentLocation.distanceTo(ecopontoLocation).toInt() > 15) return
 
     val conditionOptions = listOf(
         "BOM" to Pair("Bom", Green),
@@ -372,14 +381,18 @@ fun ReportSection(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-
+            ImagePickerSelector(viewModel.addReportPhotoPath.value,
+                onImageSelected ={ path ->
+                    viewModel.addReportPhotoPath.value = path
+                } )
+            Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
                     viewModel.updateEcopontoCondicion(
                         recyclingPoint.id,
                         viewModel.reportState.value,
                         viewModel.reportNotes.value,
-                        null
+                        viewModel.addReportPhotoPath.value
                     )
                 },
                 enabled = viewModel.reportState.value.isNotBlank(),
@@ -396,21 +409,21 @@ fun ReportSection(
 }
 
 @Composable
-fun PhotoSection(recyclingPoint: RecyclingPoint) {
+fun PhotoSection(imgUrl: String?){
+    if(imgUrl.isNullOrBlank())
+        return
     Card(
         modifier = Modifier.fillMaxWidth().height(220.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = CinzentoClaro)
     ) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            if (recyclingPoint.imgUrl.isNullOrBlank()) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(painterResource(R.drawable.camera), null, tint = Color.Gray, modifier = Modifier.size(48.dp))
-                    Text(stringResource(R.string.detail_no_image), color = Color.Gray)
-                }
-            } else {
-
-            }
+            AsyncImage(
+                model = imgUrl,
+                contentDescription = stringResource(R.string.detail_image_title),
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
         }
     }
 }
