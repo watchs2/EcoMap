@@ -1,6 +1,7 @@
 package amov.a2020157100.ecomap.ui.screens
 
 import amov.a2020157100.ecomap.R
+import amov.a2020157100.ecomap.ui.theme.TextDarkGray
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import android.content.res.Configuration
 import androidx.compose.foundation.background
@@ -30,11 +31,9 @@ fun RegisterScreen(
     onNavigationLogin: () -> Unit,
     modifier: Modifier = Modifier
 ){
-    // 1. Detetar Orientação
+
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-
-    // Removemos os 'remember' locais. Usamos o ViewModel.
 
     LaunchedEffect(viewModel.user.value) {
         if (viewModel.user.value != null && viewModel.error.value == null) {
@@ -42,24 +41,21 @@ fun RegisterScreen(
         }
     }
 
-    //UI
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(CinzentoClaro)
+            .background(MaterialTheme.colorScheme.background)
             .padding(20.dp)
-            .verticalScroll(rememberScrollState()), // 2. Scroll para Landscape
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = if (isLandscape) Arrangement.Top else Arrangement.Center
     ){
 
-        // Espaço dinâmico no topo
         Spacer(Modifier.height(if(isLandscape) 10.dp else 0.dp))
 
         Surface(
             modifier = Modifier
                 .widthIn(max = 700.dp)
-                // Ajuste de altura máxima para landscape
                 .heightIn(max = if(isLandscape) 360.dp else 550.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .shadow(
@@ -67,24 +63,24 @@ fun RegisterScreen(
                     ambientColor = Color.Black.copy(alpha = 0.3f),
                     spotColor = Color.Black.copy(alpha = 0.3f)
                 ),
-            color = Branco
+            color = MaterialTheme.colorScheme.onPrimary
         ){
             Column(
                 modifier = modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Branco)
+                    .background(MaterialTheme.colorScheme.onPrimary)
                     .padding(28.dp)
                     .verticalScroll(rememberScrollState()), // Scroll interno no cartão
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
                 Spacer(Modifier.height(5.dp))
 
-                // --- EMAIL ---
+
                 Text(
                     text = stringResource(R.string.label_email),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Black,
+                    color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.align(Alignment.Start)
                 )
                 Spacer(Modifier.height(4.dp))
@@ -95,79 +91,76 @@ fun RegisterScreen(
                     shape = RoundedCornerShape(10.dp),
                     placeholder = { Text(stringResource(R.string.placeholder_email)) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Green,
-                        unfocusedBorderColor = LightGreen,
-                        cursorColor = Green,
-                        focusedContainerColor = Branco,
-                        unfocusedContainerColor = Branco
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     singleLine = true
                 )
 
                 Spacer(Modifier.height(20.dp))
 
-                // --- PASSWORD ---
                 Text(
                     text = stringResource(R.string.label_password),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Black,
+                    color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.align(Alignment.Start)
                 )
                 Spacer(Modifier.height(4.dp))
                 OutlinedTextField(
-                    value = viewModel.registerPassword.value, // Ligar ao ViewModel
+                    value = viewModel.registerPassword.value,
                     onValueChange = { viewModel.registerPassword.value = it },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
                     placeholder = { Text(stringResource(R.string.placeholder_password)) },
                     visualTransformation = PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Green,
-                        unfocusedBorderColor = LightGreen,
-                        cursorColor = Green,
-                        focusedContainerColor = Branco,
-                        unfocusedContainerColor = Branco
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     singleLine = true
                 )
 
                 Spacer(Modifier.height(20.dp))
 
-                // --- CONFIRM PASSWORD ---
                 Text(
                     text= stringResource(R.string.label_confirm_password),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Black,
+                    color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.align(Alignment.Start)
                 )
                 Spacer(Modifier.height(4.dp))
                 OutlinedTextField(
-                    value = viewModel.registerConfirmPassword.value, // Ligar ao ViewModel
+                    value = viewModel.registerConfirmPassword.value,
                     onValueChange = {viewModel.registerConfirmPassword.value = it},
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
                     placeholder = { Text(stringResource(R.string.placeholder_password)) },
                     visualTransformation = PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Green,
-                        unfocusedBorderColor = LightGreen,
-                        cursorColor = Green,
-                        focusedContainerColor = Branco,
-                        unfocusedContainerColor = Branco
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     singleLine = true
                 )
 
-                // --- ERROS ---
                 if(viewModel.error.value != null){
                     Spacer(Modifier.height(5.dp))
                     Text(
                         text = viewModel.error.value.toString(),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Red,
+                        color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.align(Alignment.Start)
                     )
                     Spacer(Modifier.height(5.dp))
@@ -175,7 +168,6 @@ fun RegisterScreen(
                     Spacer(Modifier.height(20.dp))
                 }
 
-                // --- BOTÃO REGISTAR ---
                 Button(
                     onClick = {
                         viewModel.createUserWithEmail(
@@ -189,7 +181,7 @@ fun RegisterScreen(
                         .height(52.dp),
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Green
+                        containerColor = MaterialTheme.colorScheme.primary,
                     )
                 ) {
                     Text(stringResource(R.string.btn_sign_up), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
@@ -201,14 +193,14 @@ fun RegisterScreen(
 
         Spacer(Modifier.height(20.dp))
 
-        // --- RODAPÉ LOGIN ---
+
         Row(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
                 stringResource(R.string.text_have_account),
                 fontSize = 14.sp,
-                color = CinzentoEscuro
+                color = TextDarkGray
             )
 
             TextButton(
@@ -218,7 +210,7 @@ fun RegisterScreen(
             ) {
                 Text(
                     stringResource(R.string.btn_sign_in),
-                    color = Green,
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 4.dp)
@@ -226,7 +218,6 @@ fun RegisterScreen(
             }
         }
 
-        // Espaço extra para garantir scroll total
         Spacer(Modifier.height(50.dp))
     }
 }
