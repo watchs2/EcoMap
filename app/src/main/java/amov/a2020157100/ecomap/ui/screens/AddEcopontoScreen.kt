@@ -2,6 +2,7 @@ package amov.a2020157100.ecomap.ui.screens
 
 import amov.a2020157100.ecomap.R
 import amov.a2020157100.ecomap.ui.MainActivity
+import amov.a2020157100.ecomap.ui.composables.ImagePickerSelector
 import amov.a2020157100.ecomap.ui.theme.GreenLimeLight
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
@@ -57,71 +58,7 @@ fun AddEcopontoScreen(
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    // --- LÓGICA DA CÂMARA E GALERIA ---
-    var showImageSourceDialog by remember { mutableStateOf(false) }
-    var tempCameraPath by remember { mutableStateOf<String?>(null) }
 
-    // 1. Launcher Galeria
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) {
-            val path = FileUtils.createFileFromUri(context, uri)
-            viewModel.addPhotoPath.value = path
-        }
-        showImageSourceDialog = false
-    }
-
-    // 2. Launcher Câmara
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success && tempCameraPath != null) {
-            viewModel.addPhotoPath.value = tempCameraPath
-        }
-        showImageSourceDialog = false
-    }
-
-    // Função para lançar a câmara
-    fun launchCamera() {
-        val path = FileUtils.getTempFilename(context)
-        tempCameraPath = path
-        val file = File(path)
-
-        // Certifica-te que o authority aqui é igual ao do AndroidManifest.xml
-        val authority = "amov.a2020157100.ecomap.utils.camera.FileUtils"
-
-        val uri = FileProvider.getUriForFile(context, authority, file)
-        cameraLauncher.launch(uri)
-    }
-
-    // DIALOG DE ESCOLHA
-    if (showImageSourceDialog) {
-        AlertDialog(
-            onDismissRequest = { showImageSourceDialog = false },
-            title = { Text("Choose Image Source") },
-            text = {
-                Column {
-                    ListItem(
-                        headlineContent = { Text("Camera") },
-                        leadingContent = { Icon(Icons.Default.CameraAlt, null) },
-                        modifier = Modifier.clickable { launchCamera() }
-                    )
-                    ListItem(
-                        headlineContent = { Text("Gallery") },
-                        leadingContent = { Icon(Icons.Default.PhotoLibrary, null) },
-                        modifier = Modifier.clickable {
-                            galleryLauncher.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                            )
-                        }
-                    )
-                }
-            },
-            confirmButton = {},
-            dismissButton = { TextButton(onClick = { showImageSourceDialog = false }) { Text("Cancel") } }
-        )
-    }
 
     Scaffold(
         topBar = {
@@ -161,7 +98,11 @@ fun AddEcopontoScreen(
                             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            PhotoSection(viewModel) { showImageSourceDialog = true }
+                            //PhotoSection(viewModel) { showImageSourceDialog = true }
+                            ImagePickerSelector(viewModel.addPhotoPath.value,
+                                onImageSelected ={ path ->
+                                    viewModel.addPhotoPath.value = path
+                                } )
                             NotesSection(viewModel)
                             InfoSection()
                             SubmitButtonSection(viewModel, navController)
@@ -176,7 +117,11 @@ fun AddEcopontoScreen(
                     ) {
                         EcoPointTypeSection(viewModel.addType.value) { viewModel.addType.value = it }
                         LocationSection(locationViewModel, viewModel)
-                        PhotoSection(viewModel) { showImageSourceDialog = true }
+                        //PhotoSection(viewModel) { showImageSourceDialog = true }
+                        ImagePickerSelector(viewModel.addPhotoPath.value,
+                            onImageSelected ={ path ->
+                                viewModel.addPhotoPath.value = path
+                            })
                         NotesSection(viewModel)
                         InfoSection()
                         SubmitButtonSection(viewModel, navController)
@@ -246,7 +191,6 @@ fun SubmitButtonSection(viewModel: FirebaseViewModel, navController: NavHostCont
             Text(viewModel.error.value.toString(), color = Color(0xFFD22F2F), modifier = Modifier.padding(bottom = 8.dp))
         }
         if (viewModel.isLoading.value) {
-            // Mostra indicador de progresso se estiver a carregar
             CircularProgressIndicator(color = Color(0xFF2E7C32))
         }else {
             Button(

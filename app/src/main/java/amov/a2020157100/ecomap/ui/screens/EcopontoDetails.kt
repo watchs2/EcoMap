@@ -8,6 +8,7 @@ import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
 import android.content.res.Configuration
 import android.location.Location
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -229,23 +230,71 @@ fun MainInfoSection(
             // Condição
             if(recyclingPoint.condition != null){
                 HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
-                Text("Último Reporte", style =MaterialTheme.typography.titleMedium, color = Color.Gray)
-                Spacer(modifier = Modifier.height(8.dp))
-                if(recyclingPoint.condition.imgUrl != null){
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        AsyncImage(
-                            model = recyclingPoint.condition.imgUrl,
-                            contentDescription = stringResource(R.string.detail_image_title),
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
+
+                // Cabeçalho da secção
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(painterResource(R.drawable.info), null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        "Último Reporte da Comunidade",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Gray
+                    )
                 }
-                val (displayText, color) = getConditionDisplay(recyclingPoint.condition.state)
-                StatusBadge(text = displayText, color = color)
-                if (!recyclingPoint.condition.notes.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(recyclingPoint.condition.notes, style = MaterialTheme.typography.bodyMedium, color = Black.copy(alpha = 0.8f))
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Cartão unificado com a informação do reporte
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Branco),
+                    border = BorderStroke(1.dp, CinzentoClaro),
+                    elevation = CardDefaults.cardElevation(0.dp) // Flat design para diferenciar do card principal
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+
+                        // 1. Estado e Badge
+                        val (displayText, color) = getConditionDisplay(recyclingPoint.condition.state)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            StatusBadge(text = displayText, color = color)
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+
+                        // 2. Imagem (Com altura fixa e cantos arredondados)
+                        if(recyclingPoint.condition.imgUrl != null){
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Card(
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp) // Altura fixa resolve problemas de layout
+                            ) {
+                                AsyncImage(
+                                    model = recyclingPoint.condition.imgUrl,
+                                    contentDescription = "Imagem do reporte",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+
+                        // 3. Notas
+                        if (!recyclingPoint.condition.notes.isNullOrBlank()) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = "Observações:",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.Gray
+                            )
+                            Text(
+                                text = recyclingPoint.condition.notes,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Black.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
                 }
             }
 

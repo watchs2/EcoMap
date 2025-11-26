@@ -3,6 +3,8 @@ package amov.a2020157100.ecomap.utils.camera
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
@@ -35,7 +37,6 @@ class FileUtils {
             options.inJustDecodeBounds = true
             BitmapFactory.decodeFile(file.absolutePath, options)
 
-
             val maxWidth = 1024
             val maxHeight = 1024
             var inSampleSize = 1
@@ -48,15 +49,41 @@ class FileUtils {
                 }
             }
 
-
             options.inJustDecodeBounds = false
             options.inSampleSize = inSampleSize
-            val bitmap = BitmapFactory.decodeFile(file.absolutePath, options) ?: return filePath // Se falhar, retorna original
 
+
+            var bitmap = BitmapFactory.decodeFile(file.absolutePath, options) ?: return filePath
+
+            try {
+                val exif = ExifInterface(file.absolutePath)
+                val orientation = exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED
+                )
+
+                val matrix = Matrix()
+                when (orientation) {
+                    ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                    ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                    ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                }
+
+                if (orientation != ExifInterface.ORIENTATION_NORMAL && orientation != ExifInterface.ORIENTATION_UNDEFINED) {
+                    val rotatedBitmap = Bitmap.createBitmap(
+                        bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true
+                    )
+                    if (bitmap != rotatedBitmap) {
+                        bitmap.recycle()
+                    }
+                    bitmap = rotatedBitmap
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
 
             val compressedFile = File(file.parent, "compressed_" + file.name)
             val outputStream = FileOutputStream(compressedFile)
-
 
             bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream)
             outputStream.flush()
