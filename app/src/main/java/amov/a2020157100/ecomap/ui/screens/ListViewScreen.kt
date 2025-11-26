@@ -45,11 +45,9 @@ import androidx.compose.ui.unit.dp
 import amov.a2020157100.ecomap.ui.composables.StatusBadge
 import androidx.navigation.NavHostController
 import amov.a2020157100.ecomap.ui.composables.getBinStringRes
-
-// Cores (Mantém as tuas)
-val pendingColor = Color(0xFFFBC02D)
-val verifiedColor = Green
-val deleteColor = Red
+import amov.a2020157100.ecomap.ui.theme.StatusError
+import amov.a2020157100.ecomap.ui.theme.StatusPending
+import amov.a2020157100.ecomap.ui.theme.StatusVerified
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,17 +68,15 @@ fun ListViewScreen(
     val recyclingPoints = viewModel.recyclingPoints.value
     val currentLocation by locationViewModel.currentLocation
 
-    // Estado do Filtro vindo do ViewModel
     val selectedFilter = viewModel.selectedFilter.value
+    //Todo alterar isto
     val filters = listOf("All", "Paper", "Glass", "Plastic", "Metal")
-
-    // Lógica de filtragem
     val filteredPoints = remember(recyclingPoints, selectedFilter) {
         if (selectedFilter == "All") {
             recyclingPoints
         } else {
             recyclingPoints.filter {
-                when (selectedFilter) {
+                when (selectedFilter ) {
                     "Paper" -> it.type == "Blue bin"
                     "Glass" -> it.type == "Green bin"
                     "Plastic" -> it.type == "Yellow bin"
@@ -98,13 +94,13 @@ fun ListViewScreen(
                     Text(
                         text = stringResource(R.string.list_title),
                         style = MaterialTheme.typography.headlineMedium,
-                        color = Green,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Branco,
-                    titleContentColor = Color.Black
+                    containerColor = MaterialTheme.colorScheme.onPrimary,
+                    titleContentColor = MaterialTheme.colorScheme.onSecondary
                 )
             )
         },
@@ -113,21 +109,18 @@ fun ListViewScreen(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
-                    .background(CinzentoClaro)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 if (isLandscape) {
-                    // --- LAYOUT LANDSCAPE ---
+
                     Row(modifier = Modifier.fillMaxSize()) {
-                        // Coluna da Esquerda (Filtros)
                         Column(
                             modifier = Modifier
-                                .width(280.dp) // Largura fixa para o painel lateral
+                                .width(280.dp)
                                 .fillMaxHeight()
                                 .padding(8.dp)
                                 .verticalScroll(rememberScrollState())
                         ) {
-                            // Em landscape, usamos o cartão mas se calhar queremos ele sempre aberto ou expansível?
-                            // Vamos manter expansível para consistência, mas podes forçar 'expanded = true' se preferires.
                             FilterAccordion(
                                 filters = filters,
                                 selectedFilter = selectedFilter,
@@ -135,7 +128,6 @@ fun ListViewScreen(
                             )
                         }
 
-                        // Coluna da Direita (Lista)
                         RecyclingPointsList(
                             points = filteredPoints,
                             currentLocation = currentLocation,
@@ -144,9 +136,7 @@ fun ListViewScreen(
                         )
                     }
                 } else {
-                    // --- LAYOUT PORTRAIT ---
                     Column(modifier = Modifier.fillMaxSize()) {
-                        // Acordeão de Filtros no topo
                         Box(modifier = Modifier.padding(16.dp)) {
                             FilterAccordion(
                                 filters = filters,
@@ -154,8 +144,6 @@ fun ListViewScreen(
                                 onFilterSelect = { viewModel.selectedFilter.value = it }
                             )
                         }
-
-                        // Lista
                         RecyclingPointsList(
                             points = filteredPoints,
                             currentLocation = currentLocation,
@@ -168,12 +156,12 @@ fun ListViewScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                containerColor = Green,
+                containerColor = MaterialTheme.colorScheme.primary,
                 onClick = { navController.navigate(MainActivity.ADDECOPONTO_SCREEN) }
             ) {
                 Icon(
                     Icons.Filled.Add,
-                    tint = Branco,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     contentDescription = stringResource(R.string.list_add_ecopoint_cd)
                 )
             }
@@ -189,17 +177,15 @@ fun ListViewScreen(
     )
 }
 
-// --- NOVO COMPONENTE: ACORDEÃO DE FILTROS ---
 @Composable
 fun FilterAccordion(
     filters: List<String>,
     selectedFilter: String,
     onFilterSelect: (String) -> Unit
 ) {
-    // rememberSaveable para manter aberto/fechado se rodares o ecrã
+    //todo mudar para viewModel
     var expanded by rememberSaveable { mutableStateOf(false) }
 
-    // Animação da setinha a rodar
     val rotationState by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f, label = "rotation"
     )
@@ -207,13 +193,12 @@ fun FilterAccordion(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            // CABEÇALHO (Clicável)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -226,7 +211,7 @@ fun FilterAccordion(
                     Icon(
                         imageVector = Icons.Default.FilterList,
                         contentDescription = null,
-                        tint = Green
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
@@ -235,7 +220,6 @@ fun FilterAccordion(
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
-                        // Mostra qual está selecionado se o cartão estiver fechado
                         if (!expanded) {
                             Text(
                                 text = "Selecionado: $selectedFilter",
@@ -253,20 +237,14 @@ fun FilterAccordion(
                 )
             }
 
-            // CONTEÚDO EXPANSÍVEL
             AnimatedVisibility(
                 visible = expanded,
                 enter = expandVertically() + fadeIn(),
                 exit = shrinkVertically() + fadeOut()
             ) {
                 Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
-                    HorizontalDivider(color = CinzentoClaro)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.background)
                     Spacer(modifier = Modifier.height(8.dp))
-
-                    // Mostra as opções (Usando FlowRow se tiveres a dependência ou simples Column/Row)
-                    // Como não sei se tens FlowLayout, vou usar uma Column simples com RadioButtons ou Chips
-                    // Vamos usar Chips num layout de grelha adaptado ou simples Column
-
                     filters.forEach { filter ->
                         FilterOptionRow(
                             text = filter,
@@ -300,19 +278,17 @@ fun FilterOptionRow(
         RadioButton(
             selected = isSelected,
             onClick = onClick,
-            colors = RadioButtonDefaults.colors(selectedColor = Green)
+            colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-            color = if (isSelected) Green else Black
+            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondary
         )
     }
 }
-
-// --- RESTO DOS COMPONENTES (IGUAIS AO ANTERIOR) ---
 
 @Composable
 fun RecyclingPointsList(
@@ -364,7 +340,7 @@ private fun RecyclingPointItem(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -415,17 +391,17 @@ private fun RecyclingPointItem(
                     if (recyclingPoint.status == Status.PENDING.name) {
                         StatusBadge(
                             text = stringResource(R.string.list_status_pending),
-                            color = pendingColor
+                            color = StatusPending
                         )
                     } else if (recyclingPoint.status == Status.DELETE.name) {
                         StatusBadge(
                             text = stringResource(R.string.list_status_deleting),
-                            color = deleteColor
+                            color = StatusError
                         )
                     } else if (recyclingPoint.status == Status.FINAL.name) {
                         StatusBadge(
                             text = stringResource(R.string.list_status_verified),
-                            color = verifiedColor
+                            color = StatusVerified
                         )
                     }
                 }

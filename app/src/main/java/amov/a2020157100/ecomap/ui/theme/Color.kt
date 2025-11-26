@@ -16,6 +16,9 @@ val TextDarkGray = Color(0xFF37474F)
 // --- Cores de Estado / Ecopontos ---
 val StatusError = Color(0xFFD32F2F)
 val StatusPending = Color(0xFFFBC02D)
+val StatusVerified = Color(0xFF2E7C32)
+
+
 
 
 // Cores Específicas dos Caixotes (Bins)

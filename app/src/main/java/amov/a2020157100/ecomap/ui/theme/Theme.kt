@@ -27,6 +27,7 @@ private val AppColorScheme = lightColorScheme(
 
     error = StatusError,
     onError = BrandWhite
+
 )
 
 
