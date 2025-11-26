@@ -101,14 +101,15 @@ fun getBinColor(type: String): Color {
     }
 }
 
+
 @Composable
-fun getConditionDisplay(state: String): Pair<String, Color> {
+fun getConditionDisplay(state: String): Pair<Int, Color> {
     val displayText = when (state) {
-        "BOM" -> "Bom"
-        "CHEIO" -> "Cheio"
-        "DANIFICADO" -> "Danificado"
-        "DESAPARECIDO" -> "Desaparecido"
-        else -> "Desconhecido"
+        "BOM" -> R.string.binState_good
+        "CHEIO" -> R.string.binState_full
+        "DANIFICADO" -> R.string.binState_damaged
+        "DESAPARECIDO" -> R.string.binState_missing
+        else -> R.string.binState_unknown
     }
     val color = when (state) {
         "BOM" -> Green

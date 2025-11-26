@@ -256,7 +256,7 @@ fun MainInfoSection(
 
                         val (displayText, color) = getConditionDisplay(recyclingPoint.condition.state)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            StatusBadge(text = displayText, color = color)
+                            StatusBadge(text = stringResource(displayText), color = color)
                             Spacer(modifier = Modifier.weight(1f))
                         }
 
@@ -318,7 +318,6 @@ fun ActionsSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint)
                 )
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    // Confirmar
                     if (recyclingPoint.status == Status.PENDING.name) {
                         Button(
                             onClick = { viewModel.confirmEcoponto(recyclingPoint.id) },

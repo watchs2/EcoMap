@@ -55,4 +55,8 @@
     <string name="binState_missing">Ecoponto desaparecido</string>
     <string name="binState_unknown">Estado desconhecido</string>
 
+    <string name="menu_map">Mapa</string>
+    <string name="menu_list">Lista</string>
+    <string name="menu_signout">Sair</string>
+
 </resources>

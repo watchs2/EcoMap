@@ -1,5 +1,6 @@
 package amov.a2020157100.ecomap.ui.composables
 
+import amov.a2020157100.ecomap.R
 import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.screens.Branco
 import amov.a2020157100.ecomap.ui.screens.Green
@@ -32,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -66,21 +68,21 @@ fun AppBottomBar(navController: NavHostController,onSignOut: () -> Unit) {
             ) {
                 BottomNavItem(
                     icon = Icons.Filled.Map,
-                    label = "Map",
+                    label = stringResource(R.string.menu_map),
                     isSelected = (currentRoute == MainActivity.MAPVIEW_SCREEN),
                     onClick = { navController.navigate(MainActivity.MAPVIEW_SCREEN) }
                 )
 
                 BottomNavItem(
                     icon = Icons.Filled.FormatListNumbered,
-                    label = "List",
+                    label = stringResource(R.string.menu_list),
                     isSelected = (currentRoute == MainActivity.LISTVIEW_SCREEN),
                     onClick = { navController.navigate(MainActivity.LISTVIEW_SCREEN) }
                 )
 
                 BottomNavItem(
                     icon = Icons.Filled.Logout,
-                    label = "Signout",
+                    label = stringResource(R.string.menu_signout),
                     isSelected =false,
                     onClick = { onSignOut() }
                 )
