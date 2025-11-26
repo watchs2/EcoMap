@@ -3,18 +3,16 @@ package amov.a2020157100.ecomap.ui.screens
 import amov.a2020157100.ecomap.R
 import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.composables.ImagePickerSelector
-import amov.a2020157100.ecomap.ui.theme.GreenLimeLight
+import amov.a2020157100.ecomap.ui.theme.BinBlue
+import amov.a2020157100.ecomap.ui.theme.BinGreen
+import amov.a2020157100.ecomap.ui.theme.BinYellow
+import amov.a2020157100.ecomap.ui.theme.BinRed
+import amov.a2020157100.ecomap.ui.theme.BinBlack
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
-import amov.a2020157100.ecomap.utils.camera.FileUtils
 import android.content.res.Configuration
-import coil3.compose.AsyncImage
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -22,29 +20,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
-import java.io.File
 
-// Cores
-val blueBinColor = Color(0xFF2196F3)
-val greenBinColor = Color(0xFF4CAF50)
-val yellowBinColor = Color(0xFFFFEB3B)
-val redBinColor = Color(0xFFC0172F)
-val blackBinColor = Color(0xFF1A1A19)
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,7 +43,7 @@ fun AddEcopontoScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ){
-    val context = LocalContext.current
+
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -79,10 +68,9 @@ fun AddEcopontoScreen(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
-                    .background(Color(0xFFEAEDEF)) // CinzentoClaro
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 if (isLandscape) {
-                    // --- LAYOUT LANDSCAPE (Split View) ---
                     Row(
                         modifier = Modifier.fillMaxSize().padding(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -98,7 +86,6 @@ fun AddEcopontoScreen(
                             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            //PhotoSection(viewModel) { showImageSourceDialog = true }
                             ImagePickerSelector(viewModel.addPhotoPath.value,
                                 onImageSelected ={ path ->
                                     viewModel.addPhotoPath.value = path
@@ -110,14 +97,13 @@ fun AddEcopontoScreen(
                         }
                     }
                 } else {
-                    // --- LAYOUT PORTRAIT (Single Column) ---
+
                     Column(
                         modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         EcoPointTypeSection(viewModel.addType.value) { viewModel.addType.value = it }
                         LocationSection(locationViewModel, viewModel)
-                        //PhotoSection(viewModel) { showImageSourceDialog = true }
                         ImagePickerSelector(viewModel.addPhotoPath.value,
                             onImageSelected ={ path ->
                                 viewModel.addPhotoPath.value = path
@@ -131,8 +117,6 @@ fun AddEcopontoScreen(
         }
     )
 }
-
-// --- COMPONENTES ---
 
 
 @Composable
@@ -208,8 +192,8 @@ private fun LocationSection(locationViewModel: LocationViewModel, viewModel: Fir
 
 @Composable
 private fun EcoPointTypeSection(selectedType: String, onTypeSelected: (String) -> Unit) {
-    val types = mapOf("Blue bin" to blueBinColor, "Green bin" to greenBinColor, "Yellow bin" to yellowBinColor, "Red bin" to redBinColor, "Black bin" to blackBinColor)
-    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+    val types = mapOf("Blue bin" to BinBlue, "Green bin" to BinGreen, "Yellow bin" to BinYellow, "Red bin" to BinRed, "Black bin" to BinBlack)
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary)) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("EcoPonto Type *", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -231,7 +215,7 @@ fun TypeChipManual(name: String, color: Color, isSelected: Boolean, onClick: () 
         selected = isSelected, onClick = onClick, modifier = modifier,
         label = { Text(name.replace(" bin", ""), style = MaterialTheme.typography.bodySmall, fontWeight = if(isSelected) FontWeight.Bold else FontWeight.Normal, maxLines = 1) },
         leadingIcon = { Box(modifier = Modifier.size(10.dp).background(color, shape = CircleShape)) },
-        colors = FilterChipDefaults.filterChipColors(selectedContainerColor = GreenLimeLight.copy(alpha=0.3f), containerColor = Color(0xFFEAEDEF), selectedLabelColor = Color.Black),
+        colors = FilterChipDefaults.filterChipColors(selectedContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha=0.3f), containerColor = Color(0xFFEAEDEF), selectedLabelColor = Color.Black),
         border = if (isSelected) BorderStroke(2.dp, Color(0xFF2E7C32)) else BorderStroke(0.dp, Color.Transparent)
     )
 }
@@ -244,7 +228,7 @@ private fun NotesSection(viewModel: FirebaseViewModel) {
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(), value = viewModel.addNotes.value, onValueChange = { viewModel.addNotes.value = it },
                 shape = RoundedCornerShape(10.dp), placeholder = { Text("Info about access, etc.")}, minLines = 3,
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF2E7C32), unfocusedBorderColor = GreenLimeLight, cursorColor = Color(0xFF2E7C32), focusedContainerColor = Color.White, unfocusedContainerColor = Color.White)
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF2E7C32), unfocusedBorderColor = MaterialTheme.colorScheme.secondary, cursorColor = Color(0xFF2E7C32), focusedContainerColor = Color.White, unfocusedContainerColor = Color.White)
             )
         }
     }
@@ -252,7 +236,7 @@ private fun NotesSection(viewModel: FirebaseViewModel) {
 
 @Composable
 fun InfoSection() {
-    Surface(modifier = Modifier.fillMaxWidth(), color = GreenLimeLight.copy(alpha = 0.4f), shape = RoundedCornerShape(8.dp)) {
+    Surface(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f), shape = RoundedCornerShape(8.dp)) {
         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(painterResource(R.drawable.info), null, tint = Color(0xFF2E7C32), modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(12.dp))

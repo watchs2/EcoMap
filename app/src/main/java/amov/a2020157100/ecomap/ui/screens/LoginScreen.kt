@@ -25,16 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 
-/*
-val CinzentoClaro = Color(0xFFEAEDEF)
-val CinzentoEscuro = Color(0xFF37474F)
-val Branco = Color(0xFFFFFFFF)
-val Black = Color(0xFF000000)
-val Green = Color(0xFF2E7C32)
-val LightGreen = Color(0xFF80C683)
-val Red = Color(0xFFD32F2F)
-*/
-
 @Composable
 fun LoginScreen(
     viewModel: FirebaseViewModel,

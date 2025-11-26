@@ -1,21 +1,10 @@
 package amov.a2020157100.ecomap.ui.composables
 
 import amov.a2020157100.ecomap.R
-import amov.a2020157100.ecomap.ui.screens.Black
-import amov.a2020157100.ecomap.ui.screens.Green
-import amov.a2020157100.ecomap.ui.screens.Red
-import amov.a2020157100.ecomap.ui.screens.blackBinColor
-import amov.a2020157100.ecomap.ui.screens.blueBinColor
-import amov.a2020157100.ecomap.ui.screens.greenBinColor
-import amov.a2020157100.ecomap.ui.screens.pendingColor
-import amov.a2020157100.ecomap.ui.screens.redBinColor
-import amov.a2020157100.ecomap.ui.screens.yellowBinColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,34 +13,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import amov.a2020157100.ecomap.ui.theme.BinBlue
+import amov.a2020157100.ecomap.ui.theme.BinGreen
+import amov.a2020157100.ecomap.ui.theme.BinYellow
+import amov.a2020157100.ecomap.ui.theme.BinRed
+import amov.a2020157100.ecomap.ui.theme.BinBlack
+import amov.a2020157100.ecomap.ui.theme.StatusPending
+import amov.a2020157100.ecomap.ui.theme.StatusVerified
+import amov.a2020157100.ecomap.ui.theme.StatusError
 
-//Ecopontos
-//type color string
-val types = mapOf(
-    "Blue bin" to blueBinColor, // Ecoponto Azul(pt) Blue Recycling Bin(En)
-    "Green bin" to greenBinColor, //Ecoponto Verde(pt) Green Recycling Bin(En)
-    "Yellow bin" to yellowBinColor, // Ecoponto Amarelo(pt) Yellow Recycling Bin(En)
-    "Red bin" to redBinColor,       //Pilhão(pt)    Red Battery Recycling Bin(En)
-)
-
-//fim ecoponto
-
-
-//Estado do Ecoponto
-
-
-//condição do ecoponto
-
-/*
-    val conditionOptions = listOf(
-        "BOM" to Pair("Bom", Green),
-        "CHEIO" to Pair("Cheio", pendingColor),
-        "DANIFICADO" to Pair("Danificado", Red),
-        "DESAPARECIDO" to Pair("Desaparecido", Black.copy(alpha = 0.6f))
-    )
-*/
-//details
-
+import amov.a2020157100.ecomap.ui.theme.StatusFull
+import amov.a2020157100.ecomap.ui.theme.StatusGood
+import amov.a2020157100.ecomap.ui.theme.StatusDamaged
+import amov.a2020157100.ecomap.ui.theme.StatusMissing
 
 
 @Composable
@@ -67,10 +41,6 @@ fun getBinStringRes(type: String?): Int {
 }
 
 
-
-//List
-
-// Funções auxiliares (StatusBadge, getBinColor, etc.) mantêm-se iguais
 @Composable
 fun StatusBadge(text: String, color: Color) {
     Box(
@@ -92,11 +62,11 @@ fun StatusBadge(text: String, color: Color) {
 @Composable
 fun getBinColor(type: String): Color {
     return when (type) {
-        "Blue bin" -> blueBinColor
-        "Green bin" -> greenBinColor
-        "Yellow bin" -> yellowBinColor
-        "Red bin" -> redBinColor
-        "Black bin" -> blackBinColor
+        "Blue bin" -> BinBlue
+        "Green bin" -> BinGreen
+        "Yellow bin" -> BinYellow
+        "Red bin" -> BinRed
+        "Black bin" -> BinBlack
         else -> Color.Gray
     }
 }
@@ -112,10 +82,10 @@ fun getConditionDisplay(state: String): Pair<Int, Color> {
         else -> R.string.binState_unknown
     }
     val color = when (state) {
-        "BOM" -> Green
-        "CHEIO" -> pendingColor
-        "DANIFICADO" -> Red
-        "DESAPARECIDO" -> Black.copy(alpha = 0.6f)
+        "BOM" -> StatusGood
+        "CHEIO" -> StatusFull
+        "DANIFICADO" -> StatusDamaged
+        "DESAPARECIDO" -> StatusMissing //StatusMissing.copy(alpha = 0.6f)
         else -> Color.Gray
     }
     return Pair(displayText, color)

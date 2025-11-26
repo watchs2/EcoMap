@@ -2,7 +2,6 @@ package amov.a2020157100.ecomap.ui.composables
 
 
 import amov.a2020157100.ecomap.R
-import amov.a2020157100.ecomap.ui.theme.GreenLimeLight
 import amov.a2020157100.ecomap.utils.camera.FileUtils
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -40,7 +39,6 @@ fun ImagePickerSelector(
     var showImageSourceDialog by remember { mutableStateOf(false) }
     var tempCameraPath by remember { mutableStateOf<String?>(null) }
 
-    // --- 1. Launcher Galeria ---
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -50,8 +48,6 @@ fun ImagePickerSelector(
         }
         showImageSourceDialog = false
     }
-
-    // --- 2. Launcher Câmara ---
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -61,7 +57,6 @@ fun ImagePickerSelector(
         showImageSourceDialog = false
     }
 
-    // Função auxiliar para lançar a câmara
     fun launchCamera() {
         val path = FileUtils.getTempFilename(context)
         tempCameraPath = path
@@ -72,7 +67,6 @@ fun ImagePickerSelector(
         cameraLauncher.launch(uri)
     }
 
-    // --- 3. UI do Seletor (Card) ---
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -92,7 +86,7 @@ fun ImagePickerSelector(
                     .height(200.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFEAEDEF)),
-                border = BorderStroke(1.dp, GreenLimeLight),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
                 onClick = { showImageSourceDialog = true } // Abre o diálogo
             ) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -103,7 +97,7 @@ fun ImagePickerSelector(
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
-                        // Pequeno indicador de edição no canto
+
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -136,7 +130,6 @@ fun ImagePickerSelector(
         }
     }
 
-    // --- 4. Diálogo de Escolha ---
     if (showImageSourceDialog) {
         AlertDialog(
             onDismissRequest = { showImageSourceDialog = false },

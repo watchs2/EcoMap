@@ -2,8 +2,6 @@ package amov.a2020157100.ecomap.ui.composables
 
 import amov.a2020157100.ecomap.R
 import amov.a2020157100.ecomap.ui.MainActivity
-import amov.a2020157100.ecomap.ui.screens.Branco
-import amov.a2020157100.ecomap.ui.screens.Green
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +23,7 @@ import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +41,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 
 
 
+
 @Composable
 fun AppBottomBar(navController: NavHostController,onSignOut: () -> Unit) {
 
@@ -50,14 +50,14 @@ fun AppBottomBar(navController: NavHostController,onSignOut: () -> Unit) {
     val currentRoute = navBackStackEntry?.destination?.route
 
     BottomAppBar(
-        containerColor = Branco,
+        containerColor = MaterialTheme.colorScheme.onPrimary,
         contentPadding = PaddingValues(0.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
                 thickness = 2.dp,
-                color = Green
+                color = MaterialTheme.colorScheme.primary
             )
             Row(
                 modifier = Modifier
@@ -101,7 +101,7 @@ fun BottomNavItem(
     onClick: () -> Unit
 ) {
 
-    val contentColor = if (isSelected) Green else Color.Gray
+    val contentColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray
     val backgroundColor = if (isSelected) Color.White else Color.Transparent
 
     Column(
