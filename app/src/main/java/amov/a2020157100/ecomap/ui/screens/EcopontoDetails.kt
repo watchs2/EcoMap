@@ -11,9 +11,10 @@ import android.location.Location
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import amov.a2020157100.ecomap.ui.composables.getConditionDisplay
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import amov.a2020157100.ecomap.ui.composables.StatusBadge
+import amov.a2020157100.ecomap.ui.composables.getBinStringRes
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,7 +27,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import java.util.Locale
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,14 +94,12 @@ fun EcopontoDetails(
             ) {
                 if ((recyclingPoint != null) || (viewModel.isLoading.value && recyclingPoint != null)){
                     if (isLandscape) {
-                        // --- LAYOUT LANDSCAPE (2 Colunas) ---
                         Row(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(16.dp),
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            // Coluna Esquerda
                             Column(
                                 modifier = Modifier
                                     .weight(1f)
@@ -255,7 +254,6 @@ fun MainInfoSection(
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
 
-                        // 1. Estado e Badge
                         val (displayText, color) = getConditionDisplay(recyclingPoint.condition.state)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             StatusBadge(text = displayText, color = color)
@@ -477,40 +475,7 @@ fun PhotoSection(imgUrl: String?){
     }
 }
 
-@Composable
-private fun StatusBadge(text: String, color: Color) {
-    Surface(color = color.copy(alpha = 0.1f), shape = RoundedCornerShape(8.dp)) {
-        Text(text, color = color, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-    }
-}
 
-@Composable
-private fun getBinStringRes(type: String?): Int {
-    return when (type) {
-        "Blue bin" -> R.string.bin_blue
-        "Green bin" -> R.string.bin_green
-        "Yellow bin" -> R.string.bin_yellow
-        "Red bin" -> R.string.bin_red
-        "Black bin" -> R.string.bin_black
-        else -> R.string.bin_unknown
-    }
-}
 
-@Composable
-private fun getConditionDisplay(state: String): Pair<String, Color> {
-    val displayText = when (state) {
-        "BOM" -> "Bom"
-        "CHEIO" -> "Cheio"
-        "DANIFICADO" -> "Danificado"
-        "DESAPARECIDO" -> "Desaparecido"
-        else -> "Desconhecido"
-    }
-    val color = when (state) {
-        "BOM" -> Green
-        "CHEIO" -> pendingColor
-        "DANIFICADO" -> Red
-        "DESAPARECIDO" -> Black.copy(alpha = 0.6f)
-        else -> Color.Gray
-    }
-    return Pair(displayText, color)
-}
+
+

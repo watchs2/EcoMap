@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FilterList
+import amov.a2020157100.ecomap.ui.composables.getBinColor
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -41,8 +42,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import amov.a2020157100.ecomap.ui.composables.StatusBadge
 import androidx.navigation.NavHostController
+import amov.a2020157100.ecomap.ui.composables.getBinStringRes
 
 // Cores (Mantém as tuas)
 val pendingColor = Color(0xFFFBC02D)
@@ -177,7 +179,12 @@ fun ListViewScreen(
             }
         },
         bottomBar = {
-            AppBottomBar(navController, onSignOut = {viewModel.signOut()})
+            AppBottomBar(navController, onSignOut = {
+                viewModel.signOut()
+                navController.navigate(MainActivity.LOGIN_SCREEN) {
+                    popUpTo(0)
+                }
+            })
         }
     )
 }
@@ -266,8 +273,7 @@ fun FilterAccordion(
                             isSelected = filter == selectedFilter,
                             onClick = {
                                 onFilterSelect(filter)
-                                // Opcional: fechar ao selecionar?
-                                // expanded = false
+                                expanded = false
                             }
                         )
                     }
@@ -339,7 +345,7 @@ private fun RecyclingPointItem(
     currentLocation: Location?,
     onViewDetails: () -> Unit
 ) {
-    // ... (Mantém o código do Item igual ao que enviei anteriormente) ...
+
     val binColor = getBinColor(recyclingPoint.type)
     val binName = getBinStringRes(recyclingPoint.type)
 
@@ -435,44 +441,6 @@ private fun RecyclingPointItem(
     }
 }
 
-// Funções auxiliares (StatusBadge, getBinColor, etc.) mantêm-se iguais
-@Composable
-private fun StatusBadge(text: String, color: Color) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(color.copy(alpha = 0.1f))
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-    ) {
-        Text(
-            text = text,
-            color = color,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
 
-@Composable
-private fun getBinColor(type: String): Color {
-    return when (type) {
-        "Blue bin" -> blueBinColor
-        "Green bin" -> greenBinColor
-        "Yellow bin" -> yellowBinColor
-        "Red bin" -> redBinColor
-        "Black bin" -> blackBinColor
-        else -> Color.Gray
-    }
-}
 
-@Composable
-private fun getBinStringRes(type: String): Int {
-    return when (type) {
-        "Blue bin" -> R.string.bin_blue
-        "Green bin" -> R.string.bin_green
-        "Yellow bin" -> R.string.bin_yellow
-        "Red bin" -> R.string.bin_red
-        "Black bin" -> R.string.bin_black
-        else -> R.string.bin_unknown
-    }
-}
+

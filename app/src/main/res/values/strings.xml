@@ -48,6 +48,12 @@
     <string name="detail_button_report">Report</string>
     <string name="detail_current_distance">Distance to the recycling point: %1$d m</string>
 
+    <string name="binState_good">Ecoponto em boas condições</string>
+    <string name="binState_full">Ecoponto cheio</string>
+    <string name="binState_damaged">Ecoponto danificado</string>
+    <string name="binState_missing">Ecoponto desaparecido</string>
+    <string name="binState_unknown">Estado desconhecido</string>
+
 
 </resources>
 

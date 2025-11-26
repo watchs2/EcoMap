@@ -3,7 +3,6 @@ package amov.a2020157100.ecomap.ui.composables
 import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.screens.Branco
 import amov.a2020157100.ecomap.ui.screens.Green
-import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -80,7 +79,7 @@ fun AppBottomBar(navController: NavHostController,onSignOut: () -> Unit) {
                 )
 
                 BottomNavItem(
-                    icon = Icons.Filled.Person,
+                    icon = Icons.Filled.Logout,
                     label = "Signout",
                     isSelected =false,
                     onClick = { onSignOut() }

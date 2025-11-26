@@ -134,55 +134,6 @@ fun AddEcopontoScreen(
 
 // --- COMPONENTES ---
 
-@Composable
-private fun PhotoSection(
-    viewModel: FirebaseViewModel,
-    onPhotoClick: () -> Unit
-) {
-    val photoPath = viewModel.addPhotoPath.value
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text("Photo (Optional)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFEAEDEF)),
-                border = BorderStroke(1.dp, GreenLimeLight),
-                onClick = onPhotoClick
-            ) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    if (photoPath != null) {
-                        AsyncImage(
-                            model = photoPath,
-                            contentDescription = "Selected Photo",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                        Box(modifier = Modifier.fillMaxSize().padding(8.dp), contentAlignment = Alignment.BottomEnd) {
-                            Surface(shape = CircleShape, color = Color.White.copy(alpha = 0.7f)) {
-                                Icon(Icons.Default.CameraAlt, null, modifier = Modifier.padding(8.dp), tint = Color(0xFF2E7C32))
-                            }
-                        }
-                    } else {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(painterResource(R.drawable.camera), null, tint = Color.Gray, modifier = Modifier.size(40.dp))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Tap to take a photo", color = Color.Gray)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun SubmitButtonSection(viewModel: FirebaseViewModel, navController: NavHostController) {

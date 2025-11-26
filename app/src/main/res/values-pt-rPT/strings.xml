@@ -31,7 +31,7 @@
     <string name="bin_blue">Ecoponto Azul</string>
     <string name="bin_green">Ecoponto Verde</string>
     <string name="bin_yellow">Ecoponto Amarelo</string>
-    <string name="bin_red">Ecoponto Vermelho</string>
+    <string name="bin_red">Pilhão</string>
     <string name="bin_black">Ecoponto Indiferenciado</string>
     <string name="bin_unknown">Ecoponto</string>
 
@@ -48,4 +48,11 @@
     <string name="detail_button_confirm">Confirmar</string>
     <string name="detail_button_report">Reportar</string>
     <string name="detail_current_distance">Distância até ao ecoponto: %1$d m</string>
+
+    <string name="binState_good">Ecoponto em boas condições</string>
+    <string name="binState_full">Ecoponto cheio</string>
+    <string name="binState_damaged">Ecoponto danificado</string>
+    <string name="binState_missing">Ecoponto desaparecido</string>
+    <string name="binState_unknown">Estado desconhecido</string>
+
 </resources>
