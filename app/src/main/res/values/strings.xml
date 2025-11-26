@@ -58,6 +58,8 @@
     <string name="menu_list">List</string>
     <string name="menu_signout">Sign out</string>
 
+    <string name="my_location">My location</string>
+
 
 
 </resources>

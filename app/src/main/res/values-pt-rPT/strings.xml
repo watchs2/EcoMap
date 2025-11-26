@@ -59,4 +59,7 @@
     <string name="menu_list">Lista</string>
     <string name="menu_signout">Sair</string>
 
+    <string name="my_location">A minha localização</string>
+
+
 </resources>
