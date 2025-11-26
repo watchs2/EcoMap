@@ -15,6 +15,13 @@ import amov.a2020157100.ecomap.ui.composables.getConditionDisplay
 import androidx.compose.foundation.rememberScrollState
 import amov.a2020157100.ecomap.ui.composables.StatusBadge
 import amov.a2020157100.ecomap.ui.composables.getBinStringRes
+import amov.a2020157100.ecomap.ui.theme.StatusPending
+import amov.a2020157100.ecomap.ui.theme.StatusVerified
+import amov.a2020157100.ecomap.ui.theme.StatusError
+import amov.a2020157100.ecomap.ui.theme.StatusFull
+import amov.a2020157100.ecomap.ui.theme.StatusGood
+import amov.a2020157100.ecomap.ui.theme.StatusDamaged
+import amov.a2020157100.ecomap.ui.theme.StatusMissing
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -82,7 +89,7 @@ fun EcopontoDetails(
                         Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Branco)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.onPrimary)
             )
         },
         content = { paddingValues ->
@@ -90,7 +97,7 @@ fun EcopontoDetails(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
-                    .background(CinzentoClaro)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 if ((recyclingPoint != null) || (viewModel.isLoading.value && recyclingPoint != null)){
                     if (isLandscape) {
@@ -110,7 +117,6 @@ fun EcopontoDetails(
                                 MainInfoSection(recyclingPoint, currentLocation)
                             }
 
-                            // Coluna Direita
                             Column(
                                 modifier = Modifier
                                     .weight(1f)
@@ -127,7 +133,7 @@ fun EcopontoDetails(
                             }
                         }
                     } else {
-                        // --- LAYOUT PORTRAIT (1 Coluna) ---
+
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -147,7 +153,7 @@ fun EcopontoDetails(
                     }
                 } else {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Green)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
@@ -155,7 +161,7 @@ fun EcopontoDetails(
     )
 }
 
-// --- SECÇÕES REUTILIZÁVEIS ---
+
 
 @Composable
 fun MainInfoSection(
@@ -177,7 +183,7 @@ fun MainInfoSection(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -190,17 +196,16 @@ fun MainInfoSection(
                 else -> stringResource(R.string.list_status_pending)
             }
             val statusColor = when (recyclingPoint.status) {
-                Status.DELETE.name -> deleteColor
-                Status.FINAL.name -> verifiedColor
-                else -> pendingColor
+                Status.DELETE.name -> StatusError
+                Status.FINAL.name -> StatusVerified
+                else -> StatusPending
             }
             StatusBadge(text = statusText, color = statusColor)
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = MaterialTheme.colorScheme.background)
 
-            // Localização
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.LocationOn, null, tint = Green, modifier = Modifier.size(24.dp))
+                Icon(Icons.Default.LocationOn, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(stringResource(R.string.detail_location_title), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
@@ -214,23 +219,20 @@ fun MainInfoSection(
 
             // Notas
             if (!recyclingPoint.notes.isNullOrBlank()) {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = MaterialTheme.colorScheme.background)
                 Text(stringResource(R.string.detail_notes_title), style = MaterialTheme.typography.labelMedium, color = Color.Gray)
                 Spacer(modifier = Modifier.height(4.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = CinzentoClaro.copy(alpha = 0.5f)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.5f)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(recyclingPoint.notes, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(12.dp), color = Black.copy(alpha = 0.8f))
+                    Text(recyclingPoint.notes, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(12.dp), color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.8f))
                 }
             }
 
-            // Condição
             if(recyclingPoint.condition != null){
-                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
-
-                // Cabeçalho da secção
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = MaterialTheme.colorScheme.background)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(painterResource(R.drawable.info), null, tint = Color.Gray, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(8.dp))
@@ -243,13 +245,11 @@ fun MainInfoSection(
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
-
-                // Cartão unificado com a informação do reporte
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Branco),
-                    border = BorderStroke(1.dp, CinzentoClaro),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.background),
                     elevation = CardDefaults.cardElevation(0.dp) // Flat design para diferenciar do card principal
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
@@ -259,15 +259,13 @@ fun MainInfoSection(
                             StatusBadge(text = stringResource(displayText), color = color)
                             Spacer(modifier = Modifier.weight(1f))
                         }
-
-                        // 2. Imagem (Com altura fixa e cantos arredondados)
                         if(recyclingPoint.condition.imgUrl != null){
                             Spacer(modifier = Modifier.height(12.dp))
                             Card(
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(200.dp) // Altura fixa resolve problemas de layout
+                                    .height(200.dp)
                             ) {
                                 AsyncImage(
                                     model = recyclingPoint.condition.imgUrl,
@@ -278,7 +276,7 @@ fun MainInfoSection(
                             }
                         }
 
-                        // 3. Notas
+
                         if (!recyclingPoint.condition.notes.isNullOrBlank()) {
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
@@ -289,7 +287,7 @@ fun MainInfoSection(
                             Text(
                                 text = recyclingPoint.condition.notes,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Black.copy(alpha = 0.8f)
+                                color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.8f)
                             )
                         }
                     }
@@ -306,7 +304,7 @@ fun ActionsSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint)
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Branco),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
             elevation = CardDefaults.cardElevation(2.dp)
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
@@ -323,7 +321,7 @@ fun ActionsSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint)
                             onClick = { viewModel.confirmEcoponto(recyclingPoint.id) },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Green)
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Default.ThumbUp, null, modifier = Modifier.size(20.dp))
@@ -337,7 +335,7 @@ fun ActionsSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint)
                         onClick = { viewModel.deleteEcoponto(recyclingPoint.id) },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Red)
+                        colors = ButtonDefaults.buttonColors(containerColor = StatusError)
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Default.DeleteForever, null, modifier = Modifier.size(20.dp))
@@ -365,25 +363,24 @@ fun ReportSection(
     }
 
     if(currentLocation.distanceTo(ecopontoLocation).toInt() > 15) return
-
     val conditionOptions = listOf(
-        "BOM" to Pair("Bom", Green),
-        "CHEIO" to Pair("Cheio", pendingColor),
-        "DANIFICADO" to Pair("Danificado", Red),
-        "DESAPARECIDO" to Pair("Desaparecido", Black.copy(alpha = 0.6f))
+        "BOM" to Pair("Bom", StatusGood),
+        "CHEIO" to Pair("Cheio", StatusFull),
+        "DANIFICADO" to Pair("Danificado", StatusDamaged),
+        "DESAPARECIDO" to Pair("Desaparecido", StatusMissing.copy(alpha = 0.6f))
     )
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Branco),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-            Text(stringResource(R.string.detail_verify_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Green)
+            Text(stringResource(R.string.detail_verify_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
             Text(stringResource(R.string.detail_verify_desc), style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = CinzentoClaro)
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = MaterialTheme.colorScheme.background)
 
             Text("Estado Atual *", style = MaterialTheme.typography.labelMedium, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
 
@@ -402,7 +399,7 @@ fun ReportSection(
                         label = { Text(label) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = color,
-                            selectedLabelColor = Branco
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                         ),
                         border = FilterChipDefaults.filterChipBorder(borderColor = color, selected = isSelected, enabled = true)
                     )
@@ -418,11 +415,11 @@ fun ReportSection(
                 placeholder = { Text("Observações (Opcional)") },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Green,
-                    unfocusedBorderColor = LightGreen,
-                    cursorColor = Green,
-                    focusedContainerColor = Branco,
-                    unfocusedContainerColor = Branco
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                    focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
 
@@ -444,7 +441,7 @@ fun ReportSection(
                 enabled = viewModel.reportState.value.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Green)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Icon(Icons.Outlined.Flag, null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
@@ -461,7 +458,7 @@ fun PhotoSection(imgUrl: String?){
     Card(
         modifier = Modifier.fillMaxWidth().height(220.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = CinzentoClaro)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
     ) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             AsyncImage(

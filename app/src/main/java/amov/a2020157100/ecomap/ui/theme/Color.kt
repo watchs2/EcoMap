@@ -27,3 +27,11 @@ val BinGreen = Color(0xFF4CAF50)
 val BinYellow = Color(0xFFFFEB3B)
 val BinRed = Color(0xFFC0172F)
 val BinBlack = Color(0xFF1A1A19)
+
+//Cores para confições
+val StatusGood = Color(0xFF4CAF50)
+val StatusFull = Color(0xFFFFEB3B)
+val StatusDamaged = Color(0xFFC0172F)
+val StatusMissing = Color(0xFF1A1A19)
+
+
