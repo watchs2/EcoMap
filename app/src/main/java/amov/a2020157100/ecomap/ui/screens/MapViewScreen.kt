@@ -3,6 +3,7 @@ package amov.a2020157100.ecomap.ui.screens
 import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.composables.AppBottomBar
 import amov.a2020157100.ecomap.ui.composables.Map
+import amov.a2020157100.ecomap.ui.theme.BackgroundMap
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
 import android.content.res.Configuration
@@ -20,8 +21,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
-//TODO Cores tem de sair daqui
-val MapColor = Color(0xFFD2EAD3)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,7 +30,7 @@ fun MapViewScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    // Detetar Landscape para ajustes finos (como remover a sombra)
+
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -41,16 +40,15 @@ fun MapViewScreen(
                 title = {
                     Text(
                         text = "EcoMap",
-                        style = MaterialTheme.typography.headlineMedium, // Título maior e destacado
-                        color = Green,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Branco,
+                    containerColor = MaterialTheme.colorScheme.onPrimary,
                     titleContentColor = Color.Black
                 ),
-                // Em landscape, removemos a sombra para ganhar espaço visual vertical e parecer mais limpo
                 modifier = Modifier.shadow(if (isLandscape) 0.dp else 4.dp)
             )
         },
@@ -58,7 +56,7 @@ fun MapViewScreen(
             Box(
                 modifier = Modifier
                     .padding(paddingValues)
-                    .background(MapColor)
+                    .background(BackgroundMap)
                     .fillMaxSize()
             ){
                 Map(firebaseViewModel, locationViewModel)
@@ -69,10 +67,10 @@ fun MapViewScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 FloatingActionButton(
-                    containerColor = Green,
+                    containerColor = MaterialTheme.colorScheme.primary,
                     onClick = { navController.navigate(MainActivity.ADDECOPONTO_SCREEN) }
                 ) {
-                    Icon(Icons.Filled.Add, tint = Branco, contentDescription = "Add")
+                    Icon(Icons.Filled.Add, tint = MaterialTheme.colorScheme.onPrimary, contentDescription = "Add")
                 }
             }
         },
