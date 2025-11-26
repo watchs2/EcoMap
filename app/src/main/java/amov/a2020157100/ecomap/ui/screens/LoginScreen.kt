@@ -1,6 +1,7 @@
 package amov.a2020157100.ecomap.ui.screens
 
 import amov.a2020157100.ecomap.R
+import amov.a2020157100.ecomap.ui.theme.TextDarkGray
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import android.content.res.Configuration
 import androidx.compose.foundation.background
@@ -23,7 +24,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// Mantém as tuas cores
+
+/*
 val CinzentoClaro = Color(0xFFEAEDEF)
 val CinzentoEscuro = Color(0xFF37474F)
 val Branco = Color(0xFFFFFFFF)
@@ -31,6 +33,7 @@ val Black = Color(0xFF000000)
 val Green = Color(0xFF2E7C32)
 val LightGreen = Color(0xFF80C683)
 val Red = Color(0xFFD32F2F)
+*/
 
 @Composable
 fun LoginScreen(
@@ -39,11 +42,10 @@ fun LoginScreen(
     onNavigationRegister: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 1. Detetar a orientação do ecrã
+
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    // Nota: Removemos os 'remember' locais. Agora usamos o ViewModel.
 
     LaunchedEffect(viewModel.user.value) {
         if (viewModel.user.value != null && viewModel.error.value == null) {
@@ -54,20 +56,18 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(CinzentoClaro)
+            .background(MaterialTheme.colorScheme.background)
             .padding(20.dp)
-            .verticalScroll(rememberScrollState()), // 2. Scroll para evitar cortes em Landscape/Teclado
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = if (isLandscape) Arrangement.Top else Arrangement.Center // Em landscape, começa do topo
+        verticalArrangement = if (isLandscape) Arrangement.Top else Arrangement.Center
     ) {
 
-        // Em Landscape, reduzimos o espaço no topo para caber tudo
         Spacer(Modifier.height(if (isLandscape) 10.dp else 0.dp))
 
         Surface(
             modifier = Modifier
                 .widthIn(max = 700.dp)
-                // Se estiver em landscape, damos menos altura máxima para não ocupar o ecrã todo verticalmente
                 .heightIn(max = if(isLandscape) 320.dp else 400.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .shadow(
@@ -75,14 +75,13 @@ fun LoginScreen(
                     ambientColor = Color.Black.copy(alpha = 0.3f),
                     spotColor = Color.Black.copy(alpha = 0.3f)
                 ),
-            color = Branco
+            color = MaterialTheme.colorScheme.onPrimary
         ) {
             Column(
                 modifier = modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Branco)
+                    .background(MaterialTheme.colorScheme.onPrimary)
                     .padding(28.dp)
-                    // Adicionar scroll interno no cartão também é boa prática para ecrãs muito pequenos
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -97,24 +96,23 @@ fun LoginScreen(
                     text = stringResource(R.string.label_email),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Black,
+                    color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.align(Alignment.Start)
                 )
                 Spacer(Modifier.height(4.dp))
 
-                // 3. LIGAÇÃO AO VIEWMODEL (Persistência)
                 OutlinedTextField(
-                    value = viewModel.loginEmail.value, // Lê do ViewModel
-                    onValueChange = { viewModel.loginEmail.value = it }, // Escreve no ViewModel
+                    value = viewModel.loginEmail.value,
+                    onValueChange = { viewModel.loginEmail.value = it },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
                     placeholder = { Text(stringResource(R.string.placeholder_email)) }, // Corrigido para Text()
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Green,
-                        unfocusedBorderColor = LightGreen,
-                        cursorColor = Green,
-                        focusedContainerColor = Branco,
-                        unfocusedContainerColor = Branco
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor =  MaterialTheme.colorScheme.secondary,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     singleLine = true
                 )
@@ -125,37 +123,35 @@ fun LoginScreen(
                     text = stringResource(R.string.label_password),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Black,
+                    color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.align(Alignment.Start)
                 )
                 Spacer(Modifier.height(4.dp))
 
-                // 3. LIGAÇÃO AO VIEWMODEL
                 OutlinedTextField(
-                    value = viewModel.loginPassword.value, // Lê do ViewModel
-                    onValueChange = { viewModel.loginPassword.value = it }, // Escreve no ViewModel
+                    value = viewModel.loginPassword.value,
+                    onValueChange = { viewModel.loginPassword.value = it },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
-                    placeholder = { Text(stringResource(R.string.placeholder_password)) }, // Corrigido
+                    placeholder = { Text(stringResource(R.string.placeholder_password)) },
                     visualTransformation = PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Green,
-                        unfocusedBorderColor = LightGreen,
-                        cursorColor = Green,
-                        focusedContainerColor = Branco,
-                        unfocusedContainerColor = Branco
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedContainerColor =MaterialTheme.colorScheme.onPrimary
                     ),
                     singleLine = true
                 )
 
-                // Mensagem de Erro
                 if (viewModel.error.value != null) {
                     Spacer(Modifier.height(5.dp))
                     Text(
                         text = viewModel.error.value.toString(),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Red,
+                        color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.align(Alignment.Start)
                     )
                     Spacer(Modifier.height(5.dp))
@@ -164,7 +160,6 @@ fun LoginScreen(
                 }
 
                 Button(
-                    // Passamos os valores atuais do ViewModel para a função de login
                     onClick = {
                         viewModel.signInWithEmail(
                             viewModel.loginEmail.value,
@@ -176,7 +171,7 @@ fun LoginScreen(
                         .height(52.dp),
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Green
+                        containerColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
                     Text(
@@ -197,16 +192,16 @@ fun LoginScreen(
             Text(
                 stringResource(R.string.text_no_account),
                 fontSize = 14.sp,
-                color = CinzentoEscuro
+                color = TextDarkGray
             )
             TextButton(
                 onClick = { onNavigationRegister() },
                 contentPadding = PaddingValues(0.dp),
-                modifier = Modifier.height(18.dp) // Ajuste fino para alinhar texto
+                modifier = Modifier.height(18.dp)
             ) {
                 Text(
                     stringResource(R.string.btn_sign_up),
-                    color = Green,
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 4.dp)
@@ -214,7 +209,6 @@ fun LoginScreen(
             }
         }
 
-        // Espaço extra no fundo para garantir que conseguimos fazer scroll até ao fim
         Spacer(Modifier.height(50.dp))
     }
 }

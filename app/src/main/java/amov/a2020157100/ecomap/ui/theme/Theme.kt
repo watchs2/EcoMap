@@ -1,6 +1,5 @@
 package amov.a2020157100.ecomap.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -11,37 +10,33 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = GreenForest,
-    secondary = GreenLimeLight,
-    tertiary = GreenMint,
-    background = GrayStone,
-    surface = GrayStone,
-    error = RedEarth,
-    onSecondary = GrayStone,
-    onBackground = GrayMist,
-    onSurface = GrayMist,
+
+
+private val AppColorScheme = lightColorScheme(
+    primary = BrandGreen,
+    onPrimary = BrandWhite,
+
+    secondary = BrandLightGreen,
+    onSecondary = BrandBlack,
+
+    background = BackgroundGray,
+    onBackground = TextDarkGray,
+
+    surface = BrandWhite,
+    onSurface = TextDarkGray,
+
+    error = StatusError,
+    onError = BrandWhite
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = GreenForest,
-    secondary = GreenLimeLight,
-    tertiary = GreenMint,
-    background = GrayStone,
-    surface = GrayStone,
-    error = RedEarth,
-    onSecondary = GrayStone,
-    onBackground = GrayMist,
-    onSurface = GrayMist,
-)
 
 @Composable
 fun EcoMapTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+
     content: @Composable () -> Unit
 ) {
+    /*
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
@@ -50,8 +45,9 @@ fun EcoMapTheme(
 
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
-    }
+    }*/
 
+    val colorScheme = AppColorScheme
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
