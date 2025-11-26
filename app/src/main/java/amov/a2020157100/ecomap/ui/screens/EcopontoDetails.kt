@@ -3,6 +3,7 @@ package amov.a2020157100.ecomap.ui.screens
 import amov.a2020157100.ecomap.R
 import amov.a2020157100.ecomap.model.RecyclingPoint
 import amov.a2020157100.ecomap.model.Status
+import amov.a2020157100.ecomap.ui.composables.EcoMapTopBar
 import amov.a2020157100.ecomap.ui.composables.ImagePickerSelector
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
@@ -15,13 +16,7 @@ import amov.a2020157100.ecomap.ui.composables.getConditionDisplay
 import androidx.compose.foundation.rememberScrollState
 import amov.a2020157100.ecomap.ui.composables.StatusBadge
 import amov.a2020157100.ecomap.ui.composables.getBinStringRes
-import amov.a2020157100.ecomap.ui.theme.StatusPending
-import amov.a2020157100.ecomap.ui.theme.StatusVerified
-import amov.a2020157100.ecomap.ui.theme.StatusError
-import amov.a2020157100.ecomap.ui.theme.StatusFull
-import amov.a2020157100.ecomap.ui.theme.StatusGood
-import amov.a2020157100.ecomap.ui.theme.StatusDamaged
-import amov.a2020157100.ecomap.ui.theme.StatusMissing
+import amov.a2020157100.ecomap.ui.theme.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -34,7 +29,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -62,7 +56,7 @@ fun EcopontoDetails(
 
     DisposableEffect(Unit) {
         onDispose {
-          viewModel.resetReportState()
+            viewModel.resetReportState()
         }
     }
 
@@ -73,23 +67,15 @@ fun EcopontoDetails(
     val currentLocation by locationViewModel.currentLocation
     val binNameRes = getBinStringRes(recyclingPoint?.type)
 
+    // Usa a tua TopBar personalizada se já a criaste, senão usa o padrão com cores do tema
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = if (recyclingPoint != null) stringResource(binNameRes)
-                        else stringResource(R.string.detail_loading),
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.onPrimary)
+            val title = if (recyclingPoint != null) stringResource(binNameRes)
+            else stringResource(R.string.detail_loading)
+            EcoMapTopBar(
+                title = title,
+                navController = navController,
+                showBackButton = true
             )
         },
         content = { paddingValues ->
@@ -97,6 +83,7 @@ fun EcopontoDetails(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
+                    // background é BackgroundGray
                     .background(MaterialTheme.colorScheme.background)
             ) {
                 if ((recyclingPoint != null) || (viewModel.isLoading.value && recyclingPoint != null)){
@@ -161,8 +148,6 @@ fun EcopontoDetails(
     )
 }
 
-
-
 @Composable
 fun MainInfoSection(
     recyclingPoint: RecyclingPoint,
@@ -183,12 +168,14 @@ fun MainInfoSection(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
+        // onPrimary é BrandWhite
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             // Status
-            Text("Estado de Verificação", style = MaterialTheme.typography.labelMedium, color = Color.Gray)
+            // Substituído Color.Gray por TextDarkGray
+            Text("Estado de Verificação", style = MaterialTheme.typography.labelMedium, color = TextDarkGray)
             Spacer(modifier = Modifier.height(4.dp))
             val statusText = when (recyclingPoint.status) {
                 Status.DELETE.name -> stringResource(R.string.list_status_deleting)
@@ -202,17 +189,21 @@ fun MainInfoSection(
             }
             StatusBadge(text = statusText, color = statusColor)
 
+            // background é BackgroundGray
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = MaterialTheme.colorScheme.background)
 
             Row(verticalAlignment = Alignment.CenterVertically) {
+                // primary é BrandGreen
                 Icon(Icons.Default.LocationOn, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
-                    Text(stringResource(R.string.detail_location_title), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                    Text(String.format(Locale.US, "%.5f, %.5f", recyclingPoint.latatitude, recyclingPoint.longitude), style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                    Text(stringResource(R.string.detail_location_title), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = TextDarkGray)
+                    // Substituído Color.Gray por TextDarkGray
+                    Text(String.format(Locale.US, "%.5f, %.5f", recyclingPoint.latatitude, recyclingPoint.longitude), style = MaterialTheme.typography.bodyMedium, color = TextDarkGray)
+                    // Substituído Color.Gray por TextDarkGray
                     Text(
                         text = if (distance != null) stringResource(R.string.detail_current_distance, distance) else "-- m",
-                        style = MaterialTheme.typography.bodyMedium, color = Color.Gray
+                        style = MaterialTheme.typography.bodyMedium, color = TextDarkGray
                     )
                 }
             }
@@ -220,13 +211,16 @@ fun MainInfoSection(
             // Notas
             if (!recyclingPoint.notes.isNullOrBlank()) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = MaterialTheme.colorScheme.background)
-                Text(stringResource(R.string.detail_notes_title), style = MaterialTheme.typography.labelMedium, color = Color.Gray)
+                // Substituído Color.Gray por TextDarkGray
+                Text(stringResource(R.string.detail_notes_title), style = MaterialTheme.typography.labelMedium, color = TextDarkGray)
                 Spacer(modifier = Modifier.height(4.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    // background é BackgroundGray
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.5f)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
+                    // onSecondary é BrandBlack
                     Text(recyclingPoint.notes, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(12.dp), color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.8f))
                 }
             }
@@ -234,13 +228,14 @@ fun MainInfoSection(
             if(recyclingPoint.condition != null){
                 HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = MaterialTheme.colorScheme.background)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(painterResource(R.drawable.info), null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+                    // Substituído Color.Gray por TextDarkGray
+                    Icon(painterResource(R.drawable.info), null, tint = TextDarkGray, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         "Último Reporte da Comunidade",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Gray
+                        color = TextDarkGray // Substituído Color.Gray por TextDarkGray
                     )
                 }
 
@@ -250,7 +245,7 @@ fun MainInfoSection(
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.background),
-                    elevation = CardDefaults.cardElevation(0.dp) // Flat design para diferenciar do card principal
+                    elevation = CardDefaults.cardElevation(0.dp)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
 
@@ -282,7 +277,7 @@ fun MainInfoSection(
                             Text(
                                 text = "Observações:",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color.Gray
+                                color = TextDarkGray // Substituído Color.Gray por TextDarkGray
                             )
                             Text(
                                 text = recyclingPoint.condition.notes,
@@ -312,7 +307,8 @@ fun ActionsSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint)
                     text = "Ações da Comunidade",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 12.dp)
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    color = TextDarkGray
                 )
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -321,6 +317,7 @@ fun ActionsSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint)
                             onClick = { viewModel.confirmEcoponto(recyclingPoint.id) },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
+                            // primary é BrandGreen
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -363,6 +360,8 @@ fun ReportSection(
     }
 
     if(currentLocation.distanceTo(ecopontoLocation).toInt() > 15) return
+
+    // StatusGood, StatusFull, etc. vêm de Color.kt (via import ui.theme.*)
     val conditionOptions = listOf(
         "BOM" to Pair("Bom", StatusGood),
         "CHEIO" to Pair("Cheio", StatusFull),
@@ -377,12 +376,15 @@ fun ReportSection(
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
+            // primary é BrandGreen
             Text(stringResource(R.string.detail_verify_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-            Text(stringResource(R.string.detail_verify_desc), style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+            // Substituído Color.Gray por TextDarkGray
+            Text(stringResource(R.string.detail_verify_desc), style = MaterialTheme.typography.bodyMedium, color = TextDarkGray)
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = MaterialTheme.colorScheme.background)
 
-            Text("Estado Atual *", style = MaterialTheme.typography.labelMedium, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
+            // Substituído Color.Gray por TextDarkGray
+            Text("Estado Atual *", style = MaterialTheme.typography.labelMedium, color = TextDarkGray, modifier = Modifier.padding(bottom = 8.dp))
 
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -470,8 +472,3 @@ fun PhotoSection(imgUrl: String?){
         }
     }
 }
-
-
-
-
-

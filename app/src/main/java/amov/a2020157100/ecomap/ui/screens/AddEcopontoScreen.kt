@@ -2,6 +2,7 @@ package amov.a2020157100.ecomap.ui.screens
 
 import amov.a2020157100.ecomap.R
 import amov.a2020157100.ecomap.ui.MainActivity
+import amov.a2020157100.ecomap.ui.composables.EcoMapTopBar
 import amov.a2020157100.ecomap.ui.composables.ImagePickerSelector
 import amov.a2020157100.ecomap.ui.theme.BinBlue
 import amov.a2020157100.ecomap.ui.theme.BinGreen
@@ -51,16 +52,10 @@ fun AddEcopontoScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text("New Recycling Point", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+            EcoMapTopBar(
+                title = "Novo Ecoponto",
+                navController = navController,
+                showBackButton = true
             )
         },
         content = { paddingValues ->

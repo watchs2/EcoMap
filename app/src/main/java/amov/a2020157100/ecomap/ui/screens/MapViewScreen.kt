@@ -2,6 +2,7 @@ package amov.a2020157100.ecomap.ui.screens
 
 import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.composables.AppBottomBar
+import amov.a2020157100.ecomap.ui.composables.EcoMapTopBar
 import amov.a2020157100.ecomap.ui.composables.Map
 import amov.a2020157100.ecomap.ui.theme.BackgroundMap
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
@@ -31,25 +32,11 @@ fun MapViewScreen(
     modifier: Modifier = Modifier,
 ) {
 
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "EcoMap",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.onPrimary,
-                    titleContentColor = Color.Black
-                ),
-                modifier = Modifier.shadow(if (isLandscape) 0.dp else 4.dp)
+            EcoMapTopBar(
+                title = "EcoMap",
+                showBackButton = false
             )
         },
         content = { paddingValues ->

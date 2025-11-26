@@ -5,6 +5,7 @@ import amov.a2020157100.ecomap.model.RecyclingPoint
 import amov.a2020157100.ecomap.model.Status
 import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.composables.AppBottomBar
+import amov.a2020157100.ecomap.ui.composables.EcoMapTopBar
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import amov.a2020157100.ecomap.ui.viewmodels.LocationViewModel
 import android.content.res.Configuration
@@ -89,19 +90,9 @@ fun ListViewScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.list_title),
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.onPrimary,
-                    titleContentColor = MaterialTheme.colorScheme.onSecondary
-                )
+            EcoMapTopBar(
+                title = stringResource(R.string.list_title),
+                showBackButton = false
             )
         },
         content = { paddingValues ->
