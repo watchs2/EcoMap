@@ -4,12 +4,14 @@ import amov.a2020157100.ecomap.R
 import amov.a2020157100.ecomap.ui.theme.TextDarkGray
 import amov.a2020157100.ecomap.ui.viewmodels.FirebaseViewModel
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -18,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -54,7 +57,17 @@ fun LoginScreen(
     ) {
 
         Spacer(Modifier.height(if (isLandscape) 10.dp else 0.dp))
-
+        if (!isLandscape) {
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .height(240.dp)
+                    .fillMaxWidth(),
+                contentScale = ContentScale.Fit
+            )
+            Spacer(Modifier.height(10.dp))
+        }
         Surface(
             modifier = Modifier
                 .widthIn(max = 700.dp)
@@ -75,11 +88,6 @@ fun LoginScreen(
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Título ou Logótipo (Opcional - podes esconder em Landscape se quiseres poupar espaço)
-                /* if (!isLandscape) {
-                     Text("EcoMap", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Green)
-                     Spacer(Modifier.height(10.dp))
-                } */
 
                 Spacer(Modifier.height(5.dp))
                 Text(

@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
@@ -70,11 +71,11 @@ fun ImagePickerSelector(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary) // Substituído Color.White
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Photo (Optional)",
+                text = stringResource(R.string.picker_photo_label),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -85,7 +86,7 @@ fun ImagePickerSelector(
                     .fillMaxWidth()
                     .height(200.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFEAEDEF)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background), // Substituído Color(0xFFEAEDEF) (BackgroundGray)
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
                 onClick = { showImageSourceDialog = true } // Abre o diálogo
             ) {
@@ -93,7 +94,7 @@ fun ImagePickerSelector(
                     if (currentImagePath != null) {
                         AsyncImage(
                             model = currentImagePath,
-                            contentDescription = "Selected Photo",
+                            contentDescription = stringResource(R.string.picker_photo_label),
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
@@ -104,25 +105,25 @@ fun ImagePickerSelector(
                                 .padding(8.dp),
                             contentAlignment = Alignment.BottomEnd
                         ) {
-                            Surface(shape = CircleShape, color = Color.White.copy(alpha = 0.7f)) {
+                            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)) {
                                 Icon(
                                     Icons.Default.CameraAlt,
                                     null,
                                     modifier = Modifier.padding(8.dp),
-                                    tint = Color(0xFF2E7C32)
+                                    tint = MaterialTheme.colorScheme.primary // Substituído Color(0xFF2E7C32)
                                 )
                             }
                         }
                     } else {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(
-                                painterResource(R.drawable.camera), //
+                                painterResource(R. drawable.camera),
                                 null,
                                 tint = Color.Gray,
                                 modifier = Modifier.size(40.dp)
                             )
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("Tap to take a photo", color = Color.Gray)
+                            Text(stringResource(R.string.picker_tap_camera), color = Color.Gray)
                         }
                     }
                 }
@@ -133,16 +134,16 @@ fun ImagePickerSelector(
     if (showImageSourceDialog) {
         AlertDialog(
             onDismissRequest = { showImageSourceDialog = false },
-            title = { Text("Choose Image Source") },
+            title = { Text(stringResource(R.string.picker_source_title)) },
             text = {
                 Column {
                     ListItem(
-                        headlineContent = { Text("Camera") },
+                        headlineContent = { Text(stringResource(R.string.picker_camera)) },
                         leadingContent = { Icon(Icons.Default.CameraAlt, null) },
                         modifier = Modifier.clickable { launchCamera() }
                     )
                     ListItem(
-                        headlineContent = { Text("Gallery") },
+                        headlineContent = { Text(stringResource(R.string.picker_gallery)) },
                         leadingContent = { Icon(Icons.Default.PhotoLibrary, null) },
                         modifier = Modifier.clickable {
                             galleryLauncher.launch(
@@ -155,7 +156,7 @@ fun ImagePickerSelector(
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showImageSourceDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.btn_cancel))
                 }
             }
         )

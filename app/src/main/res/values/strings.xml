@@ -3,10 +3,8 @@
 
     <string name="label_email">Email</string>
     <string name="label_password">Password</string>
-
     <string name="placeholder_email">your@email.com</string>
     <string name="placeholder_password">••••••••</string>
-
     <string name="btn_sign_in">Sign In</string>
     <string name="text_no_account">Don\'t have an account?</string>
     <string name="btn_sign_up">Sign Up</string>
@@ -14,7 +12,7 @@
     <string name="text_have_account">Already have an account?</string>
     <string name="passwords_not_match">Passwords do not match</string>
 
-    <string name="list_title">Nearby Eco-Points</string>
+    <string name="list_title">Nearby Recycling Points</string>
     <string name="list_filter_all">All</string>
     <string name="list_filter_paper">Paper</string>
     <string name="list_filter_glass">Glass</string>
@@ -25,14 +23,19 @@
     <string name="list_status_verified">Verified</string>
     <string name="list_distance_metres">%dm</string>
     <string name="list_view_details_cd">View details</string>
-    <string name="list_add_ecopoint_cd">Add Eco-Point</string>
+    <string name="list_add_ecopoint_cd">Add Recycling Point</string>
+
+    <string name="filter_title">Filter Recycling Points</string>
+    <string name="filter_selected_prefix">Selected: </string>
+    <string name="cd_expand_filter">Expand filters</string>
+    <string name="cd_add_button">Add</string>
 
     <string name="bin_blue">Paper Bin</string>
     <string name="bin_green">Glass Bin</string>
     <string name="bin_yellow">Plastic Bin</string>
     <string name="bin_red">Metal Bin</string>
     <string name="bin_black">Black Bin</string>
-    <string name="bin_unknown">Eco-Point</string>
+    <string name="bin_unknown">Recycling Point</string>
 
     <string name="detail_loading">Loading details…</string>
     <string name="detail_back_cd">Back</string>
@@ -43,25 +46,48 @@
     <string name="detail_view_on_map">View on Map</string>
     <string name="detail_notes_title">Notes</string>
     <string name="detail_verify_title">Help Verify</string>
-    <string name="detail_verify_desc">Is this eco-point correct and in good condition?</string>
+    <string name="detail_verify_desc">Is this recycling point correct and in good condition?</string>
     <string name="detail_button_confirm">Confirm</string>
     <string name="detail_button_report">Report</string>
     <string name="detail_current_distance">Distance to the recycling point: %1$d m</string>
 
-    <string name="binState_good">Ecoponto em boas condições</string>
-    <string name="binState_full">Ecoponto cheio</string>
-    <string name="binState_damaged">Ecoponto danificado</string>
-    <string name="binState_missing">Ecoponto desaparecido</string>
-    <string name="binState_unknown">Estado desconhecido</string>
+    <string name="detail_verification_status">Verification Status</string>
+    <string name="detail_last_report">Last Community Report</string>
+    <string name="detail_report_image_cd">Report image</string>
+    <string name="detail_observations_label">Notes:</string>
+    <string name="detail_community_actions_title">Community Actions</string>
+    <string name="detail_community_action_appeal">Help keep the map up to date! Confirm if this recycling point exists or vote to remove it if it isn\'t here.</string>
+    <string name="detail_btn_confirm_vote">Confirm</string>
+    <string name="detail_btn_remove_vote">Remove</string>
+    <string name="detail_current_state_label">Current Status *</string>
+    <string name="detail_observations_placeholder">Notes (Optional)</string>
+
+    <string name="binState_good">Recycling point in good condition</string>
+    <string name="binState_full">Recycling point full</string>
+    <string name="binState_damaged">Recycling point damaged</string>
+    <string name="binState_missing">Recycling point missing</string>
+    <string name="binState_unknown">Unknown status</string>
+
+    <string name="add_ecopoint_title">New Recycling Point</string>
+    <string name="add_location_label">Location *</string>
+    <string name="add_location_placeholder">No location selected</string>
+    <string name="add_location_btn">Use Current Location</string>
+    <string name="add_type_label">Recycling Point Type *</string>
+    <string name="add_notes_label">Notes (Optional)</string>
+    <string name="add_notes_placeholder">Info about access, etc.</string>
+    <string name="add_pending_info">Pending verification by community.</string>
+    <string name="add_submit_btn">Add Recycling Point</string>
+
+    <string name="picker_photo_label">Photo (Optional)</string>
+    <string name="picker_tap_camera">Tap to take a photo</string>
+    <string name="picker_source_title">Choose Image Source</string>
+    <string name="picker_camera">Camera</string>
+    <string name="picker_gallery">Gallery</string>
+    <string name="btn_cancel">Cancel</string>
 
     <string name="menu_map">Map</string>
     <string name="menu_list">List</string>
     <string name="menu_signout">Sign out</string>
-
     <string name="my_location">My location</string>
 
-
-
 </resources>
-
-

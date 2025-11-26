@@ -3,14 +3,11 @@
 
     <string name="label_email">Endereço de e-mail</string>
     <string name="label_password">Palavra-passe</string>
-
     <string name="placeholder_email">seu@endereco.exemplo</string>
     <string name="placeholder_password">••••••••</string>
-
     <string name="btn_sign_in">Iniciar sessão</string>
     <string name="text_no_account">Não tem uma conta?</string>
     <string name="btn_sign_up">Registar-se</string>
-
     <string name="label_confirm_password">Confirmar palavra-passe</string>
     <string name="text_have_account">Já tens conta?</string>
     <string name="passwords_not_match">As palavras-passe não coincidem</string>
@@ -22,11 +19,16 @@
     <string name="list_filter_plastic">Plástico</string>
     <string name="list_filter_metal">Metal</string>
     <string name="list_status_pending">Pendente</string>
-    <string name="list_status_verified">Verificado</string>
     <string name="list_status_deleting">Eliminação pendente</string>
+    <string name="list_status_verified">Verificado</string>
     <string name="list_distance_metres">%dm</string>
     <string name="list_view_details_cd">Ver detalhes</string>
     <string name="list_add_ecopoint_cd">Adicionar Ecoponto</string>
+
+    <string name="filter_title">Filtrar Ecopontos</string>
+    <string name="filter_selected_prefix">Selecionado: </string>
+    <string name="cd_expand_filter">Expandir filtros</string>
+    <string name="cd_add_button">Adicionar</string>
 
     <string name="bin_blue">Ecoponto Azul</string>
     <string name="bin_green">Ecoponto Verde</string>
@@ -49,17 +51,43 @@
     <string name="detail_button_report">Reportar</string>
     <string name="detail_current_distance">Distância até ao ecoponto: %1$d m</string>
 
+    <string name="detail_verification_status">Estado de Verificação</string>
+    <string name="detail_last_report">Último Reporte da Comunidade</string>
+    <string name="detail_report_image_cd">Imagem do reporte</string>
+    <string name="detail_observations_label">Observações:</string>
+    <string name="detail_community_actions_title">Ações da Comunidade</string>
+    <string name="detail_community_action_appeal">Ajuda a manter o mapa atualizado! Confirma se este ecoponto existe ou vota para remover se não estiver aqui.</string>
+    <string name="detail_btn_confirm_vote">Confirmar</string>
+    <string name="detail_btn_remove_vote">Remover</string>
+    <string name="detail_current_state_label">Estado Atual *</string>
+    <string name="detail_observations_placeholder">Observações (Opcional)</string>
+
     <string name="binState_good">Ecoponto em boas condições</string>
     <string name="binState_full">Ecoponto cheio</string>
     <string name="binState_damaged">Ecoponto danificado</string>
     <string name="binState_missing">Ecoponto desaparecido</string>
     <string name="binState_unknown">Estado desconhecido</string>
 
+    <string name="add_ecopoint_title">Novo Ecoponto</string>
+    <string name="add_location_label">Localização *</string>
+    <string name="add_location_placeholder">Nenhuma localização selecionada</string>
+    <string name="add_location_btn">Usar Localização Atual</string>
+    <string name="add_type_label">Tipo de Ecoponto *</string>
+    <string name="add_notes_label">Notas (Opcional)</string>
+    <string name="add_notes_placeholder">Informação sobre acesso, etc.</string>
+    <string name="add_pending_info">Verificação pendente pela comunidade.</string>
+    <string name="add_submit_btn">Adicionar Ecoponto</string>
+
+    <string name="picker_photo_label">Fotografia (Opcional)</string>
+    <string name="picker_tap_camera">Toque para tirar foto</string>
+    <string name="picker_source_title">Escolher Origem</string>
+    <string name="picker_camera">Câmara</string>
+    <string name="picker_gallery">Galeria</string>
+    <string name="btn_cancel">Cancelar</string>
+
     <string name="menu_map">Mapa</string>
     <string name="menu_list">Lista</string>
     <string name="menu_signout">Sair</string>
-
     <string name="my_location">A minha localização</string>
-
 
 </resources>

@@ -1,5 +1,6 @@
 package amov.a2020157100.ecomap.ui.screens
 
+import amov.a2020157100.ecomap.R
 import amov.a2020157100.ecomap.ui.MainActivity
 import amov.a2020157100.ecomap.ui.composables.AppBottomBar
 import amov.a2020157100.ecomap.ui.composables.EcoMapTopBar
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -57,7 +59,8 @@ fun MapViewScreen(
                     containerColor = MaterialTheme.colorScheme.primary,
                     onClick = { navController.navigate(MainActivity.ADDECOPONTO_SCREEN) }
                 ) {
-                    Icon(Icons.Filled.Add, tint = MaterialTheme.colorScheme.onPrimary, contentDescription = "Add")
+                    Icon(Icons.Filled.Add, tint = MaterialTheme.colorScheme.onPrimary, contentDescription = stringResource(
+                        R.string.cd_add_button))
                 }
             }
         },

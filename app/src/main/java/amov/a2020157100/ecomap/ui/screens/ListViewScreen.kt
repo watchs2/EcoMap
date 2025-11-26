@@ -49,6 +49,7 @@ import amov.a2020157100.ecomap.ui.composables.getBinStringRes
 import amov.a2020157100.ecomap.ui.theme.StatusError
 import amov.a2020157100.ecomap.ui.theme.StatusPending
 import amov.a2020157100.ecomap.ui.theme.StatusVerified
+import amov.a2020157100.ecomap.ui.theme.TextDarkGray
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,18 +71,31 @@ fun ListViewScreen(
     val currentLocation by locationViewModel.currentLocation
 
     val selectedFilter = viewModel.selectedFilter.value
-    //Todo alterar isto
-    val filters = listOf("All", "Paper", "Glass", "Plastic", "Metal")
+
+
+    val filterAll = stringResource(R.string.list_filter_all)
+
+
+
+    val filterBlue = stringResource(R.string.bin_blue)
+    val filterGreen = stringResource(R.string.bin_green)
+    val filterYellow = stringResource(R.string.bin_yellow)
+    val filterRed = stringResource(R.string.bin_red)
+    val filterBlack = stringResource(R.string.bin_black)
+
+    val filters = listOf(filterAll, filterBlue, filterGreen, filterYellow, filterRed,filterBlack)
+
     val filteredPoints = remember(recyclingPoints, selectedFilter) {
-        if (selectedFilter == "All") {
+        if (selectedFilter == filterAll || selectedFilter == "All") {
             recyclingPoints
         } else {
             recyclingPoints.filter {
-                when (selectedFilter ) {
-                    "Paper" -> it.type == "Blue bin"
-                    "Glass" -> it.type == "Green bin"
-                    "Plastic" -> it.type == "Yellow bin"
-                    "Metal" -> it.type == "Red bin"
+                when (selectedFilter) {
+                    filterBlue -> it.type == "Blue bin"
+                    filterGreen -> it.type == "Green bin"
+                    filterYellow -> it.type == "Yellow bin"
+                    filterRed -> it.type == "Red bin"
+                    filterBlack -> it.type == "Black bin"
                     else -> true
                 }
             }
@@ -174,7 +188,7 @@ fun FilterAccordion(
     selectedFilter: String,
     onFilterSelect: (String) -> Unit
 ) {
-    //todo mudar para viewModel
+
     var expanded by rememberSaveable { mutableStateOf(false) }
 
     val rotationState by animateFloatAsState(
@@ -207,24 +221,24 @@ fun FilterAccordion(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = "Filtrar Ecopontos",
+                            text = stringResource(R.string.filter_title),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
                         if (!expanded) {
                             Text(
-                                text = "Selecionado: $selectedFilter",
+                                text = stringResource(R.string.filter_selected_prefix) + selectedFilter,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray
+                                color = TextDarkGray
                             )
                         }
                     }
                 }
                 Icon(
                     imageVector = Icons.Default.ExpandMore,
-                    contentDescription = "Expand",
+                    contentDescription = stringResource(R.string.cd_expand_filter),
                     modifier = Modifier.rotate(rotationState),
-                    tint = Color.Gray
+                    tint = TextDarkGray
                 )
             }
 
@@ -373,7 +387,7 @@ private fun RecyclingPointItem(
                             "-- m"
                         },
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray,
+                        color = TextDarkGray, // Substituído Color.Gray
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -401,13 +415,9 @@ private fun RecyclingPointItem(
                 Icon(
                     imageVector = Icons.Outlined.Visibility,
                     contentDescription = stringResource(R.string.list_view_details_cd),
-                    tint = Color.Gray
+                    tint = TextDarkGray
                 )
             }
         }
     }
 }
-
-
-
-
