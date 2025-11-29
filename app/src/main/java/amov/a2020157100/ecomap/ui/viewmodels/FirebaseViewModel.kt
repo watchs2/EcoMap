@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
+import android.location.Location
 import kotlinx.coroutines.launch
 import amov.a2020157100.ecomap.utils.firebase.FStorageUtil
 import android.util.Log
@@ -35,6 +36,7 @@ class FirebaseViewModel : ViewModel() {
     var addNotes = mutableStateOf("")
     var addPhotoPath = mutableStateOf<String?>(null)
     var isLoading = mutableStateOf(false)
+    private val SEARCH_RADIUS_METERS = 3000.0
 
     private val _user = mutableStateOf(FAuthUtil.currentUser?.toUser())
     val user: State<User?> get() = _user
@@ -48,8 +50,6 @@ class FirebaseViewModel : ViewModel() {
     private val _selectedRecyclingPoint = mutableStateOf<RecyclingPoint?>(null)
     val selectedRecyclingPoint: State<RecyclingPoint?> get() = _selectedRecyclingPoint
 
-    private val _confirmRecyclingPoint = mutableStateOf<RecyclingPoint?>(null)
-    val confirmRecyclingPoint: State<RecyclingPoint?> get() = _confirmRecyclingPoint
 
     // --- FUNÇÕES AUXILIARES DE FORMULÁRIO ---
     fun resetReportState() {
@@ -64,6 +64,18 @@ class FirebaseViewModel : ViewModel() {
         addLongitude.value = 0.0
         addNotes.value = ""
         addPhotoPath.value = null
+    }
+
+    fun resetRegisterForm(){
+        registerEmail.value = ""
+        registerPassword.value = ""
+        registerConfirmPassword.value = ""
+    }
+
+    fun resetLoginForm(){
+        loginEmail.value = ""
+        loginPassword.value = ""
+
     }
 
     // --- AUTENTICAÇÃO ---
@@ -155,12 +167,37 @@ class FirebaseViewModel : ViewModel() {
         }
     }
 
-    fun getRecyclingPoints() {
+    fun getRecyclingPoints(userLocation: Location? = null) {
         _error.value = null
         viewModelScope.launch {
-            val recyclingPoints = FStorageUtil.getRecyclingPoints()
-            if (recyclingPoints != null) {
-                _recyclingPoints.value = recyclingPoints
+            // 1. Obter todos os pontos do Firebase
+            val allPoints = FStorageUtil.getRecyclingPoints()
+
+            if (allPoints != null) {
+                if (userLocation != null) {
+                    // 2. Se temos localização, filtrar e ordenar
+                    val sortedAndFilteredPoints = allPoints.filter { point ->
+                        // Criar objeto Location para o ponto (nota o erro ortográfico 'latatitude' que vem do modelo)
+                        val pointLocation = Location("point").apply {
+                            latitude = point.latatitude
+                            longitude = point.longitude
+                        }
+                        // Filtrar: Manter apenas se a distância for menor que o raio
+                        userLocation.distanceTo(pointLocation) <= SEARCH_RADIUS_METERS
+                    }.sortedBy { point ->
+                        // Ordenar: Do mais perto para o mais longe
+                        val pointLocation = Location("point").apply {
+                            latitude = point.latatitude
+                            longitude = point.longitude
+                        }
+                        userLocation.distanceTo(pointLocation)
+                    }
+
+                    _recyclingPoints.value = sortedAndFilteredPoints
+                } else {
+                    // Se não há localização, mostra todos (comportamento original)
+                    _recyclingPoints.value = allPoints
+                }
             } else {
                 _error.value = "Erro ao carregar lista"
             }
@@ -216,7 +253,7 @@ class FirebaseViewModel : ViewModel() {
                 }
             }
         }
-    } // Fim da função confirmEcoponto (AGORA ESTÁ NO SÍTIO CERTO)
+    }
 
     fun deleteEcoponto(recyclingPointId: String) {
         _error.value = null

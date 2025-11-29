@@ -18,9 +18,6 @@ import amov.a2020157100.ecomap.ui.theme.BinGreen
 import amov.a2020157100.ecomap.ui.theme.BinYellow
 import amov.a2020157100.ecomap.ui.theme.BinRed
 import amov.a2020157100.ecomap.ui.theme.BinBlack
-import amov.a2020157100.ecomap.ui.theme.StatusPending
-import amov.a2020157100.ecomap.ui.theme.StatusVerified
-import amov.a2020157100.ecomap.ui.theme.StatusError
 
 import amov.a2020157100.ecomap.ui.theme.StatusFull
 import amov.a2020157100.ecomap.ui.theme.StatusGood

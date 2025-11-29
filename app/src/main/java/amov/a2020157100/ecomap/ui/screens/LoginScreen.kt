@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +44,11 @@ fun LoginScreen(
     LaunchedEffect(viewModel.user.value) {
         if (viewModel.user.value != null && viewModel.error.value == null) {
             onSuccess()
+        }
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.resetLoginForm()
         }
     }
 

@@ -60,9 +60,7 @@ fun ListViewScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.getRecyclingPoints()
-    }
+
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -74,7 +72,15 @@ fun ListViewScreen(
 
 
     val filterAll = stringResource(R.string.list_filter_all)
+    LaunchedEffect(currentLocation) {
 
+        if (currentLocation != null && currentLocation?.latitude != 0.0) {
+            viewModel.getRecyclingPoints(currentLocation)
+        } else {
+
+            viewModel.getRecyclingPoints(null)
+        }
+    }
 
 
     val filterBlue = stringResource(R.string.bin_blue)

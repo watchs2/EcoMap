@@ -170,7 +170,6 @@ fun MainInfoSection(
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-            // Status
             Text(
                 stringResource(R.string.detail_verification_status),
                 style = MaterialTheme.typography.labelMedium,
@@ -312,10 +311,11 @@ fun ActionsSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint)
                     if (recyclingPoint.status == Status.PENDING.name) {
                         Button(
                             onClick = { viewModel.confirmEcoponto(recyclingPoint.id) },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.width(120.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                        ) {
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                            contentPadding = PaddingValues(6.dp)
+                        ){
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Default.ThumbUp, null, modifier = Modifier.size(20.dp))
                                 Text(stringResource(R.string.detail_btn_confirm_vote), fontSize = 12.sp)
@@ -323,19 +323,35 @@ fun ActionsSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint)
                             }
                         }
                     }
-                    // Remover
-                    Button(
-                        onClick = { viewModel.deleteEcoponto(recyclingPoint.id) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = StatusError)
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Default.DeleteForever, null, modifier = Modifier.size(20.dp))
-                            Text(stringResource(R.string.detail_btn_remove_vote), fontSize = 12.sp)
-                            Text("${recyclingPoint.idsVoteRemove?.size ?: 0}/3", fontSize = 10.sp)
-                        }
-                    }
+                   if(recyclingPoint.status != Status.DELETE.name){
+                       Button(
+                           onClick = { viewModel.deleteEcoponto(recyclingPoint.id) },
+                           modifier = Modifier.width(120.dp),
+                           shape = RoundedCornerShape(12.dp),
+                           colors = ButtonDefaults.buttonColors(containerColor = StatusError),
+                           contentPadding = PaddingValues(6.dp)
+                       ) {
+                           Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                               Icon(Icons.Default.DeleteForever, null, modifier = Modifier.size(20.dp))
+                               Text(stringResource(R.string.detail_btn_remove_vote), fontSize = 12.sp)
+                           }
+                       }
+                   }else{
+                       Button(
+                           onClick = { viewModel.deleteEcoponto(recyclingPoint.id) },
+                           modifier = Modifier.width(120.dp),
+                           shape = RoundedCornerShape(12.dp),
+                           colors = ButtonDefaults.buttonColors(containerColor = StatusError),
+                           contentPadding = PaddingValues(6.dp)
+                       ) {
+                           Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                               Icon(Icons.Default.DeleteForever, null, modifier = Modifier.size(20.dp))
+                               Text(stringResource(R.string.detail_btn_remove_vote), fontSize = 12.sp)
+                               Text("${(recyclingPoint.idsVoteRemove?.size?.minus(1)) ?: 0}/2", fontSize = 10.sp)
+                           }
+                       }
+                   }
+
                 }
             }
         }
