@@ -14,13 +14,19 @@ import androidx.lifecycle.viewModelScope
 import android.location.Location
 import kotlinx.coroutines.launch
 import amov.a2020157100.ecomap.utils.firebase.FStorageUtil
-import android.util.Log
+import amov.a2020157100.ecomap.utils.text.UiText
+import amov.a2020157100.ecomap.R
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.future.await
 import kotlin.collections.orEmpty
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 
 class FirebaseViewModel : ViewModel() {
 
-    // --- VARIÁVEIS DE ESTADO (Mantidas iguais) ---
+    // Variaveis
     var loginEmail = mutableStateOf("")
     var loginPassword = mutableStateOf("")
     var registerEmail = mutableStateOf("")
@@ -44,8 +50,17 @@ class FirebaseViewModel : ViewModel() {
     private val _recyclingPoints = mutableStateOf<List<RecyclingPoint>>(emptyList())
     val recyclingPoints: State<List<RecyclingPoint>> get() = _recyclingPoints
 
+    /*
     private val _error = mutableStateOf<String?>(null)
     val error: State<String?> get() = _error
+    */
+
+
+    private val _error = mutableStateOf<UiText.StringResource?>(null)
+    val error: State<UiText.StringResource?> get() = _error
+
+    private val _sucess = mutableStateOf<String?>(null)
+    val sucess: State<String?> get() = _sucess
 
     private val _selectedRecyclingPoint = mutableStateOf<RecyclingPoint?>(null)
     val selectedRecyclingPoint: State<RecyclingPoint?> get() = _selectedRecyclingPoint
@@ -77,13 +92,17 @@ class FirebaseViewModel : ViewModel() {
         loginPassword.value = ""
 
     }
+    fun clearError() {
+        _error.value = null
+    }
 
-    // --- AUTENTICAÇÃO ---
+    //autenticação
+
     fun createUserWithEmail(email: String, password: String, passwordConfirm: String) {
         _error.value = null
         if (email.isBlank() || password.isBlank() || passwordConfirm.isBlank()) return
         if (password != passwordConfirm) {
-            _error.value = "Passwords do not match"
+            _error.value =  UiText.StringResource(R.string.passwords_not_match)
             return
         }
         viewModelScope.launch {
@@ -91,12 +110,12 @@ class FirebaseViewModel : ViewModel() {
                 if (exception == null) {
                     _user.value = FAuthUtil.currentUser?.toUser()
                 }
-                _error.value = exception?.message
+                _error.value = handleAuthException(exception)
             }
         }
     }
 
-    fun signInWithEmail(email: String, password: String) {
+    fun signInWithEmail(email: String, password: String){
         _error.value = null
         if (email.isBlank() || password.isBlank()) return
         viewModelScope.launch {
@@ -104,7 +123,7 @@ class FirebaseViewModel : ViewModel() {
                 if (exception == null) {
                     _user.value = FAuthUtil.currentUser?.toUser()
                 }
-                _error.value = exception?.message
+                _error.value = handleAuthException(exception)
             }
         }
     }
@@ -115,7 +134,32 @@ class FirebaseViewModel : ViewModel() {
         _error.value = null
     }
 
-    // --- STORAGE & LOGIC ---
+    private fun handleAuthException(exception: Throwable?): UiText.StringResource? {
+        if(exception == null) return null
+        return when(exception){
+            is FirebaseAuthWeakPasswordException -> UiText.StringResource(R.string.error_auth_weak_password)
+            is FirebaseAuthUserCollisionException -> UiText.StringResource(R.string.error_auth_email_in_use)
+            is FirebaseAuthInvalidCredentialsException -> {
+                when(exception.errorCode) {
+                    "ERROR_WRONG_PASSWORD" -> UiText.StringResource(R.string.error_auth_wrong_password)
+                    "ERROR_INVALID_EMAIL" -> UiText.StringResource(R.string.error_auth_invalid_email)
+                    else -> UiText.StringResource(R.string.error_auth_generic)
+                }
+            }
+            is FirebaseAuthInvalidUserException -> {
+                when(exception.errorCode) {
+                    "ERROR_USER_NOT_FOUND" ->UiText.StringResource(R.string.error_auth_user_not_found)
+                    "ERROR_INVALID_EMAIL" -> UiText.StringResource(R.string.error_auth_invalid_email)
+                    else -> UiText.StringResource(R.string.error_auth_generic)
+                }
+            }
+            else -> UiText.StringResource(R.string.error_auth_generic)
+        }
+
+
+    }
+
+    // logica
 
     fun addRecyclingPoint(
         type: String,
@@ -129,8 +173,8 @@ class FirebaseViewModel : ViewModel() {
         isLoading.value = true
 
         if (type.isBlank() || latitude == 0.0 || longitude == 0.0) {
-            _error.value = "Preencha todos os campos obrigatórios"
-            isLoading.value = false // Importante parar o loading
+            _error.value =  UiText.StringResource(R.string.error_mandatory_fields)
+            isLoading.value = false
             return
         }
 
@@ -284,8 +328,6 @@ class FirebaseViewModel : ViewModel() {
         isLoading.value = true
         viewModelScope.launch {
             var downloadUrl: String? = null
-
-            // Se houver imagem, faz upload primeiro
             if (imgUrl != null) {
                 try {
                     val compressedPath = FileUtils.compressImage(imgUrl)

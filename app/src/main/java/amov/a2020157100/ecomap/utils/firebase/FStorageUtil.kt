@@ -52,7 +52,6 @@ class FStorageUtil {
                 true
 
             } catch (e: Exception) {
-                //erro
                 false
             }
         }

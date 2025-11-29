@@ -90,4 +90,13 @@
     <string name="menu_signout">Sair</string>
     <string name="my_location">A minha localização</string>
 
+    <string name="error_auth_weak_password">A palavra-passe deve ter pelo menos 6 caracteres.</string>
+    <string name="error_auth_invalid_email">O endereço de e-mail está mal formatado.</string>
+    <string name="error_auth_email_in_use">O endereço de e-mail já está em uso.</string>
+    <string name="error_auth_user_not_found">Este utilizador não existe.</string>
+    <string name="error_auth_wrong_password">Palavra-passe incorreta.</string>
+    <string name="error_auth_generic">A autenticação falhou. Por favor, tente novamente.</string>
+    <string name="error_mandatory_fields">Preencha todos os campos obrigatórios.</string>
+
+
 </resources>

@@ -149,20 +149,7 @@ fun LoginScreen(
                     singleLine = true
                 )
 
-                if (viewModel.error.value != null) {
-                    Spacer(Modifier.height(5.dp))
-                    Text(
-                        text = viewModel.error.value.toString(),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Start)
-                    )
-                    Spacer(Modifier.height(5.dp))
-                } else {
-                    Spacer(Modifier.height(20.dp))
-                }
-
+                Spacer(Modifier.height(20.dp))
                 Button(
                     onClick = {
                         viewModel.signInWithEmail(

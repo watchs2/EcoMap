@@ -1,21 +1,5 @@
 package amov.a2020157100.ecomap.model
 
-import com.google.android.datatransport.cct.StringMerger
-
-enum class Tipo{
-    AZUL,
-    VERDE,
-    AMARELO,
-    VERMELHO,
-    INDIFERENCIADO
-}
-
-enum class Condicao{
-    CHEIO,
-    DANIFICADO,
-    DESAPARECIDO,
-    BOM,
-}
 
 enum class Status {
     PENDING,
