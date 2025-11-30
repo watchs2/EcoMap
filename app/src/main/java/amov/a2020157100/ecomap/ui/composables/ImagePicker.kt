@@ -111,7 +111,7 @@ fun ImagePickerSelector(
                                     Icons.Default.CameraAlt,
                                     null,
                                     modifier = Modifier.padding(8.dp),
-                                    tint = MaterialTheme.colorScheme.primary // Substituído Color(0xFF2E7C32)
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }

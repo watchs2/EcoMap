@@ -117,7 +117,9 @@ fun SubmitButtonSection(viewModel: FirebaseViewModel, navController: NavHostCont
             )
         }
         if (viewModel.isLoading.value) {
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
         } else {
             Button(
                 modifier = Modifier.fillMaxWidth().height(50.dp),

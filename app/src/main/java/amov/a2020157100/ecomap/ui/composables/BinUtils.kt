@@ -82,7 +82,7 @@ fun getConditionDisplay(state: String): Pair<Int, Color> {
         "BOM" -> StatusGood
         "CHEIO" -> StatusFull
         "DANIFICADO" -> StatusDamaged
-        "DESAPARECIDO" -> StatusMissing //StatusMissing.copy(alpha = 0.6f)
+        "DESAPARECIDO" -> StatusMissing
         else -> Color.Gray
     }
     return Pair(displayText, color)

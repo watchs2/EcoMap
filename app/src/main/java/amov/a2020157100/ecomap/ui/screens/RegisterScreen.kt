@@ -90,7 +90,7 @@ fun RegisterScreen(
                     .clip(RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.onPrimary)
                     .padding(28.dp)
-                    .verticalScroll(rememberScrollState()), // Scroll interno no cartão
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
                 Spacer(Modifier.height(5.dp))

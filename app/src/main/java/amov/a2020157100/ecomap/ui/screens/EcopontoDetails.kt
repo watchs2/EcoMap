@@ -307,51 +307,77 @@ fun ActionsSection(viewModel: FirebaseViewModel, recyclingPoint: RecyclingPoint)
                     color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+
+                // Row centralizada horizontalmente
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center, // Centraliza os botões na tela
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    // Definições de tamanho fixo para uniformidade
+                    val buttonModifier = Modifier
+                        .width(140.dp)  // Largura fixa igual para todos
+                        .height(65.dp)  // Altura fixa (suficiente para caber as 3 linhas se necessário)
+
                     if (recyclingPoint.status == Status.PENDING.name) {
                         Button(
                             onClick = { viewModel.confirmEcoponto(recyclingPoint.id) },
-                            modifier = Modifier.width(120.dp),
+                            modifier = buttonModifier, // Aplica o tamanho fixo
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                            contentPadding = PaddingValues(6.dp)
-                        ){
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Default.ThumbUp, null, modifier = Modifier.size(20.dp))
-                                Text(stringResource(R.string.detail_btn_confirm_vote), fontSize = 12.sp)
+                            contentPadding = PaddingValues(4.dp) // Padding menor para garantir que o texto caiba
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(Icons.Default.ThumbUp, null, modifier = Modifier.size(18.dp))
+                                Text(stringResource(R.string.detail_btn_confirm_vote), fontSize = 11.sp)
+                                // Esta linha extra não vai mudar o tamanho do botão, pois a altura é fixa
                                 Text("${recyclingPoint.idsVoteAprove?.size ?: 0}/2", fontSize = 10.sp)
                             }
                         }
-                    }
-                   if(recyclingPoint.status != Status.DELETE.name){
-                       Button(
-                           onClick = { viewModel.deleteEcoponto(recyclingPoint.id) },
-                           modifier = Modifier.width(120.dp),
-                           shape = RoundedCornerShape(12.dp),
-                           colors = ButtonDefaults.buttonColors(containerColor = StatusError),
-                           contentPadding = PaddingValues(6.dp)
-                       ) {
-                           Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                               Icon(Icons.Default.DeleteForever, null, modifier = Modifier.size(20.dp))
-                               Text(stringResource(R.string.detail_btn_remove_vote), fontSize = 12.sp)
-                           }
-                       }
-                   }else{
-                       Button(
-                           onClick = { viewModel.deleteEcoponto(recyclingPoint.id) },
-                           modifier = Modifier.width(120.dp),
-                           shape = RoundedCornerShape(12.dp),
-                           colors = ButtonDefaults.buttonColors(containerColor = StatusError),
-                           contentPadding = PaddingValues(6.dp)
-                       ) {
-                           Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                               Icon(Icons.Default.DeleteForever, null, modifier = Modifier.size(20.dp))
-                               Text(stringResource(R.string.detail_btn_remove_vote), fontSize = 12.sp)
-                               Text("${(recyclingPoint.idsVoteRemove?.size?.minus(1)) ?: 0}/2", fontSize = 10.sp)
-                           }
-                       }
-                   }
 
+                        // Espaçamento entre os botões
+                        Spacer(modifier = Modifier.width(12.dp))
+                    }
+
+                    if (recyclingPoint.status != Status.DELETE.name) {
+                        Button(
+                            onClick = { viewModel.deleteEcoponto(recyclingPoint.id) },
+                            modifier = buttonModifier, // Aplica o tamanho fixo
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = StatusError),
+                            contentPadding = PaddingValues(4.dp)
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(Icons.Default.DeleteForever, null, modifier = Modifier.size(18.dp))
+                                Text(stringResource(R.string.detail_btn_remove_vote), fontSize = 11.sp)
+                                // Botão sem contagem visualmente ocupa o mesmo espaço
+                            }
+                        }
+                    } else {
+                        Button(
+                            onClick = { viewModel.deleteEcoponto(recyclingPoint.id) },
+                            modifier = buttonModifier, // Aplica o tamanho fixo
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = StatusError),
+                            contentPadding = PaddingValues(4.dp)
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(Icons.Default.DeleteForever, null, modifier = Modifier.size(18.dp))
+                                Text(stringResource(R.string.detail_btn_remove_vote), fontSize = 11.sp)
+                                Text("${(recyclingPoint.idsVoteRemove?.size?.minus(1)) ?: 0}/2", fontSize = 10.sp)
+                            }
+                        }
+                    }
                 }
             }
         }
