@@ -73,12 +73,8 @@ fun ListViewScreen(
 
     val filterAll = stringResource(R.string.list_filter_all)
     LaunchedEffect(currentLocation) {
-
-        if (currentLocation != null && currentLocation?.latitude != 0.0) {
+        if (currentLocation != null) {
             viewModel.getRecyclingPoints(currentLocation)
-        } else {
-
-            viewModel.getRecyclingPoints(null)
         }
     }
 

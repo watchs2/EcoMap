@@ -42,8 +42,10 @@ fun Map(
     val recyclingPoints by firebaseViewModel.recyclingPoints
     val currentLocation by locationViewModel.currentLocation
 
-    LaunchedEffect(Unit) {
-        firebaseViewModel.getRecyclingPoints()
+    LaunchedEffect(currentLocation) {
+        if (currentLocation != null) {
+            firebaseViewModel.getRecyclingPoints(currentLocation)
+        }
     }
 
     val currentGeoPoint = remember(currentLocation) {

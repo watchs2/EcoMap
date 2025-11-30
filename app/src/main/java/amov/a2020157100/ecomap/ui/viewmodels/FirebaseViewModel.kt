@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import amov.a2020157100.ecomap.utils.firebase.FStorageUtil
 import amov.a2020157100.ecomap.utils.text.UiText
 import amov.a2020157100.ecomap.R
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.mutableDoubleStateOf
 import kotlinx.coroutines.future.await
 import kotlin.collections.orEmpty
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
@@ -37,8 +37,8 @@ class FirebaseViewModel : ViewModel() {
     var reportNotes = mutableStateOf("")
     var addReportPhotoPath = mutableStateOf<String?>(null)
     var addType = mutableStateOf("")
-    var addLatitude = mutableStateOf(0.0)
-    var addLongitude = mutableStateOf(0.0)
+    var addLatitude = mutableDoubleStateOf(0.0)
+    var addLongitude = mutableDoubleStateOf(0.0)
     var addNotes = mutableStateOf("")
     var addPhotoPath = mutableStateOf<String?>(null)
     var isLoading = mutableStateOf(false)
@@ -49,12 +49,6 @@ class FirebaseViewModel : ViewModel() {
 
     private val _recyclingPoints = mutableStateOf<List<RecyclingPoint>>(emptyList())
     val recyclingPoints: State<List<RecyclingPoint>> get() = _recyclingPoints
-
-    /*
-    private val _error = mutableStateOf<String?>(null)
-    val error: State<String?> get() = _error
-    */
-
 
     private val _error = mutableStateOf<UiText.StringResource?>(null)
     val error: State<UiText.StringResource?> get() = _error
@@ -217,9 +211,7 @@ class FirebaseViewModel : ViewModel() {
         viewModelScope.launch {
 
             val allPoints = FStorageUtil.getRecyclingPoints()
-
-
-                if (userLocation != null && allPoints.isNotEmpty()) {
+            if (userLocation != null && allPoints.isNotEmpty()) {
                     val sortedAndFilteredPoints = allPoints.filter { point ->
 
                         val pointLocation = Location("point").apply {
@@ -237,11 +229,8 @@ class FirebaseViewModel : ViewModel() {
 
                     _recyclingPoints.value = sortedAndFilteredPoints
                     isLoading.value = false
-                }/*
-                else {
+                }
 
-                   // _recyclingPoints.value = allPoints
-                }*/
             isLoading.value = false
 
         }

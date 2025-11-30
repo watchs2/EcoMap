@@ -48,7 +48,9 @@ fun MapViewScreen(
                     .background(BackgroundMap)
                     .fillMaxSize()
             ){
-                Map(firebaseViewModel, locationViewModel, onRecyclingPointClick = { recyclingPointId -> {navController.navigate("${MainActivity.DETAIL_SCREEN}/$recyclingPointId")}})
+                Map(firebaseViewModel, locationViewModel, onRecyclingPointClick = { recyclingPointId ->
+                    navController.navigate("${MainActivity.DETAIL_SCREEN}/$recyclingPointId")
+                })
             }
         },
         floatingActionButton = {
