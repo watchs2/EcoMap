@@ -28,8 +28,9 @@ import androidx.compose.material3.SnackbarHost
 import amov.a2020157100.ecomap.ui.theme.StatusError
 import androidx.compose.material3.Snackbar
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.platform.LocalContext
+import android.annotation.SuppressLint
 
 class MainActivity : ComponentActivity() {
 
@@ -52,7 +53,7 @@ class MainActivity : ComponentActivity() {
         const val ADDECOPONTO_SCREEN = "AddEcoponto"
         const val DETAIL_SCREEN = "Detail"
     }
-
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -91,8 +92,8 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
-                ){innerPadding ->
-                    Box(modifier = Modifier.padding(innerPadding)) {
+                ){ _ ->
+                    Box(modifier = Modifier.fillMaxSize()) {
                         NavHost(
                             navController = navController,
                             startDestination = LOGIN_SCREEN,

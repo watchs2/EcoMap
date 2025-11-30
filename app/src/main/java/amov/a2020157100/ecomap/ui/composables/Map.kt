@@ -36,6 +36,7 @@ import androidx.core.content.ContextCompat
 fun Map(
     firebaseViewModel: FirebaseViewModel,
     locationViewModel: LocationViewModel,
+    onRecyclingPointClick : (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val recyclingPoints by firebaseViewModel.recyclingPoints
@@ -126,6 +127,11 @@ fun Map(
                                 title = context.getString(titleResId)
                                 icon = recyclingPointIcons[recyclingpoint.type]
                                     ?: getMarkerIcon(context, R.drawable.recycable, size = 84, tint = Color.Gray)
+
+                                setOnMarkerClickListener { marker, mapView ->
+                                    onRecyclingPointClick(recyclingpoint.id)
+                                    true
+                                }
                             }
                         )
                     }

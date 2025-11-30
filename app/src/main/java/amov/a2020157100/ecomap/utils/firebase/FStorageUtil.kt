@@ -5,15 +5,9 @@ import amov.a2020157100.ecomap.model.Status
 import amov.a2020157100.ecomap.model.RecyclingPoint
 import android.content.ContentValues.TAG
 import android.util.Log
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import java.io.IOException
-import java.io.InputStream
-import android.content.res.AssetManager
 import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.tasks.await
 import java.io.File
@@ -52,12 +46,13 @@ class FStorageUtil {
                 true
 
             } catch (e: Exception) {
+                Log.e(TAG, "Error creating recycling point : ", e)
                 false
             }
         }
 
-        //Todos
-        suspend fun getRecyclingPoints(): List<RecyclingPoint> {
+
+        suspend fun getRecyclingPoints(): List<RecyclingPoint>{
             val db = Firebase.firestore
 
             val result = db.collection("RecyclingPoints")
@@ -147,56 +142,47 @@ class FStorageUtil {
 
 
 
-        fun confirmRecyclingPoint(recyclingPointId: String,userId: String) {
+        suspend fun confirmRecyclingPoint(recyclingPointId: String, userId: String) {
             val db = Firebase.firestore
-            val recyclingPoint = db.collection("RecyclingPoints").document(recyclingPointId)
-            recyclingPoint.update("idsVoteAprove", FieldValue.arrayUnion(userId))
-                .addOnSuccessListener {
-                    recyclingPoint.get()
-                        .addOnSuccessListener { recycleP ->
-                            val currentVotes = recycleP.get("idsVoteAprove") as? List<String> ?: emptyList()
-                            val currentStatus = recycleP.getString("status")
+            val recyclingPointRef = db.collection("RecyclingPoints").document(recyclingPointId)
 
-                            if(currentVotes.size >= 2 && currentStatus == Status.PENDING.name){
-                                recyclingPoint.update("status", Status.FINAL.name)
-                                    .addOnSuccessListener {
+            try {
 
-                                    }
-                                    .addOnFailureListener { e->
-                                        Log.e(TAG, "Error updating status to FINAL for $recyclingPointId: ", e)
-                                    }
-                            }
-                        }
+                recyclingPointRef.update("idsVoteAprove", FieldValue.arrayUnion(userId)).await()
+                val snapshot = recyclingPointRef.get().await()
+
+                val currentVotes = snapshot.get("idsVoteAprove") as? List<String> ?: emptyList()
+                val currentStatus = snapshot.getString("status")
+                if (currentVotes.size >= 2 && currentStatus == Status.PENDING.name) {
+                    recyclingPointRef.update("status", Status.FINAL.name).await()
                 }
 
+            } catch (e: Exception) {
+                Log.e(TAG, "Error confirming recycling point: ", e)
+            }
         }
 
-        //votos para eliminar
-        fun deleteRecyclingPoint(recyclingPointId: String,userId: String){
+
+        suspend fun deleteRecyclingPoint(recyclingPointId: String, userId: String) {
             val db = Firebase.firestore
-            val recyclingPoint = db.collection("RecyclingPoints").document(recyclingPointId)
-            recyclingPoint.update("idsVoteRemove", FieldValue.arrayUnion(userId))
-                .addOnSuccessListener {
-                    recyclingPoint.get()
-                        .addOnSuccessListener { recycleP ->
-                            val currentVotes = recycleP.get("idsVoteRemove") as? List<String> ?: emptyList()
-                            val currentStatus = recycleP.getString("status")
-                            if( currentStatus != Status.DELETE.name){
-                                recyclingPoint.update("status", Status.DELETE.name)
-                                    .addOnFailureListener { e ->
-                                        Log.e(TAG, "Error updating status to Delete for $recyclingPointId: ", e)
-                                    }
-                            }
-                            if( currentVotes.size >= 3){
-                                recyclingPoint.delete()
-                                    .addOnFailureListener {e ->
-                                        Log.e(TAG, "Error deleting $recyclingPointId", e)
-                                    }
-                            }
+            val recyclingPointRef = db.collection("RecyclingPoints").document(recyclingPointId)
 
-                        }
+            try {
 
+                recyclingPointRef.update("idsVoteRemove", FieldValue.arrayUnion(userId)).await()
+                val snapshot = recyclingPointRef.get().await()
+                val currentVotes = snapshot.get("idsVoteRemove") as? List<String> ?: emptyList()
+                val currentStatus = snapshot.getString("status")
+                if (currentStatus != Status.DELETE.name) {
+                    recyclingPointRef.update("status", Status.DELETE.name).await()
                 }
+                if (currentVotes.size >= 3) {
+                    recyclingPointRef.delete().await()
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Error deleting recycling point logic: ", e)
+            }
         }
 
         fun updateCondition(recyclingPointId: String, condition: Condition) {

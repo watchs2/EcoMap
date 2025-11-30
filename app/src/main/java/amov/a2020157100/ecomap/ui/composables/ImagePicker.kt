@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import coil3.compose.AsyncImage
 import java.io.File
+import androidx.compose.runtime.saveable.rememberSaveable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +39,7 @@ fun ImagePickerSelector(
 ) {
     val context = LocalContext.current
     var showImageSourceDialog by remember { mutableStateOf(false) }
-    var tempCameraPath by remember { mutableStateOf<String?>(null) }
+    var tempCameraPath by rememberSaveable { mutableStateOf<String?>(null) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
