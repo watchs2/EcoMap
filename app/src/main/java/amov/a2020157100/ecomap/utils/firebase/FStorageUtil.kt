@@ -102,8 +102,8 @@ class FStorageUtil {
         }
 
 
-        //get de um especifico ecoponto
-        fun getRecyclingPoint(recyclingPointId: String, onResult: (RecyclingPoint?) -> Unit) {
+
+     fun getRecyclingPoint(recyclingPointId: String, onResult: (RecyclingPoint?) -> Unit) {
             val db = Firebase.firestore
 
             db.collection("RecyclingPoints")
@@ -141,12 +141,12 @@ class FStorageUtil {
                     }
                 }
                 .addOnFailureListener {
-                    onResult(null) // erro ao buscar
+                    onResult(null)
                 }
         }
 
 
-        //para confirmar o ecoponto
+
         fun confirmRecyclingPoint(recyclingPointId: String,userId: String) {
             val db = Firebase.firestore
             val recyclingPoint = db.collection("RecyclingPoints").document(recyclingPointId)

@@ -185,7 +185,7 @@ class FirebaseViewModel : ViewModel() {
                     val compressedPath = FileUtils.compressImage(imgPath)
                     downloadUrl = FStorageUtil.uploadFile(compressedPath).await()
                 } catch (e: Exception) {
-                    _error.value = "Erro ao enviar imagem ${e.message}"
+                    _error.value = UiText.StringResource(R.string.error_compress_image)
                     isLoading.value = false
                     return@launch
                 }
@@ -202,7 +202,7 @@ class FirebaseViewModel : ViewModel() {
             )
 
             if (!success) {
-                _error.value = "Erro ao adicionar ponto de reciclagem"
+                _error.value = UiText.StringResource(R.string.error_add_ecoponto_failed)
             } else {
                 getRecyclingPoints()
                 onSuccess()
@@ -211,25 +211,23 @@ class FirebaseViewModel : ViewModel() {
         }
     }
 
-    fun getRecyclingPoints(userLocation: Location? = null) {
+    fun getRecyclingPoints(userLocation: Location? = null){
         _error.value = null
+        isLoading.value = true
         viewModelScope.launch {
-            // 1. Obter todos os pontos do Firebase
+
             val allPoints = FStorageUtil.getRecyclingPoints()
 
-            if (allPoints != null) {
-                if (userLocation != null) {
-                    // 2. Se temos localização, filtrar e ordenar
+
+                if (userLocation != null && allPoints.isNotEmpty()) {
                     val sortedAndFilteredPoints = allPoints.filter { point ->
-                        // Criar objeto Location para o ponto (nota o erro ortográfico 'latatitude' que vem do modelo)
+
                         val pointLocation = Location("point").apply {
                             latitude = point.latatitude
                             longitude = point.longitude
                         }
-                        // Filtrar: Manter apenas se a distância for menor que o raio
                         userLocation.distanceTo(pointLocation) <= SEARCH_RADIUS_METERS
                     }.sortedBy { point ->
-                        // Ordenar: Do mais perto para o mais longe
                         val pointLocation = Location("point").apply {
                             latitude = point.latatitude
                             longitude = point.longitude
@@ -238,85 +236,101 @@ class FirebaseViewModel : ViewModel() {
                     }
 
                     _recyclingPoints.value = sortedAndFilteredPoints
-                } else {
-                    // Se não há localização, mostra todos (comportamento original)
-                    _recyclingPoints.value = allPoints
-                }
-            } else {
-                _error.value = "Erro ao carregar lista"
-            }
+                    isLoading.value = false
+                }/*
+                else {
+
+                   // _recyclingPoints.value = allPoints
+                }*/
+            isLoading.value = false
+
         }
     }
 
     fun getRecyclingPoint(recyclingPointId: String) {
         _error.value = null
+        isLoading.value = true
         viewModelScope.launch {
             _selectedRecyclingPoint.value = null
             FStorageUtil.getRecyclingPoint(recyclingPointId) { recyclingPoint ->
                 if (recyclingPoint != null) {
+                    isLoading.value = false
                     _selectedRecyclingPoint.value = recyclingPoint
                 } else {
-                    _error.value = "Falha ao carregar detalhes do Ecoponto"
+                    isLoading.value = false
+                    _error.value = UiText.StringResource(R.string.error_add_ecoponto_failed)
                 }
             }
         }
     }
 
-    fun clearSelectedRecyclingPoint() {
-        _selectedRecyclingPoint.value = null
-    }
-
-    // --- CORREÇÕES A PARTIR DAQUI ---
 
     fun confirmEcoponto(recyclingPointId: String) {
         _error.value = null
+        isLoading.value = true
 
-        _user.value?.let { user ->
-            viewModelScope.launch {
-                val selectedPoint = _selectedRecyclingPoint.value
+        viewModelScope.launch {
+            val user = _user.value
+            if (user == null) {
+                isLoading.value = false
+                return@launch
+            }
 
-                if (selectedPoint != null && selectedPoint.id == recyclingPointId) {
+            val selectedPoint = _selectedRecyclingPoint.value
 
-                    if (selectedPoint.creator == user.uid) {
-                        _error.value = "O criador não pode votar para confirmar"
-                        return@launch // IMPORTANTE: Parar a execução
-                    }
+            if (selectedPoint != null && selectedPoint.id == recyclingPointId) {
 
-                    if (selectedPoint.idsVoteAprove.orEmpty().contains(user.uid)) {
-                        _error.value = "Já votaste para confirmar este ecoponto."
-                        return@launch // IMPORTANTE: Parar a execução
-                    }
-
-                    if (selectedPoint.status == Status.FINAL.name) {
-                        _error.value = "Este ecoponto já está verificado."
-                        return@launch // IMPORTANTE: Parar a execução
-                    }
-
-                    FStorageUtil.confirmRecyclingPoint(recyclingPointId, user.uid)
-                    getRecyclingPoint(recyclingPointId) // Atualizar a UI
+                if (selectedPoint.creator == user.uid) {
+                        _error.value = UiText.StringResource(R.string.error_creator_cannot_vote)
+                    isLoading.value = false
+                        return@launch
                 }
+
+                if (selectedPoint.idsVoteAprove.orEmpty().contains(user.uid)) {
+                        _error.value =  UiText.StringResource(R.string.error_already_voted_confirm)
+                        isLoading.value = false
+                        return@launch
+                }
+
+                if (selectedPoint.status == Status.FINAL.name) {
+                        _error.value = UiText.StringResource(R.string.error_already_verified)
+                        isLoading.value = false
+                        return@launch
+                }
+
+                FStorageUtil.confirmRecyclingPoint(recyclingPointId, user.uid)
+                getRecyclingPoint(recyclingPointId)
+                isLoading.value = false
             }
         }
+
     }
 
-    fun deleteEcoponto(recyclingPointId: String) {
+    fun deleteEcoponto(recyclingPointId: String){
         _error.value = null
-        _user.value?.let { user ->
+        isLoading.value = true
             viewModelScope.launch {
+                val user = _user.value
+                if (user == null) {
+                    isLoading.value = false
+                    return@launch
+                }
                 val selectedPoint = _selectedRecyclingPoint.value
 
                 if (selectedPoint != null && selectedPoint.id == recyclingPointId) {
 
                     if (selectedPoint.idsVoteRemove.orEmpty().contains(user.uid)) {
-                        _error.value = "Já votaste para eliminar este ecoponto."
-                        return@launch // IMPORTANTE: Parar a execução
+                        _error.value = UiText.StringResource(R.string.error_already_voted_delete)
+                        isLoading.value = false
+                        return@launch
                     }
 
                     FStorageUtil.deleteRecyclingPoint(recyclingPointId, user.uid)
                     getRecyclingPoint(recyclingPointId)
+                    isLoading.value = false
                 }
             }
-        }
+
     }
 
     fun updateEcopontoCondicion(
@@ -325,6 +339,7 @@ class FirebaseViewModel : ViewModel() {
         notes: String?,
         imgUrl: String?
     ) {
+        _error.value = null
         isLoading.value = true
         viewModelScope.launch {
             var downloadUrl: String? = null
@@ -333,16 +348,22 @@ class FirebaseViewModel : ViewModel() {
                     val compressedPath = FileUtils.compressImage(imgUrl)
                     downloadUrl = FStorageUtil.uploadFile(compressedPath).await()
                 } catch (e: Exception) {
-                    _error.value = "Erro ao enviar imagem ${e.message}"
+                    _error.value = UiText.StringResource(R.string.error_compress_image)
+                    isLoading.value = false
                     return@launch
                 }
             }
+            val user = _user.value
+            if (user == null) {
+                isLoading.value = false
+                return@launch
+            }
 
-            val user = _user.value ?: return@launch
             val condition = Condition(user.uid, state, notes, downloadUrl)
 
             FStorageUtil.updateCondition(recyclingPointId, condition)
             getRecyclingPoint(recyclingPointId)
+            resetReportState()
             isLoading.value = false
         }
     }

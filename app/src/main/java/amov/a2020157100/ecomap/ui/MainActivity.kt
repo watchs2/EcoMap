@@ -83,7 +83,6 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     snackbarHost = {
                         SnackbarHost(hostState = snackbarHostState) { data ->
-                            // 4. AQUI É QUE DEFINES A COR VERMELHA
                             Snackbar(
                                 snackbarData = data,
                                 containerColor = StatusError,
@@ -92,8 +91,8 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
-                ){paddingValues ->
-                    Box(modifier = Modifier.padding(paddingValues)) {
+                ){innerPadding ->
+                    Box(modifier = Modifier.padding(innerPadding)) {
                         NavHost(
                             navController = navController,
                             startDestination = LOGIN_SCREEN,
@@ -183,7 +182,6 @@ class MainActivity : ComponentActivity() {
         locationViewModel.stopLocationUpdates()
     }
 
-    //Permissões
     private fun verifyPermissions() {
         val permissionsToRequest = ArrayList<String>()
 

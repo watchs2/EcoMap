@@ -29,7 +29,15 @@ class FileUtils {
             }
             return filename
         }
-        fun compressImage(filePath: String): String{
+        /*
+           fun signInWithEmail(email: String, password: String, onResult: (Throwable?) -> Unit) {
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener { result ->
+                    onResult(result.exception)
+                }
+        }
+         */
+       fun compressImage(filePath: String): String{
             val file = File(filePath)
 
 

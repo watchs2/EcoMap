@@ -97,6 +97,11 @@
     <string name="error_auth_wrong_password">Palavra-passe incorreta.</string>
     <string name="error_auth_generic">A autenticação falhou. Por favor, tente novamente.</string>
     <string name="error_mandatory_fields">Preencha todos os campos obrigatórios.</string>
-
-
+    <string name="error_compress_image">Erro ao comprimir a imagem. Por favor, tente novamente.</string>
+    <string name="error_add_ecoponto_failed">Erro ao criar ecoponto.</string>
+    <string name="error_load_ecoponto_failed">Falha ao carregar detalhes do Ecoponto.</string>
+    <string name="error_creator_cannot_vote">O criador não pode votar para confirmar este Ecoponto.</string>
+    <string name="error_already_voted_confirm">Já votou para confirmar este Ecoponto.</string>
+    <string name="error_already_verified">Este Ecoponto já se encontra verificado.</string>
+    <string name="error_already_voted_delete">Já votou para eliminar este Ecoponto.</string>
 </resources>

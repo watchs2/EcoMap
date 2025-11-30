@@ -97,6 +97,11 @@
     <string name="error_auth_wrong_password">Incorrect password.</string>
     <string name="error_auth_generic">Authentication failed. Please try again.</string>
     <string name="error_mandatory_fields">Please fill in all mandatory fields.</string>
-
-
+    <string name="error_compress_image">Error compressing the image. Please try again.</string>
+    <string name="error_add_ecoponto_failed">Failed to create recycling point.</string>
+    <string name="error_load_ecoponto_failed">Failed to load Recycling Point details.</string>
+    <string name="error_creator_cannot_vote">The creator cannot vote to confirm this Recycling Point.</string>
+    <string name="error_already_voted_confirm">You have already voted to confirm this Recycling Point.</string>
+    <string name="error_already_verified">This Recycling Point has already been verified.</string>
+    <string name="error_already_voted_delete">You have already voted to delete this Recycling Point.</string>
 </resources>
